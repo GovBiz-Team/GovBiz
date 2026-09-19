@@ -1,6 +1,6 @@
 # GovBiz 기술 README
 
-[프로젝트 소개](../README.md) · [전체 문서 목록](README.md)
+[메인 README](../README.md) · [3차 프로젝트 소개](third-project/README.md) · [전체 문서 목록](README.md)
 
 정부지원사업 검색부터 신청 준비와 기업 간 협업까지 돕는 AI 웹 서비스입니다.
 기업마당·K-Startup 등 공식 공고를 기반으로 지원사업 추천, 원문 근거 확인, 신청 정보 정리와 협업 모집·제안을 지원합니다.

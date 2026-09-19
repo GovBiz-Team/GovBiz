@@ -1,4 +1,6 @@
-# 메인 README 이미지
+# 3차 프로젝트 README 이미지
+
+[3차 프로젝트 README](../../third-project/README.md)에서 사용하는 이미지와 출처입니다.
 
 - [공고 인덱싱 과정](indexing.png): 공유받은 GovBiz 문서 저장소의 이미지를 그대로 옮겼습니다.
 - [원본 파일](https://github.com/lsm15111/GovBiz-docs/blob/2361dbd0447b2ffd8b5eea6240f0d96cd243d0c7/docs/image/indexing.png)
