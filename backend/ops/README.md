@@ -10,12 +10,15 @@ LLMOps·관리자 시스템 개발을 위한 Django 서비스이며, `GovBiz-web
 이 디렉터리는 서브모듈이 아닙니다. 실제 `.env`, 로컬 가상환경·Git 메타데이터는
 가져오지 않았습니다.
 
-현재 범위는 Django 기본 골격과 로컬 개발 환경입니다. 공고·회원·신청 관리 중 어떤 업무를 이전할지는 아직 확정하지 않았습니다. 기존 Spring Boot/FastAPI의 업무 코드나 운영 데이터는 이전하지 않았습니다.
+현재 범위는 Django 기본 골격, 로컬 개발 환경과 Kubernetes에서 실행할 수 있는
+Gunicorn 이미지입니다. 공고·회원·신청 관리 업무와 기존 Spring Boot/FastAPI의
+운영 데이터는 이전하지 않았습니다. 이미지 준비가 AWS 운영 배포 완료를 뜻하지는 않습니다.
 
 ## 기술 구성
 
 - Python 3.13
 - Django 5.2 LTS, Django REST Framework
+- Gunicorn 26.2 WSGI 실행 서버(배포 이미지 기본값)
 - MySQL 8.4, `utf8mb4`
 - uv 0.12.5와 `uv.lock`을 통한 의존성 고정
 - Ruff, Django 테스트 러너
@@ -53,7 +56,9 @@ docker compose logs --follow web
 docker compose down
 ```
 
-`down`은 데이터 볼륨을 유지합니다. 현재 Docker 이미지는 개발 서버를 실행하며 운영 배포 설정은 포함하지 않습니다.
+`down`은 데이터 볼륨을 유지합니다. 로컬 Compose만 이미지의 기본 명령을
+`manage.py runserver`로 재정의하여 소스 변경을 자동 반영합니다. Kubernetes 등에서
+이미지를 직접 실행하면 자동 재시작 개발 서버가 아닌 Gunicorn이 실행됩니다.
 
 ## Python을 호스트에서 실행
 
@@ -109,6 +114,10 @@ GitHub Actions는 모노레포 루트의
 수행합니다. Docker job은 루트의 `scripts/check-compose.py --smoke`로 통합 Compose의
 경로·환경 분리를 검사하고, 격리된 Django·MySQL만 빌드·실행하여 상태 확인과 테스트를
 수행합니다. Core API·AI Service나 외부 AI API는 기동·호출하지 않습니다.
+`python3 -B backend/ops/scripts/check-image.py`는 모노레포 루트에서 기본 Gunicorn
+이미지를 별도로 검증합니다. 네트워크·DB·실제 환경 파일을 연결하지 않고 non-root,
+읽기 전용 파일시스템, 정상 liveness, DB 장애 readiness, Host 거절, SIGTERM 종료를
+확인한 뒤 이번 실행의 임시 컨테이너와 이미지 태그만 정리합니다.
 실제 GitHub CI 실행은 파일을 원격 저장소에 올린 뒤 확인할 수 있습니다.
 
 ## 디렉터리
@@ -120,8 +129,9 @@ infrastructure/mysql/    개발용 테스트 DB 초기화
 manage.py                관리 명령 진입점
 pyproject.toml           Python 의존성과 개발 도구 설정
 uv.lock                  확정된 의존성
-Dockerfile               개발용 이미지
+Dockerfile               Gunicorn 기본 실행 이미지
 compose.yaml             Django·MySQL 로컬 환경
+scripts/check-image.py   배포 이미지 기본 명령·격리·상태 확인 검증
 .env.example             로컬 환경변수 예시
 ```
 
@@ -142,7 +152,28 @@ Compose의 DB 이름/사용자는 `govbiz4`로 고정하여 테스트 초기화 
 
 ## 운영 배포 경계
 
-이번 통합은 소스·로컬 실행·CI 경로의 통합입니다. 기존 Core API의 관리자 로그인과
-회원 테이블, 운영 데이터는 이전하지 않았습니다. Kubernetes·Argo CD와 Ops 운영 서버가
-자동으로 구성되는 것은 아닙니다. Kubernetes 도입 이후 운영 이미지 버전·배포 설정은
-별도 `GovBiz-infra` 저장소에서 관리하며, 이 디렉터리의 Dockerfile은 아직 개발 서버용입니다.
+기존 Core API의 관리자 로그인과 회원 테이블, 운영 데이터는 이전하지 않았습니다.
+Kubernetes 매니페스트와 배포 이미지 버전은 별도 `GovBiz-infra` 저장소에서 관리합니다.
+이 이미지에는 클러스터 생성·Argo CD 설치·운영 데이터 변경 기능이 없습니다.
+
+- 이미지 기본 명령은 `gunicorn config.wsgi:application`, 내부 포트는 `8000`입니다.
+  worker 2개, worker 응답 정지 제한 30초, 종료 유예 25초이며 stdout/stderr로 로그를 냅니다.
+- UID/GID는 `10001:10001`입니다. Kubernetes에서 `runAsNonRoot: true`,
+  `readOnlyRootFilesystem: true`를 사용하고 `/tmp`에 쓰기 가능한 작은 `emptyDir`를
+  마운트합니다. Gunicorn heartbeat 임시 파일이 필요하므로 `/tmp`까지 읽기 전용이면
+  기동하지 못합니다. Pod 종료 유예는 Gunicorn의 25초보다 길게 설정합니다.
+- `DJANGO_DEBUG=false`, 별도 무작위 `DJANGO_SECRET_KEY` 및 DB 비밀번호를 Secret으로
+  주입합니다. DB 주소는 Ops 전용 DB이며 Core API의 DB 자격증명을 재사용하지 않습니다.
+- `DJANGO_ALLOWED_HOSTS`에는 접근할 Service DNS/호스트만 지정합니다. HTTP probe는
+  `/api/v1/health`와 `/api/v1/health/ready`를 사용하며 허용된 `Host` 헤더가 필요합니다.
+  liveness/startup은 DB를 보지 않고 readiness만 DB를 확인합니다.
+- `python manage.py migrate --noinput`은 별도 배포 작업으로 한 번 실행합니다.
+  Pod마다 동시에 migration을 실행하는 시작 명령은 넣지 않습니다. 아직 업무 모델과
+  자체 migration은 없으며 사용자·인증 테이블도 만들지 않았습니다.
+- 공개 운영 전에는 TLS/신뢰 프록시, 인증·권한, DB TLS/백업을 별도 구성하고 실제 배포
+  환경에서 `python manage.py check --deploy`를 점검해야 합니다. 이 작업은 개발용
+  `runserver`를 대체했을 뿐, 해당 보안·업무 구성을 모두 완료한 것은 아닙니다.
+
+설정 근거: [Django Gunicorn 배포](https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/gunicorn/),
+[Gunicorn 설정](https://gunicorn.org/reference/settings/),
+[Django 배포 체크리스트](https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/).

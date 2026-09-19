@@ -18,12 +18,13 @@ ENV PATH="/app/.venv/bin:$PATH" \
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends libmariadb3 \
     && rm -rf /var/lib/apt/lists/* \
-    && groupadd --system govbiz && useradd --system --gid govbiz govbiz
+    && groupadd --gid 10001 govbiz \
+    && useradd --uid 10001 --gid govbiz --no-create-home --shell /usr/sbin/nologin govbiz
 COPY --from=builder /app/.venv /app/.venv
 COPY --chown=govbiz:govbiz manage.py ./
 COPY --chown=govbiz:govbiz config ./config
 COPY --chown=govbiz:govbiz apps ./apps
-USER govbiz
+USER 10001:10001
 EXPOSE 8000
-# 현재 이미지는 로컬 개발용입니다. 운영 WSGI/ASGI 배포 설정은 별도 구성합니다.
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# 개발 Compose만 runserver로 재정의합니다. DB migration은 별도 배포 작업입니다.
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "30", "--graceful-timeout", "25", "--worker-tmp-dir", "/tmp", "--access-logfile", "-", "--error-logfile", "-"]

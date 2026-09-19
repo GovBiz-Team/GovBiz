@@ -12,16 +12,18 @@
 
 Ops는 같은 저장소에서 개발하지만 별도 Django 프로세스와 전용 MySQL을 유지한다.
 Core의 계정·인증 테이블을 복제하거나 기존 Core·AI의 업무 계약을 변경하지 않는다.
-현재 Ops Dockerfile은 개발 서버용이며 운영 배포용 이미지가 아니다.
+후속 Kubernetes 준비에서 Ops Dockerfile의 기본 실행은 Gunicorn으로 변경했다.
+개발 Compose는 runserver를 명시적으로 유지하며, 실제 운영 배포·관리자 인증을 완료한 것은 아니다.
 
 ## 저장소 책임
 
 - `GovBiz-web`: 프론트·Core·AI·Ops 코드, 테스트, Dockerfile, 로컬 통합 Compose.
-- `GovBiz-infra`: 향후 Kubernetes 환경별 배포 설정과 Argo CD 연결의 기준 저장소.
+- `GovBiz-infra`: 로컬 Kubernetes 배포 설정·검증과 향후 Argo CD 연결의 기준 저장소.
 - 기존 `infrastructure/compose.prod.yaml`과 `infrastructure/codebuild/`는 현행 EC2 Compose 배포를 위해 유지한다. Kubernetes 전환 시 한 대상에 두 배포 경로가 동시에 쓰지 않도록 별도 승인 후 이전한다.
 
 코드 통합만으로 CodeConnections·CodeBuild·Vercel 연결, ECR 이미지, 운영 컨테이너는 바뀌지 않는다.
-Argo CD나 Kubernetes 클러스터 설치·연결은 별도 단계다.
+후속 작업에서 Ops + 검증용 MySQL의 로컬 kind 실행·복구 검증을 완료했다.
+Argo CD 연결과 AWS Kubernetes 운영 전환은 별도 단계다.
 
 ## 로컬 개발 시작
 
@@ -72,7 +74,8 @@ docker compose --env-file .env.compose -f compose.yaml -f compose.existing-data.
 ## 검증·PR
 
 Ops 변경도 `GovBiz-Team/GovBiz-web`에 PR을 올린다. GitHub 루트의 `ops-ci.yml`이 Ops 전용
-의존성 잠금·Ruff·Django·MySQL 테스트를 수행하고, Docker 작업은 통합 Compose의 Ops만 검증한다.
+의존성 잠금·Ruff·Django·MySQL 테스트를 수행한다. Docker 작업은 통합 Compose의 Ops와
+기본 Gunicorn 이미지의 non-root·read-only·상태 확인·종료 동작을 별도로 검증한다.
 기존 프론트·Core·AI CI와 운영 배포 스크립트는 그대로 유지한다.
 
 ```bash
@@ -87,6 +90,10 @@ git diff --check
 기존 웹·Core·AI의 전체 업무 검증 또는 Ops 운영 배포 검증을 의미하지 않는다.
 
 ## 이번 통합의 검증 기록 — 2026-09-19
+
+아래는 최초 소스 통합 당시 기록이다. 후속 Gunicorn·로컬 Kubernetes 변경 전을 기준으로 하며,
+현재 이미지 실행·검증 범위는 [Ops 안내](../backend/ops/README.md)와
+[Kubernetes 검증 기록](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/kubernetes-validation-20260919.md)을 따른다.
 
 - 통합 Compose의 빌드·마운트 경로, 환경 파일 분리, 프로젝트·볼륨 격리, 기존 볼륨 매핑 검사 통과.
 - Ops 단독 Compose 정적 구성 검사 통과.

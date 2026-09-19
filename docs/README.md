@@ -38,6 +38,20 @@
 | [Frontend 개발](../frontend/README.md) | 화면 구조, 실행, 테스트·lint·build |
 | [Core API 개발](../backend/core-api/README.md) | 패키지·DB 규칙, 평가 프로필, JDK 21·MySQL 테스트 |
 | [AI Service 개발](../backend/ai-service/README.md) | 실행 설정, 내부 API, 테스트와 패키지 빌드 |
+| [Ops 개발·컨테이너](../backend/ops/README.md) | Django·전용 MySQL, 개발 runserver·기본 Gunicorn 구분, 상태 확인과 격리 테스트 |
+
+## 배포와 Kubernetes
+
+기존 AWS EC2 Compose 배포와 로컬 Kubernetes 검증은 별도 경로입니다.
+아래 Infra 문서는 작업 브랜치를 가리키며, Argo CD·AWS Kubernetes 운영 전환 완료를 의미하지 않습니다.
+
+| 문서 | 확인할 내용 |
+|---|---|
+| [기존 AWS 배포 구성](assets/architecture/README-aws-deployed.md) · [CodeBuild](deployment-codebuild.md) | Vercel·CloudFront·EC2 Compose·RDS와 기존 자동 배포 경로 |
+| [서비스·데이터 경계](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/service-boundaries.md) | Core·AI·Ops 데이터 소유권, 관리자 판정 위임과 서비스 추출 전 제약 |
+| [로컬 Kubernetes 재현](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/kubernetes-local.md) | Ops·MySQL kind 배포, 도구·이미지 준비와 검증용 리소스 정리 |
+| [2026-09-19 검증 기록](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/kubernetes-validation-20260919.md) | 실제 장애·PVC 보존·Pod 복구·이미지 롤백 결과와 미검증 범위 |
+| [MSA·Kubernetes·Argo CD 계획](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/msa-kubernetes-argocd-plan.md) | 운영 전환 단계와 각 단계의 통과 조건 |
 
 ## 평가와 개발 확장
 
