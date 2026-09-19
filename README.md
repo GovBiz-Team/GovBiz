@@ -29,6 +29,7 @@ Compose가 생성하는 이름은 `<프로젝트명>-core-service-1`, `<프로�
 | Core 공고 기능 분리 | 별도 Catalog 프로세스·MySQL과 인증된 HTTP 복제 경로 구현. 루트 Compose의 기본 경로이며 기존 데이터 이전·운영 배포는 별도 |
 | Kubernetes | kind에서 Core·Catalog·AI·Ops와 독립 DB 실행, HTTP 복제·교차 DB 접근 거절·AI 단독 설정 롤아웃·Catalog 장애·테스트 데이터 복구 검증 완료 |
 | 로컬 GitOps | Argo CD Core가 원격 Git 설정을 동기화하고 AI만 자동 변경·복귀하는 것 검증 완료. 상시 클러스터·이미지 발행 CI는 미연결 |
+| 이미지 릴리스 | 네 서비스별 GHCR 발행 CI·정확한 SHA 테스트 gate 구현. 활성화·공개 패키지·상시 배포 연결 상태는 릴리스 안내 참고 |
 | 다음 단계 | Ops 관리자 인증·LLMOps 업무 기능, NetworkPolicy·의존성 readiness·장기 작업 종료 검증, 이미지 릴리스 CI와 상시 배포 환경 연결 |
 
 **전체 MSA나 Kubernetes 운영 전환이 완료된 상태는 아닙니다.** 검증용 클러스터는 테스트 후 삭제했습니다.
@@ -36,6 +37,8 @@ Compose가 생성하는 이름은 `<프로젝트명>-core-service-1`, `<프로�
 완료 범위와 미검증 항목을 확인할 수 있습니다.
 
 검증 이미지는 `infrastructure/scripts/build-msa-images.py`로 순차 빌드합니다.
+[이미지 릴리스 CI와 활성화 조건](docs/msa-image-release.md)은 로컬 검증 빌드와 별개이며,
+업로드 성공만으로 실제 배포가 완료됐다고 판단하지 않습니다.
 [로컬 MSA·Helm·GitOps 실행 방법](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/msa-local.md)을 따르며,
 실제 `.env`·기존 DB·유료 AI를 사용하지 않는 임시 환경에서 검증합니다.
 

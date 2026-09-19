@@ -2,19 +2,16 @@ name: Catalog separation CI
 
 on:
   push:
-    paths:
-      - "backend/catalog-service/**"
-      - "backend/core-service/**"
-      - "backend/ai-service/**"
-      - "infrastructure/**"
-      - ".github/workflows/catalog-ci.yml"
+    # Publication checks all three workflows at the exact develop SHA, including
+    # commits that only change release policy or documentation.
   pull_request:
     paths:
       - "backend/catalog-service/**"
       - "backend/core-service/**"
       - "backend/ai-service/**"
       - "infrastructure/**"
-      - ".github/workflows/catalog-ci.yml"
+      - "compose*.yaml"
+      - ".github/workflows/**"
 
 permissions:
   contents: read
