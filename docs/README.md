@@ -10,6 +10,7 @@
 | 문서 | 확인할 내용 |
 |---|---|
 | [기술 README](technical-readme.md) | 기존 프로젝트 안내, 빠른 시작과 개발·운영 문서 진입점 |
+| [Ops 모노레포 통합](ops-monorepo-migration.md) | 코드·CI·로컬 Compose 통합, 기존 데이터 보존과 별도 Infra 책임 |
 | [아키텍처 README](architecture/README.md) | 서비스 경계, Frontend·Core API·AI Service의 계층·DI·디자인 패턴 |
 | [서비스 호출·데이터 흐름](architecture.md) | 검색·상세·RAG·동기화·키워드/벡터 복구와 오류 처리 순서 |
 | [기술 스택과 데이터 구성](technology.md) | 사용 기술·버전, MySQL·Elasticsearch·Qdrant·Redis·RabbitMQ의 역할과 점수 정책 |

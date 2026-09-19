@@ -2,6 +2,15 @@
 
 **LLM 기반 정부지원사업 탐색·신청 관리 플랫폼**
 
+이 저장소는 React·Core API·AI Service와 Django 기반 Ops를 함께 관리하는 **애플리케이션 모노레포**입니다.
+Ops 소스는 [`backend/ops`](backend/ops)에 있으며, 현재는 상태 확인 API와 전용 MySQL을 갖춘 개발 골격입니다.
+소스를 통합해도 서비스 프로세스·의존성·DB 책임은 분리합니다. Ops의 운영 배포나 관리자 인증 연동이 완료된 것은 아닙니다.
+
+전체 로컬 실행은 루트 `compose.yaml`, 기존 웹·Core·AI 실행은 `infrastructure/compose.yaml`을 사용합니다.
+[통합 개발·이전 안내](docs/ops-monorepo-migration.md)를 먼저 확인하세요.
+향후 Kubernetes 환경별 배포 설정과 Argo CD 연결은 별도 [GovBiz-infra](https://github.com/GovBiz-Team/GovBiz-infra)에서 관리합니다.
+현재 AWS EC2 Compose 배포 파일과 자동 배포 연결은 이번 통합으로 변경하지 않습니다.
+
 <!-- 팀 소개와 프로젝트 구성은 https://github.com/lsm15111/GovBiz-docs 의 README를 바탕으로 작성했습니다. -->
 
 ## 1. 팀 소개

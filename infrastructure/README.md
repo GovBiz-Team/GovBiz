@@ -1,5 +1,10 @@
 # GovBiz Docker Compose
 
+이 문서의 `compose.yaml`은 **이 디렉터리의 기존 웹·Core·AI 구성**을 뜻합니다.
+Django Ops까지 함께 실행하려면 저장소 루트의 `compose.yaml`과
+[모노레포 통합 개발 안내](../docs/ops-monorepo-migration.md)를 사용하세요.
+기존 `compose.prod.yaml`과 CodeBuild·SSM 배포 경로는 Ops 통합과 별개로 유지합니다.
+
 이 문서는 **개발용 `compose.yaml`** 안내입니다. 별도 `compose.prod.yaml`·Nginx·Vercel을 사용하는
 [AWS 운영 배포 준비](../docs/deployment-aws-vercel.md)는 개발 파일과 프로젝트/볼륨을 공유하지 않습니다.
 운영 설정은 준비됐지만 실제 AWS/Vercel 자원 배포는 별도입니다.
