@@ -96,6 +96,6 @@ jobs:
           cp .env.example .env
           docker compose --env-file .env --file compose.yaml config --quiet
       - name: Validate Compose and smoke-test Ops without external API calls
-        run: python3 -B scripts/check-compose.py --smoke
+        run: python3 -B infrastructure/scripts/check-compose.py --smoke
       - name: Verify default Gunicorn image with a read-only filesystem
         run: python3 -B backend/ops-service/scripts/check-image.py

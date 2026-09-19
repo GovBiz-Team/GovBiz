@@ -117,7 +117,7 @@ docker compose exec -T ops-service python manage.py test --noinput
 
 GitHub Actions는 모노레포 루트의
 [`ops-ci.yml`](../../.github/workflows/ops-ci.yml)에서 Ruff·Django 검사·실제 MySQL 테스트를
-수행합니다. Docker job은 루트의 `scripts/check-compose.py --smoke`로 통합 Compose의
+수행합니다. Docker job은 `infrastructure/scripts/check-compose.py --smoke`로 통합 Compose의
 경로·환경 분리를 검사하고, 격리된 Django·MySQL만 빌드·실행하여 상태 확인과 테스트를
 수행합니다. Core API·AI Service나 외부 AI API는 기동·호출하지 않습니다.
 `python3 -B backend/ops-service/scripts/check-image.py`는 모노레포 루트에서 기본 Gunicorn

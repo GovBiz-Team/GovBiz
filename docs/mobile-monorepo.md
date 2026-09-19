@@ -78,7 +78,7 @@ API 계약이나 인증 서버를 바꾸면 기존 Core API 테스트와 소비�
 - Docker Compose: 웹 build context는 저장소 루트, Dockerfile은 `frontend/Dockerfile.dev`입니다.
   웹·공통 패키지만 설치·복사하며 프론트엔드 서버는 `/app/frontend`에서 실행합니다.
   공유 소스 변경도 개발 서버에 반영되고 각 `node_modules`는 호스트 경로와 섞이지 않습니다.
-  루트 `compose.yaml`도 이 구성을 include해 Django Ops와 함께 실행합니다. `python3 -B scripts/check-compose.py`로
+  루트 `compose.yaml`도 이 구성을 include해 Django Ops와 함께 실행합니다. `python3 -B infrastructure/scripts/check-compose.py`로
   통합 경로·환경·볼륨 구성을 컨테이너 시작 없이 확인할 수 있습니다.
   이전 `web-node-modules` 캐시 대신 새 `web-workspace-node-modules`를 쓰며, 기존 데이터 재사용 override에서도
   Node 캐시는 새로 만듭니다. 기존 DB·검색·메시지 볼륨의 이름과 데이터는 유지합니다.

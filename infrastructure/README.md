@@ -8,6 +8,8 @@
 이 문서의 `compose.yaml`은 **이 디렉터리의 기존 웹·Core·AI 구성**을 뜻합니다.
 Django Ops까지 함께 실행하려면 저장소 루트의 `compose.yaml`과
 [모노레포 통합 개발 안내](../docs/ops-monorepo-migration.md)를 사용하세요.
+저장소 루트에서 `python3 -B infrastructure/scripts/check-compose.py`로 통합 Compose 구성을 검증합니다.
+`--smoke`를 추가하면 격리된 Ops·MySQL 컨테이너로 테스트·연결 확인까지 실행합니다.
 기존 `compose.prod.yaml`과 CodeBuild·SSM 배포 경로는 Ops 통합과 별개로 유지합니다.
 
 이 문서는 **개발용 `compose.yaml`** 안내입니다. 별도 `compose.prod.yaml`·Nginx·Vercel을 사용하는

@@ -36,7 +36,7 @@ cp -n backend/ops-service/.env.example backend/ops-service/.env
 cp -n .env.compose.example .env.compose
 
 # 먼저 실제 외부 API 키 없이 경로·환경 분리·볼륨 연결을 검증한다.
-python3 scripts/check-compose.py
+python3 infrastructure/scripts/check-compose.py
 
 # 실제 개발 실행: 기존 동기화·AI 설정에 따라 외부 호출이 발생할 수 있다.
 docker compose --env-file .env.compose config --quiet
@@ -86,8 +86,8 @@ Ops 변경도 `GovBiz-Team/GovBiz`에 PR을 올린다. GitHub 루트의 `ops-ci.
 기존 프론트·Core·AI CI와 운영 배포 스크립트는 그대로 유지한다.
 
 ```bash
-python3 scripts/check-compose.py
-python3 scripts/check-compose.py --smoke
+python3 infrastructure/scripts/check-compose.py
+python3 infrastructure/scripts/check-compose.py --smoke
 git diff --check
 ```
 
