@@ -5,6 +5,7 @@ import ai.govbiz.core.account.controller.dto.ChangePasswordRequest
 import ai.govbiz.core.account.controller.dto.DeleteAccountRequest
 import ai.govbiz.core.account.domain.Account
 import ai.govbiz.core.account.helper.SessionCookieHelper
+import ai.govbiz.core.account.helper.SessionRequestTokenHelper
 import ai.govbiz.core.account.service.AccountProfileService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-/** 로그인한 회원 본인의 계정 관리입니다. 모든 요청은 세션 쿠키가 필요하고 [Account]는 resolver가 채웁니다. */
+/** 로그인한 회원 본인의 계정 관리입니다. 쿠키/Bearer 세션을 확인한 [Account]는 resolver가 채웁니다. */
 @RestController
 @RequestMapping("/api/v1/me")
 class AccountProfileController(
@@ -32,7 +33,7 @@ class AccountProfileController(
         @RequestBody @Valid request: ChangePasswordRequest,
         httpRequest: HttpServletRequest,
     ): ResponseEntity<Void> {
-        profileService.changePassword(account, request.newPassword, SessionCookieHelper.read(httpRequest))
+        profileService.changePassword(account, request.newPassword, SessionRequestTokenHelper.read(httpRequest))
         return ResponseEntity.noContent().build()
     }
 

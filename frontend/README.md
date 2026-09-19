@@ -9,11 +9,18 @@ React·TypeScript·Vite·Tailwind CSS를 사용합니다. 전체 기술 구성�
 리포트 발송 큐 적용 후에도 기존 상태 enum은 유지합니다. 미발송에는 예약 전·큐 대기를 함께 표시하고,
 새 정기 예약을 꺼도 이미 예약된 메일은 처리될 수 있음을 안내합니다. [발송 큐의 설정·상태](../docs/rabbitmq-daily-report-delivery.md)를 참고하세요.
 
+웹·React Native 앱은 같은 pnpm workspace에서 관리합니다. 공통 domain·DTO 검증·공고 HTTP 클라이언트의
+실제 구현은 `packages/shared`에 있고, 기존 `src/domain`과 `src/data/models`는 호환용 재수출입니다.
+새 공통 로직은 `@govbiz/shared/...`를 가져오며 웹 화면·쿠키 인증·Vite 설정은 여기에 둡니다.
+전체 실행·공유 경계는 [웹·앱 공동 관리](../docs/mobile-monorepo.md)를 참고하세요.
+
 ## 실행
 
 ### Vercel 운영 배포 준비
 
-Root Directory는 `frontend`, Node 24.x/pnpm 11.22.x를 사용합니다. `vercel.json`은 SPA 라우팅과 API 캐시 금지,
+Root Directory는 `frontend`, Node 24.x/pnpm 11.22.x를 사용합니다. Vercel 프로젝트 설정에서
+**Include source files outside of the Root Directory in the Build Step**을 켜서 `packages/shared`와
+루트 workspace/lockfile을 포함합니다. 설치는 저장소 루트에서 웹 의존성만 선택합니다. `vercel.json`은 SPA 라우팅과 API 캐시 금지,
 `middleware.ts`는 고정 운영 주소의 `/api`를 CloudFront로 중계하며 프록시 비밀값과 신뢰 사용자 IP를 전달합니다.
 미들웨어는 서버 전용이며 UI/AI 실행 코드가 아닙니다. Preview의 운영 API 접근은 차단합니다.
 환경값은 [배포 안내](../docs/deployment-aws-vercel.md)에 정리했습니다. 기존 Vite 개발 프록시는 그대로 유지하며
@@ -31,15 +38,15 @@ docker compose --env-file .env --file infrastructure/compose.yaml up --build
 브라우저에서 `http://127.0.0.1:5173`에 접속합니다. React는 `/api` 상대 주소로 요청하고,
 Vite 개발 서버가 `http://core-api:8080`으로 중계합니다.
 
-### 네이티브 개발
+### Docker 없이 웹 개발
 
 Node.js `24.x`, pnpm `11.22.x`가 필요합니다. Core API와 검색에 필요한 MySQL·AI Service·Qdrant는
 [Core API 실행 안내](../backend/core-api/README.md)에 따라 먼저 실행합니다.
 
 ```bash
-cd frontend
+# 저장소 루트에서 설치합니다. lockfile은 루트 하나만 사용합니다.
 pnpm install --frozen-lockfile
-pnpm dev
+pnpm dev:web
 ```
 
 기본 API 주소는 `http://localhost:8080`입니다. 다른 주소를 사용하려면 `frontend/.env.example`을

@@ -1,10 +1,2 @@
-export class DailyReportError extends Error {
-  readonly status: number
-  readonly code: string
-  constructor(status: number, code: string) {
-    super(code)
-    this.name = 'DailyReportError'
-    this.status = status
-    this.code = code
-  }
-}
+// 웹과 모바일의 동일한 업무 계약을 사용합니다.
+export * from '@govbiz/shared/domain/errors/DailyReportError'

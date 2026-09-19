@@ -13,8 +13,8 @@ import org.springframework.web.servlet.HandlerInterceptor
  *
  * 브라우저는 상태 변경 요청에 `Origin` 헤더를 붙이므로 허용된 origin과 같아야 합니다. `Origin`이 없으면
  * `Referer`의 origin으로 대신 판단하고, 둘 다 없으면 브라우저가 보낸 요청으로 볼 수 없어 거절합니다.
- * curl·서버 간 호출은 세션 쿠키를 쓰지 않으므로 영향이 없고, 세션 쿠키가 없는 요청은 위조해도 얻을 것이 없어
- * 검사하지 않습니다.
+ * 쿠키가 없는 네이티브 Bearer 요청은 브라우저가 자동 첨부하는 인증이 아니므로 검사하지 않습니다.
+ * Bearer 헤더를 추가해도 쿠키가 함께 있다면 이 검사를 생략하지 않습니다. 토큰 검증은 resolver가 담당합니다.
  */
 class SessionOriginInterceptor(
     allowedOrigins: Collection<String>,

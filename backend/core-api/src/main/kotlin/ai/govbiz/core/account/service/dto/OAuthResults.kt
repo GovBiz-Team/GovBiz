@@ -1,6 +1,7 @@
 package ai.govbiz.core.account.service.dto
 
 import ai.govbiz.core.account.helper.OAuthStateCookieHelper
+import ai.govbiz.core.account.domain.Account
 import java.net.URI
 
 /** 소셜 로그인 시작 결과입니다. 브라우저를 [authorizationUri]로 보내고 [transaction]을 서명 쿠키로 들려 보냅니다. */
@@ -15,6 +16,12 @@ data class OAuthCallback(
     val state: String?,
     val error: String?,
 )
+
+/** 공급자 계정 확인 결과입니다. 앱은 세션 대신 짧은 교환 코드를 발급하므로 세션 발급과 분리합니다. */
+sealed interface OAuthAccountCompletionResult {
+    data class SignedIn(val account: Account, val returnPath: String) : OAuthAccountCompletionResult
+    data class Failed(val failure: OAuthFailure, val returnPath: String) : OAuthAccountCompletionResult
+}
 
 /** 콜백 처리 결과입니다. 어느 쪽이든 로그인을 시작한 화면의 [returnPath]로 돌아갑니다. */
 sealed interface OAuthCompletionResult {

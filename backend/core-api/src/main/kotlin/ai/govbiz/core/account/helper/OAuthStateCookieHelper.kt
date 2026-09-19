@@ -40,6 +40,7 @@ class OAuthStateCookieHelper(
         val returnPath: String,
         val rememberMe: Boolean,
         val expiresAt: Instant,
+        val mobile: Boolean = false,
     )
 
     private val signingKey: ByteArray = hmac(sessionProperties.jwtSecret.toByteArray(StandardCharsets.UTF_8), KEY_PURPOSE)
@@ -54,6 +55,7 @@ class OAuthStateCookieHelper(
                 "r" to transaction.returnPath,
                 "m" to transaction.rememberMe,
                 "e" to transaction.expiresAt.epochSecond,
+                "a" to transaction.mobile,
             ),
         )
         val encodedPayload = encoder.encodeToString(payload)
@@ -91,6 +93,7 @@ class OAuthStateCookieHelper(
             returnPath = payload.text("r")?.takeIf { path -> path.startsWith('/') && !path.startsWith("//") } ?: return null,
             rememberMe = payload.path("m").takeIf(JsonNode::isBoolean)?.booleanValue() ?: return null,
             expiresAt = expiresAt,
+            mobile = payload.path("a").takeIf(JsonNode::isBoolean)?.booleanValue() ?: false,
         )
     }
 

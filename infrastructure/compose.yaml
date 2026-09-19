@@ -219,6 +219,7 @@ services:
       ACCOUNT_EMAIL_VERIFICATION_CODE_TTL: ${ACCOUNT_EMAIL_VERIFICATION_CODE_TTL:-PT10M}
       ACCOUNT_OAUTH_CALLBACK_BASE_URL: ${ACCOUNT_OAUTH_CALLBACK_BASE_URL:-http://127.0.0.1:5173}
       ACCOUNT_OAUTH_FRONTEND_BASE_URL: ${ACCOUNT_OAUTH_FRONTEND_BASE_URL:-http://127.0.0.1:5173}
+      ACCOUNT_MOBILE_OAUTH_REDIRECT_URIS: ${ACCOUNT_MOBILE_OAUTH_REDIRECT_URIS:-}
       ACCOUNT_OAUTH_CONNECT_TIMEOUT: ${ACCOUNT_OAUTH_CONNECT_TIMEOUT:-2s}
       ACCOUNT_OAUTH_READ_TIMEOUT: ${ACCOUNT_OAUTH_READ_TIMEOUT:-10s}
       ACCOUNT_OAUTH_GOOGLE_CLIENT_ID: ${ACCOUNT_OAUTH_GOOGLE_CLIENT_ID:-}
@@ -282,13 +283,13 @@ services:
 
   web:
     build:
-      context: ../frontend
-      dockerfile: Dockerfile.dev
+      context: ..
+      dockerfile: frontend/Dockerfile.dev
     init: true
     depends_on:
       core-api:
         condition: service_healthy
-    working_dir: /app
+    working_dir: /app/frontend
     environment:
       CHOKIDAR_USEPOLLING: "true"
       # 바인드 마운트(Windows/macOS)는 파일 stat이 느려 폴링 간격을 너무 줄이면 Vite 프록시까지 느려진다. 기본 1000ms.
@@ -305,8 +306,15 @@ services:
     ports:
       - "127.0.0.1:${WEB_HOST_PORT:-5173}:5173"
     volumes:
-      - ../frontend:/app
-      - web-node-modules:/app/node_modules
+      - ../package.json:/app/package.json
+      - ../pnpm-lock.yaml:/app/pnpm-lock.yaml
+      - ../pnpm-workspace.yaml:/app/pnpm-workspace.yaml
+      - ../frontend:/app/frontend
+      - ../packages/shared:/app/packages/shared
+      - ../mobile/package.json:/app/mobile/package.json:ro
+      - web-workspace-node-modules:/app/node_modules
+      - web-frontend-node-modules:/app/frontend/node_modules
+      - web-shared-node-modules:/app/packages/shared/node_modules
 
   bizinfo-stub:
     profiles:
@@ -354,4 +362,6 @@ volumes:
   redis-data:
   mysql-data:
   qdrant-data:
-  web-node-modules:
+  web-workspace-node-modules:
+  web-frontend-node-modules:
+  web-shared-node-modules:

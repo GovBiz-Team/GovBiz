@@ -13,6 +13,7 @@ import ai.govbiz.core.account.helper.OneTimeTokenHelper
 import ai.govbiz.core.account.helper.normalizeEmail
 import ai.govbiz.core.account.repository.AccountRepository
 import ai.govbiz.core.account.service.dto.OAuthCallback
+import ai.govbiz.core.account.service.dto.OAuthAccountCompletionResult
 import ai.govbiz.core.account.service.dto.OAuthCompletionResult
 import ai.govbiz.core.account.service.dto.OAuthFailure
 import ai.govbiz.core.account.service.dto.OAuthStartResult
@@ -83,8 +84,25 @@ class AccountOAuthService(
         transaction: OAuthStateCookieHelper.Transaction?,
         clientAddress: String,
     ): OAuthCompletionResult {
+        return when (val result = authenticate(provider, callback, transaction, clientAddress)) {
+            is OAuthAccountCompletionResult.Failed -> OAuthCompletionResult.Failed(result.failure, result.returnPath)
+            is OAuthAccountCompletionResult.SignedIn -> {
+                val issued = sessionService.issue(result.account.id, requireNotNull(transaction).rememberMe)
+                repository.createSession(result.account.id, issued.session)
+                OAuthCompletionResult.SignedIn(sessionService.toResult(issued, result.account), result.returnPath)
+            }
+        }
+    }
+
+    /** 공급자 HTTP 호출은 DB transaction 밖에서 실행합니다. 웹·앱이 같은 계정 확인 정책을 사용합니다. */
+    fun authenticate(
+        provider: OAuthProvider?,
+        callback: OAuthCallback,
+        transaction: OAuthStateCookieHelper.Transaction?,
+        clientAddress: String,
+    ): OAuthAccountCompletionResult {
         val returnPath = transaction?.returnPath ?: DEFAULT_RETURN_PATH
-        fun failed(failure: OAuthFailure) = OAuthCompletionResult.Failed(failure, returnPath)
+        fun failed(failure: OAuthFailure) = OAuthAccountCompletionResult.Failed(failure, returnPath)
 
         val client = provider?.let(::configuredClient) ?: return failed(OAuthFailure.UNAVAILABLE)
         // state가 쿠키와 같아야 이 브라우저가 시작한 로그인입니다. 다르면 CSRF이거나 쿠키가 만료된 것입니다.
@@ -113,9 +131,7 @@ class AccountOAuthService(
         }
         if (account.isSuspended) return failed(OAuthFailure.SUSPENDED)
 
-        val issued = sessionService.issue(account.id, transaction.rememberMe)
-        repository.createSession(account.id, issued.session)
-        return OAuthCompletionResult.SignedIn(sessionService.toResult(issued, account), returnPath)
+        return OAuthAccountCompletionResult.SignedIn(account, returnPath)
     }
 
     private fun findOrCreateAccount(profile: OAuthProfile): Resolution {

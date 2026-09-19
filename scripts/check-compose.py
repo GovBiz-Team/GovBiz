@@ -20,7 +20,6 @@ EXISTING_VOLUMES = {
     "redis-data": "govbiz_redis-data",
     "mysql-data": "govbiz_mysql-data",
     "qdrant-data": "govbiz_qdrant-data",
-    "web-node-modules": "govbiz_web-node-modules",
     "django-mysql-data": "govbiz4-django_mysql-data",
 }
 
@@ -116,7 +115,7 @@ def validate(model, project):
     )
 
     for name, path in {
-        "web": APP / "frontend",
+        "web": APP,
         "core-api": APP / "backend/core-api",
         "ai-service": APP / "backend/ai-service",
         "elasticsearch": APP / "infrastructure/elasticsearch",
@@ -139,6 +138,25 @@ def validate(model, project):
             require(
                 port.get("host_ip") == "127.0.0.1", f"Non-local published port: {name}"
             )
+
+    web_mounts = {v["target"]: v for v in services["web"]["volumes"]}
+    require(
+        services["web"]["working_dir"] == "/app/frontend",
+        "The web development server must run in its workspace.",
+    )
+    for target, source in (
+        ("/app/frontend", APP / "frontend"),
+        ("/app/packages/shared", APP / "packages/shared"),
+        ("/app/pnpm-lock.yaml", APP / "pnpm-lock.yaml"),
+    ):
+        require(
+            Path(web_mounts[target]["source"]).resolve() == source.resolve(),
+            f"Incorrect web workspace mount: {target}",
+        )
+    require(
+        web_mounts["/app/node_modules"]["source"] == "web-workspace-node-modules",
+        "The old single-app dependency cache must not be reused as the workspace root.",
+    )
 
     django_mounts = {v["target"]: v for v in services["django-api"]["volumes"]}
     require(
@@ -284,6 +302,20 @@ def main():
             require(
                 value.get("external") is True and value["name"] == name,
                 f"Existing volume mapping is incorrect: {key}",
+            )
+        require(
+            "web-node-modules" not in existing["volumes"],
+            "The old single-app cache leaked into the data-volume override.",
+        )
+        for key in (
+            "web-workspace-node-modules",
+            "web-frontend-node-modules",
+            "web-shared-node-modules",
+        ):
+            value = existing["volumes"][key]
+            require(
+                not value.get("external") and value["name"] == f"{project}_{key}",
+                f"Node dependencies must use new, project-local volumes: {key}",
             )
         print(
             "PASS: paths, service names, environment isolation, dependencies and volume mappings.",

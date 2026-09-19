@@ -9,6 +9,23 @@
 완료 기능과 남은 제약은 [구현 현황](implementation-status.md), 환경 설정은
 [인프라 README](../infrastructure/README.md)를 참고하세요.
 
+## 웹·앱 공통 코드
+
+`frontend`와 Expo React Native `mobile`은 `packages/shared`의 domain·유스케이스·DTO 검증을 가져옵니다.
+공고 호출은 `웹/앱 화면 → 공통 유스케이스 → 플랫폼 Repository → 공통 공고 HTTP 클라이언트 → Core API`
+로 이어집니다. 공통 클라이언트에는 공개 API 주소와 fetch만 주입하며 Vite/Expo 환경변수·브라우저 저장소·React를 참조하지 않습니다.
+웹은 기존 쿠키 설정을 유지하고 앱의 세션 저장·네비게이션은 모바일 쪽에서 담당합니다.
+기존 웹의 domain/model 파일은 공통 구현을 재수출하므로 두 구현이 따로 변경되지 않습니다.
+[공동 관리와 검증 명령](mobile-monorepo.md)을 참고하세요.
+
+앱 이메일 인증은 `AccountMobileAuthController → 기존 로그인/가입 Service → AccountRepository → MyBatis → MySQL`이며,
+네이티브에서 받은 Bearer JWT도 웹과 같은 DB 세션 만료·폐기 규칙을 사용합니다. 웹은 HttpOnly 쿠키를 유지하며,
+쿠키와 Bearer가 함께 오면 쿠키를 우선하고 Origin 검사를 그대로 적용합니다.
+소셜 로그인은 `앱 시스템 브라우저 → AccountMobileOAuthController → AccountMobileOAuthService → 기존 OAuthService/Client → 공급자`
+를 거쳐 기존 HTTPS 서버 callback으로 돌아옵니다. 서명 state 쿠키와 V40 MySQL transaction의 일회용 선점이 콜백 재사용을 막습니다.
+허용된 앱 URI에는 60초 일회용 코드만 전달하고, 앱의 PKCE S256 검증 뒤 코드 소비·세션 생성을 같은 DB transaction에서 처리합니다.
+OAuth 외부 호출 중에는 DB transaction을 열지 않습니다. [정확한 인증 API와 설정](../backend/core-api/README.md#모바일-인증-계약)을 참고하세요.
+
 ## 서비스 경계
 
 저장소는 React·Core API·AI Service·Django Ops를 함께 관리하는 모노레포입니다.

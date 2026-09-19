@@ -1,16 +1,2 @@
-import type { SampleItem } from '../entities/SampleItem'
-import type { SampleItemPreparation } from '../entities/SampleItemPreparation'
-import type { SampleItemRepository } from '../repositories/SampleItemRepository'
-
-/** Repository는 생성할 때 주입하고, 실행할 때는 처리할 항목만 받습니다. */
-export class PrepareSampleItemUseCase {
-  private readonly repository: SampleItemRepository
-
-  constructor(repository: SampleItemRepository) {
-    this.repository = repository
-  }
-
-  execute(item: SampleItem, signal?: AbortSignal): Promise<SampleItemPreparation> {
-    return this.repository.prepare(item, signal)
-  }
-}
+// 웹과 모바일의 동일한 업무 계약을 사용합니다.
+export * from '@govbiz/shared/domain/usecases/PrepareSampleItemUseCase'

@@ -318,7 +318,10 @@ Controller의 `SupportProgramRequestAdmissionService.execute`가 공개 요청 �
 | `POST /api/v1/auth/signup` | 이메일·비밀번호 회원가입(201). 계정을 만들고 바로 브라우저 세션 쿠키 발급, 중복 이메일은 409 |
 | `POST /api/v1/auth/login` | 이메일·비밀번호 로그인. 세션 JWT를 HttpOnly 쿠키로만 내려줌 |
 | `POST /api/v1/auth/logout` | 세션 행 삭제와 쿠키 만료 |
-| `GET /api/v1/auth/me` | 세션 쿠키로 현재 계정·권한 단계 조회 |
+| `POST /api/v1/auth/mobile/login`, `POST …/signup` | 앱 이메일 로그인·가입. 웹과 같은 입력, `{ accessToken, tokenType: "Bearer", expiresAt, account }` 응답, 쿠키 미발급 |
+| `POST /api/v1/auth/mobile/logout` | Authorization Bearer 세션 폐기, 쿠키 미발급 |
+| `GET /api/v1/auth/mobile/oauth/{provider}/authorize`, `POST …/exchange` | 앱 Google·Kakao 시스템 브라우저 로그인 시작과 PKCE 일회용 코드 교환. 아래 모바일 인증 계약 참고 |
+| `GET /api/v1/auth/me` | 세션 쿠키 또는 Bearer로 현재 계정·권한 단계 조회 |
 | `PUT /api/v1/me/password` | 로그인 세션으로 본인을 확인해 새 비밀번호만 받아 변경. 요청한 세션만 남기고 다른 기기 세션 종료 |
 | `POST /api/v1/auth/password-reset`, `POST …/confirm` | 로그인 없이 가입 이메일로 30분 일회용 재설정 링크 요청(가입 여부와 무관하게 204), 토큰으로 새 비밀번호 저장(모든 세션 종료) |
 | `GET /api/v1/me/deletion-preview`, `DELETE /api/v1/me` | 삭제 시 닫히는 모집글·제안 수 미리 보기와 계정 삭제(제안 철회·모집글 마감·기업 삭제·세션 삭제·`deleted_at`) |
@@ -337,6 +340,45 @@ Controller의 `SupportProgramRequestAdmissionService.execute`가 공개 요청 �
 | `POST /api/v1/partners/recruitments/{id}/proposals` | 기업을 등록한 회원이 남의 모집글에 참여 제안 보내기(201). 모집글당 하나 |
 | `GET /api/v1/partners/proposals/{id}`, `POST .../accept` `.../decline` `.../withdraw` | 당사자만 제안 조회, 작성자의 수락·거절, 제안자의 철회 |
 | `GET /api/v1/me/proposals?box=received\|sent` | 받은·보낸 제안함과 대기 건수 |
+
+### 모바일 인증 계약
+
+`AccountMobileAuthController → 기존 AccountLoginService/AccountSignupService → AccountRepository → MyBatis → MySQL`
+흐름으로 웹과 같은 계정·세션 정책을 사용합니다. 앱은 JSON 응답의 `accessToken`을 기기 보안 저장소에 보관하고
+`Authorization: Bearer <accessToken>`으로 기존 업무 API를 호출합니다. `rememberMe`에 따른 절대 만료와 유휴 만료,
+관리자 정지·세션 폐기·비밀번호 변경 정책을 그대로 적용합니다. refresh token은 발급하지 않으며 만료되면 다시 로그인합니다.
+가입 전 인증번호 발송/확인은 기존 `/api/v1/auth/signup/email-code`, `/verify`를 사용합니다.
+
+웹 `/auth/login`, `/auth/signup`의 응답에는 토큰이 들어가지 않고 HttpOnly 쿠키 계약을 유지합니다.
+쿠키와 Bearer가 함께 오면 계정 resolver는 쿠키를 우선하며 쿠키 쓰기 요청의 Origin 검사를 생략하지 않습니다.
+앱은 쿠키를 보내지 않습니다(`credentials: omit`). 잘못되거나 중복된 Authorization은 비로그인 상태로 숨기지 않고 401입니다.
+
+앱 소셜 로그인은 다음 순서입니다.
+
+1. 앱에서 무작위 `state`(43~128자 URL-safe)와 PKCE `codeVerifier`(43~128자 RFC 7636)를 만들고
+   `codeChallenge=base64url(SHA256(codeVerifier))`(padding 없는 43자)를 계산합니다.
+2. 시스템 브라우저에서 `/api/v1/auth/mobile/oauth/{google|kakao}/authorize`를 열며
+   `redirectUri`, `state`, `codeChallenge`, 선택 `rememberMe`를 query로 전달합니다.
+   `ACCOUNT_MOBILE_OAUTH_REDIRECT_URIS`에 등록된 URI와 정확히 같아야 합니다. 기본 빈 목록은 시작을 차단합니다.
+   개발 예시는 `govbiz://oauth/complete`이며 운영 앱 링크가 있으면 해당 HTTPS URI를 명시 등록합니다.
+3. `AccountMobileOAuthService → AccountOAuthService → GoogleOAuthClient/KakaoOAuthClient`가 기존 공급자 설정을
+   사용합니다. 공급자 콘솔의 redirect URI는 여전히 기존 HTTPS 서버 `/api/v1/auth/oauth/{provider}/callback`입니다.
+   서명한 HttpOnly state 쿠키로 시작 브라우저를 확인하고 V40 `mobile_oauth_transaction`에서 callback을 원자적으로
+   선점합니다. 여러 서버나 중복 callback에서도 공급자 코드 교환은 한 번만 실행됩니다. 외부 호출은 DB transaction 밖입니다.
+4. 앱 복귀 URI에는 `code`(60초·1회용 무작위 43자)와 원래 앱 `state`만 붙습니다. 실패는 `error`와 `state`입니다.
+   JWT·공급자 토큰·client secret은 URL로 전달하지 않습니다. 앱은 복귀 URI와 `state`를 확인한 후
+   `POST /api/v1/auth/mobile/oauth/exchange` 본문 `{ code, codeVerifier, redirectUri }`로 교환합니다.
+5. DB의 코드 해시·PKCE S256 challenge·redirect URI·만료를 확인해 코드 소비와 세션 생성을 한 transaction으로
+   처리합니다. 동시 교환에서는 한 요청만 성공하고 저장 실패는 소비도 rollback합니다. 응답은 이메일 로그인과 같습니다.
+
+시작 요청이 허용되지 않으면 400 `MOBILE_OAUTH_REQUEST_INVALID`, 만료·재사용·잘못된 PKCE 교환은
+401 `MOBILE_OAUTH_EXCHANGE_INVALID`입니다. 검증 DTO 형식 오류는 기존 400 `REQUEST_VALIDATION_FAILED`입니다.
+OAuth 실패 `error` 값은 기존 웹과 같은 `cancelled`, `expired`, `unavailable`, `failed`, `email-required`,
+`account-exists`, `unlink-pending`, `suspended`, `rate-limited`입니다. 쿠키가 없거나 만료된 공급자 callback은 기존
+웹 로그인 실패 화면으로 돌아가므로 앱은 시스템 브라우저 취소 후 재시작할 수 있어야 합니다.
+앱 로그인 시작과 교환도 기존 접속 주소당 로그인 요청 제한을 사용합니다(한 Core 프로세스 기준).
+V40에는 평문 코드·JWT가 저장되지 않으며 하루 이상 지난 transaction은 후속 로그인 시작 시 최대 100개씩 정리합니다.
+실제 공급자·실기기 로그인은 별도 설정과 검증이 필요합니다.
 
 ### 직접 조건으로 찾기
 

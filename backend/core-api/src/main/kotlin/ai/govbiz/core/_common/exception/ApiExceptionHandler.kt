@@ -5,6 +5,8 @@ import ai.govbiz.core.supportprogram.client.elasticsearch.exception.Elasticsearc
 import ai.govbiz.core.account.client.bizno.exception.BiznoClientException
 import ai.govbiz.core.account.service.exception.AccountSuspendedException
 import ai.govbiz.core.account.service.exception.AuthenticationRequiredException
+import ai.govbiz.core.account.service.exception.MobileOAuthRequestInvalidException
+import ai.govbiz.core.account.service.exception.MobileOAuthExchangeInvalidException
 import ai.govbiz.core.account.service.exception.BusinessNotActiveException
 import ai.govbiz.core.account.service.exception.BusinessNotFoundException
 import ai.govbiz.core.account.service.exception.BusinessNumberAlreadyRegisteredException
@@ -85,6 +87,16 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 @RestControllerAdvice
 class ApiExceptionHandler {
+
+    @ExceptionHandler(MobileOAuthRequestInvalidException::class)
+    fun handleMobileOAuthRequest(request: HttpServletRequest): ResponseEntity<ProblemDetail> =
+        problemResponse(ProblemDefinition(HttpStatus.BAD_REQUEST, URI.create("urn:govbiz:problem:mobile-oauth-request-invalid"),
+            "Mobile OAuth Request Invalid", "The app callback or PKCE request is not allowed.", "MOBILE_OAUTH_REQUEST_INVALID"), request)
+
+    @ExceptionHandler(MobileOAuthExchangeInvalidException::class)
+    fun handleMobileOAuthExchange(request: HttpServletRequest): ResponseEntity<ProblemDetail> =
+        problemResponse(ProblemDefinition(HttpStatus.UNAUTHORIZED, URI.create("urn:govbiz:problem:mobile-oauth-exchange-invalid"),
+            "Mobile OAuth Exchange Invalid", "The app login code is invalid, expired or already used.", "MOBILE_OAUTH_EXCHANGE_INVALID"), request)
 
     @ExceptionHandler(ApplicationFormDiscoveryException::class)
     fun handleApplicationFormDiscovery(
@@ -1104,7 +1116,8 @@ class ApiExceptionHandler {
         return ResponseEntity.status(definition.status)
             .contentType(MediaType.APPLICATION_PROBLEM_JSON)
             .headers { headers ->
-                if (request.requestURI == "/api/v1/application-preparations" ||
+                if (request.requestURI.startsWith("/api/v1/auth/mobile/") ||
+                    request.requestURI == "/api/v1/application-preparations" ||
                     request.requestURI.startsWith("/api/v1/application-preparations/") ||
                     request.requestURI == "/api/v1/combination-reviews" ||
                     request.requestURI.startsWith("/api/v1/combination-reviews/") ||

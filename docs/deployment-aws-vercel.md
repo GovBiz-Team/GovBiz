@@ -48,7 +48,9 @@ AWS/Vercel 외부 로그에도 비밀 헤더·OAuth code·쿠키를 기록하지
    크레딧을 제외한 월 운영비·하루 가동 시간·발표 후 종료일을 정하고 [AWS 계산기](https://calculator.aws/)에서 시드니 견적을 만든다.
    $100으로 전체 구성이 6개월 유지된다고 가정하지 않는다. AWS 크레딧은 OpenAI 비용에 사용할 수 없다.
 2. 선택한 EC2/RDS 사양·기능이 무료 플랜에서 가능한지 확인한다. 유료 전환·고급 기능 활성화·구조 변경은 별도 결정이다.
-3. Vercel에서 Git 저장소를 연결하고 Root Directory를 `frontend`로 선택한다. 실제 발급된 `*.vercel.app` 주소를 사용한다.
+3. Vercel에서 Git 저장소를 연결하고 Root Directory를 `frontend`로 선택한다. 공유 패키지를 읽을 수 있게
+   **Include source files outside of the Root Directory in the Build Step**을 켠다. 루트 `pnpm-lock.yaml`을 사용하며
+   설치 명령은 `frontend/vercel.json`의 웹 workspace 필터를 따른다. 실제 발급된 `*.vercel.app` 주소를 사용한다.
    AWS 프로젝트 이름이 `govbiz`여도 같은 Vercel 주소가 보장되지는 않는다.
 4. 저장소 공개 범위·개인/조직 소유 여부와 Vercel 요금제 제약을 확인한다. 임의로 저장소를 공개하거나 유료 전환하지 않는다.
 

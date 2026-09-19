@@ -1,7 +1,7 @@
 package ai.govbiz.core.admin.web
 
 import ai.govbiz.core.account.domain.Account
-import ai.govbiz.core.account.helper.SessionCookieHelper
+import ai.govbiz.core.account.helper.SessionRequestTokenHelper
 import ai.govbiz.core.account.service.AccountSessionService
 import ai.govbiz.core.admin.service.exception.AdminAccessDeniedException
 import jakarta.servlet.http.HttpServletRequest
@@ -17,7 +17,7 @@ import org.springframework.web.method.support.ModelAndViewContainer
  */
 data class AdminPrincipal(val account: Account)
 
-/** 세션 쿠키로 계정을 확인한 뒤(없거나 만료면 401, 정지면 403) 관리자가 아니면 403으로 막습니다. */
+/** 쿠키/Bearer 세션으로 계정을 확인한 뒤(없거나 만료면 401, 정지면 403) 관리자가 아니면 403으로 막습니다. */
 class AdminPrincipalArgumentResolver(
     private val sessionServiceSupplier: () -> AccountSessionService,
 ) : HandlerMethodArgumentResolver {
@@ -34,7 +34,7 @@ class AdminPrincipalArgumentResolver(
         val request = requireNotNull(webRequest.getNativeRequest(HttpServletRequest::class.java)) {
             "AdminPrincipal parameters need a servlet request"
         }
-        val account = sessionServiceSupplier().requireAccount(SessionCookieHelper.read(request))
+        val account = sessionServiceSupplier().requireAccount(SessionRequestTokenHelper.read(request))
         if (!account.isAdmin) throw AdminAccessDeniedException()
         return AdminPrincipal(account)
     }

@@ -1,22 +1,2 @@
-import type { SupportProgramSearchResult } from '../entities/SupportProgramSearchResult'
-import type { SupportProgramRepository, SupportProgramSearch } from '../repositories/SupportProgramRepository'
-
-type SupportProgramSearchRepository = Pick<SupportProgramRepository, 'search'>
-
-export type SearchSupportProgramsResult = SupportProgramSearchResult
-
-export class SearchSupportProgramsUseCase {
-  private readonly repository: SupportProgramSearchRepository
-
-  constructor(repository: SupportProgramSearchRepository) {
-    this.repository = repository
-  }
-
-  async execute(command: SupportProgramSearch, signal?: AbortSignal): Promise<SearchSupportProgramsResult> {
-    const normalizedQuery = command.query.trim()
-    return this.repository.search(
-      { ...command, query: normalizedQuery, acceptingOnly: command.acceptingOnly ?? true },
-      signal,
-    )
-  }
-}
+// 웹과 모바일의 동일한 업무 계약을 사용합니다.
+export * from '@govbiz/shared/domain/usecases/SearchSupportProgramsUseCase'

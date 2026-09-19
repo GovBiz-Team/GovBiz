@@ -55,11 +55,13 @@ Ops만 단독 개발하려면 `backend/ops/README.md`를 따른다.
 같은 데이터 볼륨에 두 MySQL 프로세스를 동시에 연결하지 않는다.
 
 - 기존 **GovBiz-infra 통합 실행** 사용자는 기본 프로젝트명 `govbiz-infra`와 서비스·볼륨 이름을 유지한다.
+  웹·앱 workspace 도입 이후 Node 의존성 캐시는 새 `web-workspace-node-modules` 레이아웃을 사용하며 기존 캐시는 마운트하지 않는다.
   기존 환경에서 원래 설정으로 `down`한 뒤 새 폴더에서 같은 프로젝트명으로 실행한다. 기존에 external 볼륨을
   선택했다면 그 설정도 유지한다. `down --volumes`/`down -v`는 사용하지 않는다.
 - 기존 **웹 단독 `govbiz` + Ops 단독 `govbiz4-django`** 사용자는
   `compose.existing-data.yaml`을 추가해 기존 볼륨을 명시적으로 연결할 수 있다.
   기본값과 다르면 `.env.compose`에 `GOVBIZ_EXISTING_*_VOLUME`을 설정한다.
+  웹 Node 캐시는 재사용 대상에서 제외하며 새로 설치한다. 기존 캐시나 DB 데이터를 삭제하지 않는다.
 
 ```bash
 # 기존 볼륨을 확인한 뒤 선택적으로 사용한다. 없는 볼륨이면 external 설정이 실행을 거절한다.

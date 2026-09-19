@@ -1,10 +1,2 @@
-import type { DailyReport, DailyReportEmailAction, DailyReportSettings, DailyReportSettingsInput } from '../entities/DailyReport'
-
-export interface DailyReportRepository {
-  settings(signal?: AbortSignal): Promise<DailyReportSettings>
-  saveSettings(input: DailyReportSettingsInput, signal?: AbortSignal): Promise<DailyReportSettings>
-  verifyEmail(signal?: AbortSignal): Promise<void>
-  emailAction(action: DailyReportEmailAction, token: string, signal?: AbortSignal): Promise<void>
-  latest(signal?: AbortSignal): Promise<DailyReport | null>
-  preview(signal?: AbortSignal): Promise<DailyReport | null>
-}
+// 웹과 모바일의 동일한 업무 계약을 사용합니다.
+export * from '@govbiz/shared/domain/repositories/DailyReportRepository'

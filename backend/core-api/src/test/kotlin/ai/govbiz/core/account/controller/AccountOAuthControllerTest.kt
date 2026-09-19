@@ -7,6 +7,7 @@ import ai.govbiz.core.account.helper.AccountTestHelper
 import ai.govbiz.core.account.helper.OAuthStateCookieHelper
 import ai.govbiz.core.account.helper.SessionCookieHelper
 import ai.govbiz.core.account.service.AccountOAuthService
+import ai.govbiz.core.account.service.AccountMobileOAuthService
 import ai.govbiz.core.account.service.dto.AccountSessionResult
 import ai.govbiz.core.account.service.dto.OAuthCallback
 import ai.govbiz.core.account.service.dto.OAuthCompletionResult
@@ -39,6 +40,9 @@ class AccountOAuthControllerTest {
     @Mock
     private lateinit var oauthService: AccountOAuthService
 
+    @Mock
+    private lateinit var mobileOAuthService: AccountMobileOAuthService
+
     private val stateCookieHelper = OAuthStateCookieHelper(AccountTestHelper.sessionProperties(), AccountTestHelper.FIXED_CLOCK)
 
     private lateinit var mockMvc: MockMvc
@@ -47,7 +51,7 @@ class AccountOAuthControllerTest {
     fun setUp() {
         mockMvc = MockMvcBuilders
             .standaloneSetup(
-                AccountOAuthController(oauthService, stateCookieHelper, AccountTestHelper.cookieHelper(), AccountOAuthProperties()),
+                AccountOAuthController(oauthService, stateCookieHelper, AccountTestHelper.cookieHelper(), AccountOAuthProperties(), mobileOAuthService),
             )
             .setControllerAdvice(ApiExceptionHandler())
             .build()

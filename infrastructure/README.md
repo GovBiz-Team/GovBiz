@@ -55,6 +55,13 @@ JavaScript가 `http://core-api:8080`을 직접 호출하면 실패합니다.
 
 ## 실행
 
+웹 이미지는 저장소 루트를 build context로 사용하고, 루트 pnpm lockfile로 `frontend`와
+`packages/shared` 의존성만 설치합니다. 개발 컨테이너의 작업 경로는 `/app/frontend`입니다.
+웹·공유 소스를 각각 바인드 마운트하며 루트·웹·공유 `node_modules`는 별도 named volume에 둡니다.
+모바일 네이티브 도구와 번들은 웹 이미지에 포함하지 않습니다.
+단일 웹에서 사용하던 `web-node-modules` 캐시는 마운트하지 않고 `web-workspace-node-modules`에
+새 레이아웃을 설치합니다. 기존 캐시를 삭제하거나 MySQL·검색·메시지 데이터 볼륨 이름을 변경하지 않습니다.
+
 Elasticsearch는 9.5.3 이미지에 같은 버전의 Nori 플러그인을 설치하고 `elasticsearch-data` 볼륨을 사용합니다.
 512MiB heap·2GiB 메모리 상한·단일 노드·인증 비활성은 개발용이며 9200을 외부에 공개하지 않습니다.
 **기존 환경은 Core의 V24 적용 후 두 색인 복구가 끝나야 자연어 검색이 준비됩니다.** 복구가 꺼져 있으면
@@ -352,7 +359,7 @@ docker compose --env-file .env --file infrastructure/compose.yaml down --remove-
 ```
 
 로컬 데이터를 의도적으로 초기화할 때만 다음 명령을 사용합니다. `mysql-data`, `qdrant-data`, `elasticsearch-data`, `redis-data`, `rabbitmq-data`,
-`web-node-modules` volume을 삭제하므로 필요한 데이터는 먼저 백업해야 합니다. 삭제한 카탈로그와
+`web-workspace-node-modules`, `web-frontend-node-modules`, `web-shared-node-modules` volume을 삭제하므로 필요한 데이터는 먼저 백업해야 합니다. 삭제한 카탈로그와
 색인은 다시 수집·구축해야 하며, 실제 OpenAI를 쓰는 색인 재구축에는 비용이 발생합니다.
 
 ```bash

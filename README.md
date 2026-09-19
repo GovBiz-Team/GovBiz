@@ -6,6 +6,9 @@
 Ops 소스는 [`backend/ops`](backend/ops)에 있으며, 상태 확인 API·전용 MySQL·Gunicorn 실행 이미지를 갖추고 있습니다.
 소스를 통합해도 서비스 프로세스·의존성·DB 책임은 분리합니다.
 
+웹(`frontend/`)과 React Native 앱(`mobile/`)을 함께 관리합니다.
+[모바일 실행·기능 안내](mobile/README.md) · [공통 코드·workspace 관리](docs/mobile-monorepo.md)
+
 전체 로컬 실행은 루트 `compose.yaml`, 기존 웹·Core·AI 실행은 `infrastructure/compose.yaml`을 사용합니다.
 [통합 개발·이전 안내](docs/ops-monorepo-migration.md)를 먼저 확인하세요.
 Kubernetes 배포 설정·검증과 향후 Argo CD 연결은 별도 [GovBiz-infra](https://github.com/GovBiz-Team/GovBiz-infra)에서 관리합니다.
