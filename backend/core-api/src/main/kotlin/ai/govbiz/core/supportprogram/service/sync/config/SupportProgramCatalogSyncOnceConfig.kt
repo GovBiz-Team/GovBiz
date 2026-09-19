@@ -17,6 +17,7 @@ import org.springframework.core.env.MapPropertySource
 @Configuration(proxyBeanMethods = false)
 @Profile(SupportProgramCatalogSyncOnceConfig.PROFILE)
 @EnableConfigurationProperties(SupportProgramCatalogSyncOnceProperties::class)
+@ai.govbiz.core.supportprogram.service.projection.config.EmbeddedCatalogOnly
 class SupportProgramCatalogSyncOnceConfig {
     @Bean
     fun supportProgramCatalogSyncOnceService(
@@ -42,6 +43,9 @@ class SupportProgramCatalogSyncOnceConfig {
         fun isolate(context: ConfigurableApplicationContext) {
             val environment = context.environment
             if (!environment.matchesProfiles(PROFILE)) return
+            require(environment.getProperty("app.catalog.projection.enabled", Boolean::class.java, false).not()) {
+                "catalog-sync-once belongs to Catalog after remote ownership is enabled"
+            }
             require(environment.activeProfiles.toSet() == setOf(PROFILE)) { "catalog-sync-once must run alone" }
             require(environment.getProperty("spring.main.web-application-type") == "none") { "catalog-sync-once must not serve HTTP" }
             environment.propertySources.addFirst(MapPropertySource("catalog-sync-once-isolation", disabledProperties))

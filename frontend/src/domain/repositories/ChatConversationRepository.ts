@@ -1,8 +1,2 @@
-import type { ChatConversationDetail, ChatConversationPage, ChatConversationSnapshot, ChatConversationSummary } from '../entities/ChatConversation'
-
-export interface ChatConversationRepository {
-  list(accountEmail: string, before: number | null, signal?: AbortSignal): Promise<ChatConversationPage>
-  get(accountEmail: string, id: string, signal?: AbortSignal): Promise<ChatConversationDetail>
-  delete(accountEmail: string, id: string, signal?: AbortSignal): Promise<void>
-  save(accountEmail: string, id: string, expectedVersion: number, snapshot: ChatConversationSnapshot, signal?: AbortSignal): Promise<ChatConversationSummary>
-}
+// 웹과 모바일의 동일한 업무 계약을 사용합니다.
+export * from '@govbiz/shared/domain/repositories/ChatConversationRepository'

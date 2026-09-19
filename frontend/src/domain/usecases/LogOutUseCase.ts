@@ -1,16 +1,2 @@
-import type { AccountRepository } from '../repositories/AccountRepository'
-
-type LogOutRepository = Pick<AccountRepository, 'logOut'>
-
-/** 서버 세션을 삭제하고 브라우저에 저장된 토큰을 지웁니다. */
-export class LogOutUseCase {
-  private readonly repository: LogOutRepository
-
-  constructor(repository: LogOutRepository) {
-    this.repository = repository
-  }
-
-  execute(signal?: AbortSignal): Promise<void> {
-    return this.repository.logOut(signal)
-  }
-}
+// 웹과 모바일의 동일한 업무 계약을 사용합니다.
+export * from '@govbiz/shared/domain/usecases/LogOutUseCase'

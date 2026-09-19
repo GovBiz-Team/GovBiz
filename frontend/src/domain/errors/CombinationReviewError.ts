@@ -1,11 +1,2 @@
-export class CombinationReviewError extends Error {
-  readonly status: number
-  readonly code: string
-  readonly runId: number | null
-  readonly retryAfter: string | null
-  constructor(status: number, code: string, runId: number | null = null, retryAfter: string | null = null) {
-    super(code)
-    this.name = 'CombinationReviewError'
-    this.status = status; this.code = code; this.runId = runId; this.retryAfter = retryAfter
-  }
-}
+// 웹과 모바일의 동일한 업무 계약을 사용합니다.
+export * from '@govbiz/shared/domain/errors/CombinationReviewError'

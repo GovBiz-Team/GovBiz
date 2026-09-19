@@ -9,11 +9,8 @@ permissions:
 
 jobs:
   frontend:
-    name: Frontend
+    name: Web and shared
     runs-on: ubuntu-24.04
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -27,20 +24,60 @@ jobs:
           runtime: node@24
           install: false
           cache: true
-          cache-dependency-path: frontend/pnpm-lock.yaml
-          package-json-file: frontend/package.json
+          cache-dependency-path: pnpm-lock.yaml
+          package-json-file: package.json
 
-      - name: Install dependencies
+      - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Test
-        run: pnpm test
+      - name: Check shared contracts
+        run: |
+          pnpm --filter @govbiz/shared typecheck
+          pnpm --filter @govbiz/shared test
+          pnpm --filter @govbiz/shared lint
 
-      - name: Lint
-        run: pnpm lint
+      - name: Test web and existing domain contracts
+        run: pnpm --filter govbiz-web test
 
-      - name: Build
-        run: pnpm build
+      - name: Lint web
+        run: pnpm --filter govbiz-web lint
+
+      - name: Build web
+        run: pnpm --filter govbiz-web build
+
+  mobile:
+    name: Mobile
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm and Node.js
+        uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2.0.2
+        with:
+          version: 11.22.0
+          runtime: node@24
+          install: false
+          cache: true
+          cache-dependency-path: pnpm-lock.yaml
+          package-json-file: package.json
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check mobile types
+        run: pnpm --filter @govbiz/mobile typecheck
+
+      - name: Test mobile
+        run: pnpm --filter @govbiz/mobile test
+
+      - name: Lint mobile
+        run: pnpm --filter @govbiz/mobile lint
+
+      - name: Export iOS and Android JavaScript bundles
+        run: pnpm --filter @govbiz/mobile export
 
   core-api:
     name: Core API

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service
  * 기업마당 공고 전체의 벡터를 먼저 준비한 뒤, 검색 가능한 MySQL 스냅샷을 한 번에 공개합니다.
  */
 @Service
+@ai.govbiz.core.supportprogram.service.projection.config.EmbeddedCatalogOnly
 class BizInfoSupportProgramCatalogSyncService(
     @param:Qualifier("bizInfoSupportProgramCatalogFacade") private val catalogFacade: SupportProgramCatalogFacade,
     private val supportProgramRepository: SupportProgramRepository,

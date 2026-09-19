@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 
 /** 전체 수집·검증·색인이 성공한 경우에만 MSIT 제공처 스냅샷을 공개합니다. */
 @Service
+@ai.govbiz.core.supportprogram.service.projection.config.EmbeddedCatalogOnly
 class MsitSupportProgramCatalogSyncService(
     @param:Qualifier("msitSupportProgramCatalogFacade") private val catalogFacade: SupportProgramCatalogFacade,
     private val repository: SupportProgramRepository,

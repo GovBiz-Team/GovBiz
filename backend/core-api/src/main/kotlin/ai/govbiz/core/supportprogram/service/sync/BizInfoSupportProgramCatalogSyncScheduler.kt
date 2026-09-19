@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component
     havingValue = "true",
     matchIfMissing = true,
 )
+@ai.govbiz.core.supportprogram.service.projection.config.EmbeddedCatalogOnly
 class BizInfoSupportProgramCatalogSyncScheduler(
     private val syncService: BizInfoSupportProgramCatalogSyncService,
 ) {

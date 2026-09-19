@@ -2,6 +2,36 @@
 
 **LLM 기반 정부지원사업 탐색·신청 관리 플랫폼**
 
+이 저장소는 React·Core API·Catalog Service·AI Service와 Django 기반 Ops를 함께 관리하는 **애플리케이션 모노레포**입니다.
+Ops 소스는 [`backend/ops`](backend/ops)에 있으며, 상태 확인 API·전용 MySQL·Gunicorn 실행 이미지를 갖추고 있습니다.
+소스를 통합해도 서비스 프로세스·의존성·DB 책임은 분리합니다.
+
+웹(`frontend/`)과 React Native 앱(`mobile/`)을 함께 관리합니다.
+[모바일 실행·기능 안내](mobile/README.md) · [공통 코드·workspace 관리](docs/mobile-monorepo.md)
+
+전체 로컬 실행은 루트 `compose.yaml`, 기존 웹·Core·AI 실행은 `infrastructure/compose.yaml`을 사용합니다.
+[통합 개발·이전 안내](docs/ops-monorepo-migration.md)를 먼저 확인하세요.
+Kubernetes 배포 설정·검증과 향후 Argo CD 연결은 별도 [GovBiz-infra](https://github.com/GovBiz-Team/GovBiz-infra)에서 관리합니다.
+
+### 현재 구현·배포 상태
+
+| 구분 | 상태 |
+|---|---|
+| 기존 웹 서비스 | Vercel + AWS EC2 Compose 기반 배포 유지. 이번 변경으로 운영 서버·데이터·배포 연결을 변경하지 않음 |
+| Ops 로컬 개발 | 별도 Django 프로세스·MySQL, 상태 확인 API, 독립 테스트·컨테이너 검증 구현 |
+| Core 공고 기능 분리 | 별도 Catalog 프로세스·MySQL과 인증된 HTTP 복제 경로 구현. 선택형 로컬 Compose로 전환하며 기존 AWS에는 적용하지 않음 |
+| Kubernetes 1단계 | kind에서 Ops + 검증용 MySQL 실행, DB 장애·PVC 보존·Pod 복구·이미지 롤백 검증 완료 |
+| 다음 단계 | Argo CD GitOps, Core·AI의 Kubernetes 이전, Ops 관리자 인증·LLMOps 업무 기능, AWS Kubernetes 운영 전환 |
+
+**전체 MSA나 Kubernetes 운영 전환이 완료된 상태는 아닙니다.** 검증용 클러스터는 테스트 후 삭제했습니다.
+[실제 검증 기록](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/kubernetes-validation-20260919.md)에서
+완료 범위와 미검증 항목을 확인할 수 있습니다.
+
+공고 분리 모드에서는 `Catalog → Catalog MySQL`이 원본 수집·색인을 소유하고,
+`Core → 내부 HTTP API → 검증 → Core MySQL 조회용 복제본`으로 기존 관심 공고·파트너 모집 참조를 보존합니다.
+전환 호환성을 위해 기존 Core 수집 구현도 남아 있으나, 분리 모드에서는 실행되지 않습니다.
+[분리 범위·검증·운영 전환 조건](docs/catalog-service-extraction.md)을 참고하세요.
+
 <!-- 팀 소개와 프로젝트 구성은 https://github.com/lsm15111/GovBiz-docs 의 README를 바탕으로 작성했습니다. -->
 
 ## 1. 팀 소개
@@ -103,6 +133,16 @@ GovBiz는 여러 정부기관과 공공 플랫폼에 분산된 지원사업 공�
 ![Agents SDK](https://img.shields.io/badge/Agents_SDK-412991?style=for-the-badge)
 ![tiktoken](https://img.shields.io/badge/tiktoken-412991?style=for-the-badge)
 
+### Backend · Ops
+
+![Python 3.13](https://img.shields.io/badge/Python_3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Django 5.2](https://img.shields.io/badge/Django_5.2-092E20?style=for-the-badge&logo=django&logoColor=white)
+![Django REST Framework](https://img.shields.io/badge/Django_REST_Framework-A30000?style=for-the-badge)
+![Gunicorn 26.2](https://img.shields.io/badge/Gunicorn_26.2-499848?style=for-the-badge&logo=gunicorn&logoColor=white)
+
+현재 구현 범위는 상태 확인·DB readiness와 실행·검증 기반입니다. 관리자 화면·인증·평가 관리가
+완성된 서비스라는 뜻은 아닙니다. [Ops 실행·검증 안내](backend/ops/README.md)를 참고하세요.
+
 ### Database · Search
 
 ![MySQL 8.4](https://img.shields.io/badge/MySQL_8.4-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
@@ -125,6 +165,15 @@ GovBiz는 여러 정부기관과 공공 플랫폼에 분산된 지원사업 공�
 ![Amazon ECR](https://img.shields.io/badge/Amazon_ECR-FF9900?style=for-the-badge)
 ![AWS Systems Manager](https://img.shields.io/badge/AWS_Systems_Manager-FF4F8B?style=for-the-badge)
 ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+
+### Kubernetes · 로컬 검증
+
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
+![kind](https://img.shields.io/badge/kind-326CE5?style=for-the-badge)
+![Kustomize](https://img.shields.io/badge/Kustomize-326CE5?style=for-the-badge)
+
+Ops Deployment·Service와 검증용 MySQL StatefulSet·PVC를 실제 kind 클러스터에서 검증했습니다.
+Argo CD는 후속 도입 대상이며, EKS나 전체 서비스의 Kubernetes 운영을 완료했다고 표시하지 않습니다.
 
 ### CI/CD
 
@@ -166,6 +215,11 @@ GovBiz는 공고 탐색부터 신청 준비와 진행 관리까지 하나의 흐
 
 ## 5. 시스템 아키텍처
 
+### 기존 AWS 배포 구성
+
+아래 구성도는 기존 Vercel·AWS EC2 Compose 경로입니다. Ops나 Kubernetes·Argo CD가
+이미 운영 경로에 포함되어 있다는 뜻은 아닙니다.
+
 <p align="center">
   <img
     src="docs/assets/architecture/govbiz-aws-architecture-deployed.png"
@@ -176,7 +230,7 @@ GovBiz는 공고 탐색부터 신청 준비와 진행 관리까지 하나의 흐
 
 ### 📌 서비스 구성 및 운영 흐름
 
-GovBiz는 Vercel과 AWS 환경에 배포할 수 있도록 프론트엔드, Core API, AI Service, 데이터 저장소를 분리하여 구성했습니다.
+기존 배포는 Vercel의 프론트엔드와 AWS의 Core API·AI Service·데이터 저장소를 분리하여 구성했습니다.
 
 1. 사용자는 웹 브라우저를 통해 Vercel에 배포되는 React 프론트엔드에 접속합니다.
 2. 프론트엔드의 `/api` 요청은 CloudFront를 거쳐 VPC 내부의 Nginx로 전달됩니다.
@@ -187,7 +241,11 @@ GovBiz는 Vercel과 AWS 환경에 배포할 수 있도록 프론트엔드, Core 
 7. Elasticsearch와 Qdrant는 키워드·의미 기반 검색에, Redis는 로그인 전 검색 결과 복원에, RabbitMQ는 비동기 작업 전달에 활용합니다.
 8. 공고 데이터는 공공데이터포털 Open API에서 수집하며, AI 기능은 OpenAI API와 연동합니다.
 
-### 📌 배포 흐름
+### 📌 기존 배포 흐름
+
+다음은 기존에 연결된 배포 대상 저장소의 흐름입니다. 코드를 `GovBiz-Team/GovBiz-web`으로
+옮기거나 이 브랜치를 푸시하는 것만으로 AWS·Vercel의 소스 연결이 새 저장소로 이전되지는 않습니다.
+이번 작업에서는 외부 배포 연결을 변경하지 않았습니다.
 
 - GitHub Actions는 push와 PR 발생 시 프론트엔드, Core API, AI Service의 테스트와 빌드를 검증합니다.
 - 배포 대상 저장소의 `main`에 push 또는 PR 병합이 발생하면 CodeBuild의 GitHub webhook이 빌드를 시작합니다. GitHub Actions와 CodeBuild는 각각 별도로 실행됩니다.
@@ -198,6 +256,36 @@ GovBiz는 Vercel과 AWS 환경에 배포할 수 있도록 프론트엔드, Core 
 
 자세한 구성과 배포 조건은 [AWS 배포 구성도](docs/assets/architecture/README-aws-deployed.md)와
 [CodeBuild 배포 안내](docs/deployment-codebuild.md)를 참고하세요.
+
+### 📌 서비스·데이터 경계
+
+| 서비스 | 현재 책임 | 분리 원칙 |
+|---|---|---|
+| Core API | 사용자 인증·기업·관심 공고·파트너·신청 업무와 공개 검색 | 사용자 업무 데이터를 소유. Catalog 분리 모드에서는 공고 원본 대신 조회용 복제본 유지 |
+| Catalog Service | 선택형 분리 모드의 공고 수집·정규화·게시·검색 색인 | 독립 DB를 소유하고 Core에는 인증된 HTTP로 읽기 복제본만 제공. 기존 AWS 미전환 |
+| AI Service | LLM·임베딩·RAG·문서 처리 | Core의 계정·업무 DB를 직접 소유하지 않음 |
+| Ops | 현재 health/readiness·전용 DB 연결 | 향후 운영·평가·감사 기록 담당. 관리자 판정은 Core에 위임하는 방향이며 아직 미구현 |
+
+저장소를 하나로 관리하는 것과 서비스·DB 책임을 합치는 것은 다릅니다. Ops에 Core의 계정 테이블이나
+JWT 서명 키를 복제하지 않습니다. 업무 서비스 추출과 복제 수 확대 전의 제약은
+[서비스 경계 문서](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/service-boundaries.md)에 정리했습니다.
+
+### 📌 Kubernetes 검증과 GitOps 전환
+
+2026-09-19에 격리된 kind 클러스터에서 Ops와 검증용 MySQL을 배포해 다음을 확인했습니다.
+
+- Service DNS와 DB 연결, DB 장애 시 readiness 503 / liveness 200 분리
+- DB Pod 교체 후 PVC 데이터 유지, Ops Pod 삭제 후 자동 재생성
+- 잘못된 이미지 배포 시 기존 정상 Pod 유지와 이전 이미지로 복구
+
+앱 이미지·테스트는 이 저장소, 배포 manifest·검증 도구는 GovBiz-infra가 담당합니다.
+[로컬 재현 안내](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/kubernetes-local.md)와
+[실행 결과·한계](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/kubernetes-validation-20260919.md)를 제공합니다.
+단일 노드 kind 검증은 운영 HA·DB 백업·NetworkPolicy 집행·전체 업무 연동 검증이 아닙니다.
+
+목표 배포 순서는 `앱 CI → ECR 이미지 → Infra 이미지 버전 변경 PR → Argo CD → Kubernetes`입니다.
+자동 PR·Argo CD 동기화는 아직 연결하지 않았으며, 같은 운영 대상을 SSM과 Argo CD가 동시에
+변경하지 않도록 단계적으로 전환합니다.
 
 ## 6. ERD
 
@@ -344,7 +432,9 @@ AI 대화 검색, 신청 문서 작성, GovBiz 도우미는 LLM의 판단과 서
 GovBiz/
 ├── backend/
 │   ├── core-api/                    # Kotlin·Spring Boot Core API
-│   └── ai-service/                  # Python·FastAPI AI Service
+│   ├── catalog-service/             # 독립 공고 수집·게시 서비스, 선택형 분리
+│   ├── ai-service/                  # Python·FastAPI AI Service
+│   └── ops/                         # Django 운영·LLMOps 개발 기반
 ├── frontend/                        # React·TypeScript 웹 애플리케이션
 ├── evaluation/
 │   ├── assistant/                   # AI 어시스턴트 평가
@@ -360,6 +450,7 @@ GovBiz/
 │   ├── seed/                        # 시연용 초기 데이터
 │   ├── stubs/                       # 외부 API 테스트 서버
 │   ├── compose.yaml                 # 로컬 실행 설정
+│   ├── compose.catalog.yaml         # 독립 Catalog + Core projection 선택형 overlay
 │   └── compose.prod.yaml            # 배포 환경 설정
 ├── docs/
 │   ├── architecture/                # 시스템 구조 문서
@@ -488,6 +579,9 @@ python3 -B evaluation/support-program-evidence/verify_flow.py \
 | 기술 | [기술 구성](docs/technology.md) | 기술 스택과 주요 구현 방식 |
 | 구현 | [구현 현황](docs/implementation-status.md) | 기능별 구현·검증 상태 |
 | RAG 구현 | [AI Service 구현 문서](backend/ai-service/README.md) | LangChain·OpenAI·Qdrant 연동 흐름과 핵심 구현 코드 |
+| Ops | [Ops 실행·검증](backend/ops/README.md) · [모노레포 통합](docs/ops-monorepo-migration.md) | 개발 Compose·Gunicorn 이미지·독립 DB·CI와 현재 구현 범위 |
+| Catalog 분리 | [분리·전환 안내](docs/catalog-service-extraction.md) · [서비스 README](backend/catalog-service/README.md) | 별도 공고 DB·HTTP 복제·데이터 보존과 격리 검증 |
+| Kubernetes | [GovBiz-infra 안내](https://github.com/GovBiz-Team/GovBiz-infra/tree/codex/local-kubernetes-validation) | 로컬 배포·장애 복구 검증, 서비스 경계와 GitOps 전환 계획 |
 | 테스트 계획 | [CI 정의](.github/workflows/ci.yml) · [통합 검증 안내](infrastructure/README.md) | 서비스별 자동화 검증과 Compose 통합 테스트 |
 | 테스트 결과 | [검색 및 RAG 평가 보고서](#12-검색-및-rag-평가-테스트-계획-및-결과-보고서) | 평가 계획·지표·측정 결과·한계·재현 방법 |
 | 검색 | [지원사업 검색 설계](docs/support-program-search-contract.md) | AI 검색 흐름과 공고 데이터 계약 |

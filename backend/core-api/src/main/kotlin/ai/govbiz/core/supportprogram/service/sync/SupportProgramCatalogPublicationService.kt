@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 
 /** 완전한 공고 공개와 시스템 분석 등록을 묶는 짧은 업무 transaction. 외부 I/O는 호출 전에 끝낸다. */
 @Service
+@ai.govbiz.core.supportprogram.service.projection.config.EmbeddedCatalogOnly
 class SupportProgramCatalogPublicationService(
     private val programs: SupportProgramRepository,
     private val availability: ApplicationFormAvailabilityRepository,

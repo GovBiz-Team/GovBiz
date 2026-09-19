@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConditionalOnProperty(prefix = "app.kstartup.sync", name = ["enabled"], havingValue = "true", matchIfMissing = false)
+@ai.govbiz.core.supportprogram.service.projection.config.EmbeddedCatalogOnly
 class KStartupSupportProgramCatalogSyncScheduler(private val syncService: KStartupSupportProgramCatalogSyncService) {
     @Scheduled(initialDelayString = "\${app.kstartup.sync.initial-delay:15s}", fixedDelayString = "\${app.kstartup.sync.fixed-delay:6h}")
     fun synchronize() {

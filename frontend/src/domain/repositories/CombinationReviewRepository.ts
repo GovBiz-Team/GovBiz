@@ -1,13 +1,2 @@
-import type { CombinationReview, ReviewDraft, ReviewPage, ReviewSummary, ReviewRun, RunRequest, RunSummary } from '../entities/CombinationReview'
-
-export interface CombinationReviewRepository {
-  list(beforeId?: number, signal?: AbortSignal): Promise<ReviewPage<ReviewSummary>>
-  get(id: number, signal?: AbortSignal): Promise<CombinationReview>
-  create(draft: ReviewDraft, signal?: AbortSignal): Promise<CombinationReview>
-  delete(id: number, signal?: AbortSignal): Promise<void>
-  replace(id: number, revision: number, draft: ReviewDraft, signal?: AbortSignal): Promise<void>
-  runs(id: number, beforeId?: number, signal?: AbortSignal): Promise<ReviewPage<RunSummary>>
-  run(id: number, runId: number, signal?: AbortSignal): Promise<ReviewRun>
-  start(id: number, request: RunRequest, signal?: AbortSignal): Promise<ReviewRun>
-  source(id: number, runId: number, documentIndex: number, signal?: AbortSignal): Promise<Blob>
-}
+// 웹과 모바일의 동일한 업무 계약을 사용합니다.
+export * from '@govbiz/shared/domain/repositories/CombinationReviewRepository'

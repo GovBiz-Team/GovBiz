@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConditionalOnProperty(prefix = "app.cntrade-notice.sync", name = ["enabled"], havingValue = "true", matchIfMissing = false)
+@ai.govbiz.core.supportprogram.service.projection.config.EmbeddedCatalogOnly
 class CnTradeNoticeSupportProgramCatalogSyncScheduler(private val syncService: CnTradeNoticeSupportProgramCatalogSyncService) {
     @Scheduled(initialDelayString = "\${app.cntrade-notice.sync.initial-delay:15s}", fixedDelayString = "\${app.cntrade-notice.sync.fixed-delay:6h}")
     fun synchronize() {

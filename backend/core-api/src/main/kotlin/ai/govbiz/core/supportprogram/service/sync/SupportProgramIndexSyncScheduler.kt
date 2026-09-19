@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConditionalOnProperty(prefix = "app.support-program-index", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+@ai.govbiz.core.supportprogram.service.projection.config.EmbeddedCatalogOnly
 class SupportProgramIndexSyncScheduler(private val syncService: SupportProgramIndexSyncService) {
     @Scheduled(
         initialDelayString = "\${app.support-program-index.initial-delay}",

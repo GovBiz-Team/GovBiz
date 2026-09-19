@@ -7,6 +7,7 @@ import ai.govbiz.core.account.domain.OAuthProvider
 import ai.govbiz.core.account.helper.OAuthStateCookieHelper
 import ai.govbiz.core.account.helper.SessionCookieHelper
 import ai.govbiz.core.account.service.AccountOAuthService
+import ai.govbiz.core.account.service.AccountMobileOAuthService
 import ai.govbiz.core.account.service.dto.OAuthCallback
 import ai.govbiz.core.account.service.dto.OAuthCompletionResult
 import ai.govbiz.core.account.service.dto.OAuthFailure
@@ -35,6 +36,7 @@ class AccountOAuthController(
     private val stateCookieHelper: OAuthStateCookieHelper,
     private val sessionCookieHelper: SessionCookieHelper,
     private val properties: AccountOAuthProperties,
+    private val mobileOAuthService: AccountMobileOAuthService,
 ) {
 
     /** 설정된 공급자와 버튼이 열 시작 주소입니다. */
@@ -69,10 +71,18 @@ class AccountOAuthController(
         @RequestParam(required = false) error: String?,
         httpRequest: HttpServletRequest,
     ): ResponseEntity<Void> {
+        val transaction = stateCookieHelper.read(httpRequest)
+        if (transaction?.mobile == true) {
+            return redirect(mobileOAuthService.complete(OAuthProvider.fromPathName(provider),
+                OAuthCallback(code, state, error), transaction, httpRequest.remoteAddr))
+                .header(HttpHeaders.SET_COOKIE, stateCookieHelper.expire().toString())
+                .header("Referrer-Policy", "no-referrer")
+                .build()
+        }
         val result = oauthService.complete(
             provider = OAuthProvider.fromPathName(provider),
             callback = OAuthCallback(code = code, state = state, error = error),
-            transaction = stateCookieHelper.read(httpRequest),
+            transaction = transaction,
             clientAddress = httpRequest.remoteAddr,
         )
         return when (result) {

@@ -9,7 +9,41 @@
 완료 기능과 남은 제약은 [구현 현황](implementation-status.md), 환경 설정은
 [인프라 README](../infrastructure/README.md)를 참고하세요.
 
+## 웹·앱 공통 코드
+
+`frontend`와 Expo React Native `mobile`은 `packages/shared`의 domain·유스케이스·DTO 검증을 가져옵니다.
+공고 호출은 `웹/앱 화면 → 공통 유스케이스 → 플랫폼 Repository → 공통 공고 HTTP 클라이언트 → Core API`
+로 이어집니다. 공통 클라이언트에는 공개 API 주소와 fetch만 주입하며 Vite/Expo 환경변수·브라우저 저장소·React를 참조하지 않습니다.
+웹은 기존 쿠키 설정을 유지하고 앱의 세션 저장·네비게이션은 모바일 쪽에서 담당합니다.
+기존 웹의 domain/model 파일은 공통 구현을 재수출하므로 두 구현이 따로 변경되지 않습니다.
+[공동 관리와 검증 명령](mobile-monorepo.md)을 참고하세요.
+
+앱 이메일 인증은 `AccountMobileAuthController → 기존 로그인/가입 Service → AccountRepository → MyBatis → MySQL`이며,
+네이티브에서 받은 Bearer JWT도 웹과 같은 DB 세션 만료·폐기 규칙을 사용합니다. 웹은 HttpOnly 쿠키를 유지하며,
+쿠키와 Bearer가 함께 오면 쿠키를 우선하고 Origin 검사를 그대로 적용합니다.
+소셜 로그인은 `앱 시스템 브라우저 → AccountMobileOAuthController → AccountMobileOAuthService → 기존 OAuthService/Client → 공급자`
+를 거쳐 기존 HTTPS 서버 callback으로 돌아옵니다. 서명 state 쿠키와 V40 MySQL transaction의 일회용 선점이 콜백 재사용을 막습니다.
+허용된 앱 URI에는 60초 일회용 코드만 전달하고, 앱의 PKCE S256 검증 뒤 코드 소비·세션 생성을 같은 DB transaction에서 처리합니다.
+OAuth 외부 호출 중에는 DB transaction을 열지 않습니다. [정확한 인증 API와 설정](../backend/core-api/README.md#모바일-인증-계약)을 참고하세요.
+
 ## 서비스 경계
+
+저장소는 React·Core API·Catalog Service·AI Service·Django Ops를 함께 관리하는 모노레포입니다.
+`backend/ops`는 전용 MySQL을 쓰는 별도 프로세스이며 현재 상태 확인 API만 제공합니다.
+Ops와 Core의 계정·관리 업무 연동은 아직 구현하지 않았고, 아래 AWS 운영 경로에 Ops를 추가하지 않았습니다.
+[소스 통합과 로컬 실행](ops-monorepo-migration.md)을 참고하세요.
+
+공고 카탈로그의 단계적 분리는 `infrastructure/compose.catalog.yaml`을 추가한 선택형 로컬 실행에서 사용합니다.
+Catalog는 별도 프로세스·DB로 네 제공처 수집, 정규화, 검색 색인과 공개 snapshot을 소유합니다.
+Core는 `CatalogProjectionScheduler → Service → 인증된 HTTP Client → Catalog`로 완전한 응답을 받은 뒤,
+Service가 짧은 transaction을 시작한 뒤 `CatalogProjectionRepository → MyBatis → Core MySQL`로
+조회용 복제본·신청서 분석 등록·checkpoint를 함께 갱신합니다. HTTP 수신은 transaction 밖입니다.
+기존 관심 공고·파트너 모집의 FK와 공고 숫자 ID는 유지하며 서로의 DB에 직접 연결하지 않습니다.
+Core 공개 API는 적용 완료된 복제본을 읽습니다. 인증·통신·검증 실패 시 기존 복제본을 유지하고 실패를 기록합니다.
+
+이 모드에서 Core의 수집·색인 writer bean은 생성되지 않습니다. 기존 구현은 전환 호환성을 위해 남아 있으며,
+기본 Compose·AWS 운영은 아직 기존 embedded 모드입니다. 아래 기존 수집 흐름 설명은 embedded 모드를 기준으로 하며,
+분리 모드의 계약·소유권·제약은 [Catalog 분리 안내](catalog-service-extraction.md)를 참고하세요.
 
 AWS 운영 진입 경로는 `Vercel routing middleware → CloudFront VPC origin → Nginx → Core`입니다.
 미들웨어는 프록시 공유 비밀값·신뢰 IP만 추가하며 업무/AI 실행을 맡지 않습니다. Core는 운영 Compose에서

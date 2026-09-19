@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConditionalOnProperty(prefix = "app.msit.sync", name = ["enabled"], havingValue = "true", matchIfMissing = false)
+@ai.govbiz.core.supportprogram.service.projection.config.EmbeddedCatalogOnly
 class MsitSupportProgramCatalogSyncScheduler(private val syncService: MsitSupportProgramCatalogSyncService) {
     @Scheduled(
         initialDelayString = "\${app.msit.sync.initial-delay:15s}",

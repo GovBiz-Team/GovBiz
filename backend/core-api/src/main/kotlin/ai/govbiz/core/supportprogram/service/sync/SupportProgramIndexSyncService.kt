@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service
 
 /** 공개 전 키워드·벡터 색인을 준비하고, 현재 공고의 누락 색인을 복구합니다. */
 @Service
+@ai.govbiz.core.supportprogram.service.projection.config.EmbeddedCatalogOnly
 class SupportProgramIndexSyncService(
     private val repository: SupportProgramRepository,
     private val client: AiSupportProgramIndexClient,
