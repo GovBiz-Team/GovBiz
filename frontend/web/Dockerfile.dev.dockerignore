@@ -21,3 +21,13 @@
 **/.env.*
 **/*.log
 **/.DS_Store
+**/.git/
+**/.vercel/
+**/.expo/
+**/.idea/
+**/.vscode/
+**/.cache/
+**/test-results/
+**/playwright-report/
+**/*.pem
+**/*.key

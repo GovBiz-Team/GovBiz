@@ -62,6 +62,30 @@ JavaScript가 `http://core-service:8080`을 직접 호출하면 실패합니다.
 
 ## 실행
 
+### Docker 빌드 입력과 정리
+
+각 백엔드와 테스트 stub의 `.dockerignore`는 Dockerfile이 복사하는 파일만 허용합니다.
+웹은 저장소 루트를 context로 사용하므로 `frontend/web/.dockerignore`가 아니라
+`frontend/web/Dockerfile.dev.dockerignore`가 적용됩니다. 웹·shared와 모바일의 `package.json`만
+허용하고, `.git`·`node_modules`·가상환경·중첩 캐시·빌드 결과·`.env`는 이미지로 보내지 않습니다.
+Dockerfile에 새 `COPY` 입력을 추가하면 해당 허용 목록도 함께 갱신해야 합니다.
+
+`.dockerignore`는 빌드 전송량과 불필요한 캐시 갱신을 줄입니다. 실행 중인 컨테이너의 메모리,
+Vite 바인드 마운트 감시 범위, Docker Desktop VM의 메모리 한도를 바꾸지는 않습니다.
+로컬에서 무거운 전체 스택 검증을 동시에 여러 개 실행하지 말고 빌드는 순차 실행합니다.
+
+```bash
+docker system df
+docker stats --no-stream
+docker compose --parallel 1 build
+```
+
+이미지는 실행·중지 컨테이너의 참조를 확인한 뒤 사용하지 않는 검증용 **정확한 태그**만
+`docker image rm <검증용-이미지:태그>`로 지웁니다. 필요하면 소스로 재빌드할 수 있지만,
+재빌드 시간과 다운로드가 발생합니다. 실행 컨테이너·DB 볼륨·다른 프로젝트 이미지는 보존합니다.
+`docker system prune -a --volumes`나 `docker compose down -v`를 공간 정리용으로 사용하지 않습니다.
+빌드 캐시는 다음 빌드를 빠르게 하므로 이미지 정리와 별도로 범위를 정해 다룹니다.
+
 웹 이미지는 저장소 루트를 build context로 사용하고, 루트 pnpm lockfile로 `frontend/web`와
 `frontend/packages/shared` 의존성만 설치합니다. 개발 컨테이너의 작업 경로는 `/app/frontend/web`입니다.
 웹·공유 소스를 각각 바인드 마운트하며 루트·웹·공유 `node_modules`는 별도 named volume에 둡니다.

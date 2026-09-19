@@ -5,8 +5,16 @@ dist/
 *.tsbuildinfo
 .env
 .env.*
-!.env.example
 *.log
 .DS_Store
 .idea/
 .vscode/
+.git/
+.vercel/
+.expo/
+.cache/
+coverage/
+test-results/
+playwright-report/
+*.pem
+*.key
