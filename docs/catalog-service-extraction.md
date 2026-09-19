@@ -6,8 +6,8 @@
 `backend/catalog-service/`에 있으며 별도 Spring Boot 이미지와 MySQL DB를 사용한다.
 계정·기업·관심 공고·파트너·신청 준비·중복 검토·리포트는 Core에 남긴다.
 
-이번 변경은 **선택해서 실행하는 로컬 분리 경로**다. 현재 AWS 서버·RDS·ECR·Vercel·SSM 배포는
-변경하지 않는다. 기존 기본 Compose와 운영 배포의 embedded 경로도 데이터 이전 전까지 유지한다.
+루트 `compose.yaml`은 **Catalog 분리 경로를 기본으로 실행**한다. 현재 AWS 서버·RDS·ECR·Vercel·SSM 배포는
+변경하지 않는다. `infrastructure/compose.yaml` 단독 실행과 운영 배포의 embedded 경로는 데이터 이전 전까지 유지한다.
 Core에 남은 기존 수집 구현은 전환 호환 코드이며, 중복 구현을 영구 구조로 삼지 않는다.
 운영 전환·데이터 대조·복구 검증을 마친 뒤 별도 변경에서 제거한다.
 
@@ -155,6 +155,15 @@ Docker 통합 검증도 첫 병렬 빌드에서는 공유 Gradle 캐시 잠금 �
 실행 시간이나 현재 CI 제한 30분 이내 완료를 보장하지 않는다.
 
 ## 실제 개발용 선택 실행
+
+새 로컬 통합 환경은 루트 `compose.yaml`에서 Catalog overlay를 자동 병합한다.
+`GOVBIZ_APP_ENV_FILE`(기본 `.env`)에 서버 전용 `CATALOG_INTERNAL_TOKEN`을 32자 이상 설정한다.
+토큰 누락 시 Compose 렌더링부터 실패하며 공개/기본 토큰으로 대체하지 않는다.
+기존 Core DB가 있다면 볼륨을 지우거나 바로 재기동하지 않고 아래 전환 조건을 먼저 확인한다.
+Core의 원본 writer는 비활성화되지만, Catalog 수집 활성화는 source별 명시적 설정이 필요하다.
+기존 볼륨 overlay `compose.existing-data.yaml`은 전환 검토 없이 실행되지 않는다.
+백업·데이터 대조·단일 쓰기 주체 전환 계획을 확인한 뒤에만 `.env.compose`에
+`GOVBIZ_CATALOG_TRANSITION_REVIEWED=1`을 설정한다. 이 확인값은 실제 데이터 이전을 수행하지 않는다.
 
 `infrastructure/compose.yaml` 뒤에 `infrastructure/compose.catalog.yaml`을 겹쳐 사용한다.
 이 overlay는 기존 `infrastructure/compose.prod.yaml`용이 아니다. 루트 Ops 통합 Compose에

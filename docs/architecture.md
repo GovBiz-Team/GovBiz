@@ -39,7 +39,7 @@ health 응답은 각각 `govbiz-core-service`·`govbiz-ops-service`이며 현재
 Ops와 Core의 계정·관리 업무 연동은 아직 구현하지 않았고, 아래 AWS 운영 경로에 Ops를 추가하지 않았습니다.
 [소스 통합과 로컬 실행](ops-monorepo-migration.md)을 참고하세요.
 
-공고 카탈로그의 단계적 분리는 `infrastructure/compose.catalog.yaml`을 추가한 선택형 로컬 실행에서 사용합니다.
+루트 `compose.yaml`은 `infrastructure/compose.catalog.yaml`을 포함해 공고 카탈로그 분리를 기본 적용합니다.
 Catalog는 별도 프로세스·DB로 네 제공처 수집, 정규화, 검색 색인과 공개 snapshot을 소유합니다.
 Core는 `CatalogProjectionScheduler → Service → 인증된 HTTP Client → Catalog`로 완전한 응답을 받은 뒤,
 Service가 짧은 transaction을 시작한 뒤 `CatalogProjectionRepository → MyBatis → Core MySQL`로
@@ -48,7 +48,8 @@ Service가 짧은 transaction을 시작한 뒤 `CatalogProjectionRepository → 
 Core 공개 API는 적용 완료된 복제본을 읽습니다. 인증·통신·검증 실패 시 기존 복제본을 유지하고 실패를 기록합니다.
 
 이 모드에서 Core의 수집·색인 writer bean은 생성되지 않습니다. 기존 구현은 전환 호환성을 위해 남아 있으며,
-기본 Compose·AWS 운영은 아직 기존 embedded 모드입니다. 아래 기존 수집 흐름 설명은 embedded 모드를 기준으로 하며,
+`infrastructure/compose.yaml` 단독 실행과 AWS 재배포용 템플릿은 기존 embedded 모드입니다.
+현재 운영 환경은 없으며 이 변경으로 AWS를 배포하지 않습니다. 아래 기존 수집 흐름 설명은 embedded 모드를 기준으로 하며,
 분리 모드의 계약·소유권·제약은 [Catalog 분리 안내](catalog-service-extraction.md)를 참고하세요.
 
 AWS 운영 진입 경로는 `Vercel routing middleware → CloudFront VPC origin → Nginx → Core`입니다.

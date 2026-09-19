@@ -5,7 +5,7 @@ Elasticsearch 키워드 색인과 AI Service 벡터 색인을 준비한 뒤 자�
 Kotlin 2.4.10, Spring Boot 4.1.0, JDK 21, MyBatis 4.0.0을 사용합니다.
 Core의 계정·세션·신청서·원문 캐시 코드 또는 Gradle 프로젝트에 의존하지 않습니다.
 
-현재는 단계적 분리입니다. 기존 AWS/기본 Compose 호환성을 위해 Core에도 기존 수집 구현이
+현재는 단계적 분리입니다. 루트 Compose는 Catalog 분리형이며 기존 AWS/embedded 실행 호환성을 위해 Core에도 기존 수집 구현이
 일시적으로 남아 있으며, Core의 카탈로그 projection 모드에서만 기존 쓰기 실행을 끕니다.
 일반 사용자 목록·상세·검색 API는 Core가 로컬 읽기 projection으로 계속 제공합니다.
 이 서비스의 DB를 Core DB로 지정하거나 기존 운영 DB의 Flyway 이력에 연결하지 않습니다.

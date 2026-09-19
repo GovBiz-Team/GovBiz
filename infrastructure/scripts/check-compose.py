@@ -61,6 +61,8 @@ def validate(model, project):
         {
             "web",
             "core-service",
+            "catalog-service",
+            "catalog-mysql",
             "ai-service",
             "mysql",
             "elasticsearch",
@@ -114,10 +116,28 @@ def validate(model, project):
         == "app-user-fixture",
         "The Core API did not receive its selected environment file.",
     )
+    core = services["core-service"]["environment"]
+    catalog = services["catalog-service"]["environment"]
+    require(core["CATALOG_PROJECTION_ENABLED"] == "true", "Default Core must use Catalog projection.")
+    require(core["CATALOG_SERVICE_URL"] == "http://catalog-service:8081", "Incorrect Catalog DNS.")
+    require(core["CATALOG_INTERNAL_TOKEN"] == catalog["CATALOG_INTERNAL_TOKEN"]
+            == "root-compose-catalog-fixture-token-never-use", "Catalog token isolation failed.")
+    for flag in ("BIZINFO_SYNC_ENABLED", "KSTARTUP_SYNC_ENABLED", "MSIT_SYNC_ENABLED",
+                 "CNTRADE_NOTICE_SYNC_ENABLED", "SUPPORT_PROGRAM_INDEX_ENABLED"):
+        require(core[flag] == "false", "Default Core must not own source/index writes: " + flag)
+        require(catalog[flag] == "false", "Fixture must not activate paid source/index work: " + flag)
+    for key in ("DATA_GO_KR_SERVICE_KEY", "KSTARTUP_API_KEY", "MSIT_API_KEY", "CNTRADE_NOTICE_API_KEY"):
+        require(core[key] == "", "Source credentials must not reach Core: " + key)
+    require(catalog["SPRING_DATASOURCE_URL"].startswith("jdbc:mysql://catalog-mysql:3306/"),
+            "Catalog must use its own database.")
+    for key in ("SPRING_DATASOURCE_URL", "SPRING_DATASOURCE_USERNAME", "SPRING_DATASOURCE_PASSWORD"):
+        require(core[key] != catalog[key], "Database credentials must not be shared: " + key)
+    require(not services["catalog-mysql"].get("ports"), "Do not expose Catalog DB on the host.")
 
     for name, path in {
         "web": APP,
         "core-service": APP / "backend/core-service",
+        "catalog-service": APP / "backend/catalog-service",
         "ai-service": APP / "backend/ai-service",
         "elasticsearch": APP / "infrastructure/elasticsearch",
         "ops-service": DJANGO,
@@ -218,6 +238,7 @@ def main():
         temp = Path(directory)
         app_env = {
             "OPENAI_API_KEY": "infra-config-only-never-sent",
+            "CATALOG_INTERNAL_TOKEN": "root-compose-catalog-fixture-token-never-use",
             "MYSQL_ROOT_PASSWORD": "app-root-fixture",
             "MYSQL_PASSWORD": "app-user-fixture",
             "MYSQL_HOST_PORT": "3307",
@@ -248,6 +269,7 @@ def main():
             {
                 "GOVBIZ_APP_ENV_FILE": (temp / "app.env").as_posix(),
                 "GOVBIZ_DJANGO_ENV_FILE": (temp / "django.env").as_posix(),
+                "GOVBIZ_CATALOG_TRANSITION_REVIEWED": "1",
             },
         )
         # Clear every interpolation variable used by the models, not just fixture keys.
@@ -257,6 +279,7 @@ def main():
             ROOT / "compose.ops.yaml",
             ROOT / "compose.existing-data.yaml",
             APP / "infrastructure/compose.yaml",
+            APP / "infrastructure/compose.catalog.yaml",
             DJANGO / "compose.yaml",
         ]
         variables = set(app_env) | set(django_env)

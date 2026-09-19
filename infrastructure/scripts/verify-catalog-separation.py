@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the opt-in catalog boundary using disposable MySQL and local HTTP fixtures.
+"""Verify the catalog boundary using disposable MySQL and local HTTP fixtures.
 
 No developer .env files, existing databases, public source APIs or paid model APIs
 are used. --config-only validates the Compose and source boundaries without Docker
@@ -203,8 +203,13 @@ def main():
         fixture = temp / "fixture.env"
         fixture.write_text("".join(f"{key}={value}\n" for key, value in values.items()))
         port_overlay = temp / "ports.json"
-        port_overlay.write_text(json.dumps({"services": {"catalog-service": {
-            "ports": [f"127.0.0.1:{values['CATALOG_HOST_PORT']}:8081"]}}}))
+        # Cold MySQL/Elasticsearch initialization can exceed the development
+        # Compose health budget on a constrained laptop. Keep the original
+        # probes, but let the disposable fixture use the requested wait budget.
+        fixture_services = {name: {"healthcheck": {"start_period": "60s", "retries": max(12, args.timeout // 5)}}
+                            for name in ("mysql", "catalog-mysql", "elasticsearch", "rabbitmq", "core-service", "catalog-service")}
+        fixture_services["catalog-service"]["ports"] = [f"127.0.0.1:{values['CATALOG_HOST_PORT']}:8081"]
+        port_overlay.write_text(json.dumps({"services": fixture_services}))
         # Limit Compose operations too; image builds below use separate invocations
         # because Bake can otherwise parallelize builds despite --parallel 1.
         compose = ["docker", "compose", "--parallel", "1", "--project-name", project, "--env-file", str(fixture),

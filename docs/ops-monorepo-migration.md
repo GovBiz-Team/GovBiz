@@ -22,12 +22,15 @@ Core의 계정·인증 테이블을 복제하거나 기존 Core·AI의 업무 �
 - 기존 `infrastructure/compose.prod.yaml`과 `infrastructure/codebuild/`는 향후 재배포용 템플릿으로 남긴다. 현재 운영 환경은 없다. Kubernetes 전환 시 한 대상에 두 배포 경로가 동시에 쓰지 않도록 별도 승인 후 이전한다.
 
 코드 통합만으로 CodeConnections·CodeBuild·Vercel 연결, ECR 이미지, 운영 컨테이너는 바뀌지 않는다.
-후속 작업에서 Ops + 검증용 MySQL의 로컬 kind 실행·복구 검증을 완료했다.
-Argo CD 연결과 AWS Kubernetes 운영 전환은 별도 단계다.
+후속 작업에서 네 서비스의 독립 Helm 실행·DB 경계·장애·복구와 로컬 Argo CD Git 동기화를 검증했다.
+[최신 검증 기록](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/msa-validation-20260920.md)을 참고한다.
+상시 클러스터·이미지 발행 CI와 AWS Kubernetes 운영 전환은 별도 단계다.
 
 ## 로컬 개발 시작
 
 저장소 루트에서 실행한다. 기존 `.env`가 있다면 덮어쓰지 않는다.
+현재 루트 Compose는 Catalog 분리가 기본이다. 선택한 앱 환경 파일에 32자 이상의 무작위
+`CATALOG_INTERNAL_TOKEN`을 준비해야 한다. Core·Catalog에 같은 값이 전달되며 프론트에는 전달하지 않는다.
 
 ```bash
 # 세 파일이 없을 때만 각 예시를 복사하고 로컬 설정을 입력한다.
@@ -57,6 +60,9 @@ Ops만 단독 개발하려면 `backend/ops-service/README.md`를 따른다.
 기존 개발 컨테이너를 자동으로 종료하거나 데이터를 옮기지 않는다. 전환 전에 본인이 사용하던 Compose
 파일·환경 파일·프로젝트명과 `docker volume ls`로 실제 볼륨 이름을 확인한다.
 같은 데이터 볼륨에 두 MySQL 프로세스를 동시에 연결하지 않는다.
+기존 Core 데이터를 연결하려면 먼저 [Catalog 전환 조건](catalog-service-extraction.md)을 검토하고
+`.env.compose`에 `GOVBIZ_CATALOG_TRANSITION_REVIEWED=1`을 명시해야 한다.
+이 확인값은 백필이나 데이터 검증을 자동 수행했다는 뜻이 아니다. 기존 데이터에 새 Catalog를 즉시 연결하지 않는다.
 
 - 기존 **GovBiz-infra 통합 실행** 사용자는 프로젝트명 `govbiz-infra`를 그대로 쓸 수 있지만, Ops 논리 볼륨이 `ops-mysql-data`로 변경되었다.
   Ops 데이터를 이어 쓰려면 `compose.existing-data.yaml`과 `GOVBIZ_EXISTING_DJANGO_MYSQL_VOLUME=govbiz-infra_django-mysql-data`를 사용하고 나머지 `GOVBIZ_EXISTING_*_VOLUME`도 실제 기존 볼륨명으로 맞춘다.

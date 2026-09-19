@@ -1,4 +1,4 @@
-# Opt-in local catalog extraction. Apply after infrastructure/compose.yaml.
+# Default root Compose catalog boundary. Also usable after infrastructure/compose.yaml.
 # Catalog owns its database and source/index writes; Core keeps its local read projection.
 services:
   catalog-mysql:

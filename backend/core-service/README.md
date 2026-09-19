@@ -6,10 +6,11 @@ Gradle·Spring 애플리케이션 이름과 health 응답은 `govbiz-core-servic
 
 ## 공고 카탈로그 독립 서비스 전환
 
-선택적 분리 경로에서 `backend/catalog-service`가 공고 원본 DB·제공처 수집·색인 게시를 소유합니다.
+루트 Compose의 기본 분리 경로에서 `backend/catalog-service`가 공고 원본 DB·제공처 수집·색인 게시를 소유합니다.
 Core는 내부 HTTP로 받은 완전한 snapshot을 자신의 읽기 projection에 반영하여 기존 공개 API와
 관심 공고·파트너 FK를 유지합니다. `CATALOG_PROJECTION_ENABLED=true`이면 Core의 기존 수집·색인
-writer는 조립되지 않습니다. 기본값 false는 기존 AWS/Compose 호환을 위한 임시 경로입니다.
+writer는 조립되지 않습니다. 직접 실행 시 기본값 false는 기존 embedded 실행·AWS 호환을 위한 임시 경로이며,
+루트 Compose에서는 true로 고정합니다. 기존 데이터 재사용 전에는 대조·전환 확인이 필요합니다.
 
 아래 기존 수집 설명은 embedded 모드 기준입니다. 새로운 코드·DB·실행 경계, V41 migration,
 격리 검증과 아직 수행하지 않은 운영 이전은 [Catalog 서비스 분리](../../docs/catalog-service-extraction.md)를 따릅니다.
