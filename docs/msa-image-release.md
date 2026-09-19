@@ -20,22 +20,41 @@
 | AI | `ghcr.io/govbiz-team/govbiz-ai-service` |
 | Ops | `ghcr.io/govbiz-team/govbiz-ops-service` |
 
+## 실제 발행 확인 — 2026-09-20 KST
+
+- 소스 기준점: `c27e2b579a14c2b87eb0974cd3f176b195ad8d6b`.
+- [GovBiz CI](https://github.com/GovBiz-Team/GovBiz/actions/runs/35457058416),
+  [Catalog CI](https://github.com/GovBiz-Team/GovBiz/actions/runs/35457058337),
+  [Ops CI](https://github.com/GovBiz-Team/GovBiz/actions/runs/35457058421)가 모두 성공했다.
+- [최초 발행 run](https://github.com/GovBiz-Team/GovBiz/actions/runs/35457860821)의 네 publish job이
+  모두 성공했고 각 `msa-image-<service>` artifact에 선택할 digest가 기록되어 있다.
+- 최초 발행은 `MSA_RELEASE_ENABLED=true`, `msa-release` Environment의 `develop` 전용 branch policy로 실행했다.
+- 최초 공개 발행 때 익명 manifest의 SHA-256 일치 및 모든 레이어의 HEAD 200을 확인했다.
+  이후 사용자의 공개 결정 철회에 따라 **네 패키지를 삭제·재발행 없이 Private으로 전환**했고,
+  새로운 익명 접근 요청은 네 패키지 모두 HTTP 401로 거절되는 것을 확인했다.
+- 현재 `MSA_RELEASE_ENABLED=false`로 자동 발행을 중지했으며 조직의 공개 패키지 생성 허용도 껐다.
+  기존 이미지·digest·발행 이력과 develop 전용 Environment 정책은 유지했다.
+- [패키지 목록](https://github.com/orgs/GovBiz-Team/packages?repo_name=GovBiz)은 권한 있는 계정으로 확인한다.
+  전체 레이어 다운로드·비공개 전환 후 인증된 pull·상시 Kubernetes 배포는 아직 검증하지 않았다.
+  이전에 다운로드한 외부 사본을 비공개 전환으로 회수할 수는 없다. 소스 저장소 공개 범위는 바꾸지 않았다.
+
 ## 발행 권한과 공개 범위
 
 - Actions의 `GITHUB_TOKEN`에 `contents: read`, `actions: read`, 발행 job에만 `packages: write`를 준다.
   별도 장기 PAT나 AWS 액세스 키·OIDC 역할은 필요 없다.
 - `msa-release` Environment는 develop만 허용하도록 설정한다. 최초 발행 시 정책과 저장소 연결을 확인한다.
-- Repository Variable `MSA_RELEASE_ENABLED=true`를 설정하면 후속 성공 CI에서 자동 발행된다.
+- 현재 중지된 Repository Variable을 승인 후 `MSA_RELEASE_ENABLED=true`로 설정하면 후속 성공 CI에서 자동 발행된다.
   이미 테스트가 완료된 SHA는 Actions의 **MSA image candidates → Run workflow → develop**으로 재시도한다.
 - 조직에서 Actions의 패키지 생성 권한이 허용되어야 한다. 기존 동일 이름 패키지가 있으면
   GovBiz 저장소의 Actions 접근 권한을 확인한다. 권한 오류를 우회하기 위해 광범위 PAT를 추가하지 않는다.
-- 사용자 선택은 **공개 이미지**다. GHCR의 첫 발행 기본값은 private이므로, 생성 후 각 Package settings에서
-  public으로 바꾸고 인증 없는 pull을 별도로 검증해야 공개 전환이 완료된다. 소스 저장소가 public이라고
-  패키지도 자동 public이라고 가정하지 않는다. 워크플로는 패키지 공개 설정을 임의 변경하지 않는다.
+- 현재 사용자 선택은 **비공개 이미지**다. 기존 네 패키지는 Private을 유지하고 조직의 공개 패키지
+  생성 허용을 켜지 않는다. 소스 저장소의 공개 범위와 이미지 패키지의 공개 범위는 별개다.
+  워크플로는 패키지 공개 설정을 임의 변경하지 않는다.
 
-공개 이미지에는 컴파일된 코드·Python 소스·의존성이 들어간다. 비밀값은 런타임 Secret으로만 주입한다.
-동일 namespace에서 비공개를 사용하는 경우 Kubernetes에는 별도로 `read:packages` 권한의 pull 인증이
-필요하다. Actions의 단기 GITHUB_TOKEN을 상시 클러스터 비밀값으로 복사하지 않는다.
+이미지에는 컴파일된 코드·Python 소스·의존성이 들어간다. 비공개여도 비밀값은 런타임 Secret으로만 주입한다.
+Kubernetes에는 별도로 `read:packages` 권한의 pull 인증이 필요하다. 해당 namespace의 Secret과
+Helm `imagePullSecrets` 참조를 준비하고 인증된 pull을 검증해야 한다. 아직 상시 클러스터 인증은 연결하지 않았다.
+Actions의 단기 GITHUB_TOKEN을 상시 클러스터 비밀값으로 복사하지 않는다.
 
 ## 재실행·부분 실패·오래된 커밋
 
@@ -58,7 +77,7 @@
 ## 결과와 버전 선택
 
 성공한 전체 run의 `msa-image-<service>` artifact에는 JSON receipt가 있다.
-공개 이미지 식별자·digest·입력 키·검증 소스 SHA만 저장하며 비밀값은 없다.
+이미지 식별자·digest·입력 키·검증 소스 SHA만 저장하며 인증 비밀값은 없다.
 `verifiedRevision`은 테스트한 소스 기준점이다. 재사용 이미지의 OCI revision label은 같은 service tree를
 최초 빌드한 이전 SHA일 수 있으므로 두 값을 같은 의미로 보고하지 않는다.
 
