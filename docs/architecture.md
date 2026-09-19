@@ -11,6 +11,11 @@
 
 ## 서비스 경계
 
+저장소는 React·Core API·AI Service·Django Ops를 함께 관리하는 모노레포입니다.
+`backend/ops`는 전용 MySQL을 쓰는 별도 프로세스이며 현재 상태 확인 API만 제공합니다.
+Ops와 Core의 계정·관리 업무 연동은 아직 구현하지 않았고, 아래 AWS 운영 경로에 Ops를 추가하지 않았습니다.
+[소스 통합과 로컬 실행](ops-monorepo-migration.md)을 참고하세요.
+
 AWS 운영 진입 경로는 `Vercel routing middleware → CloudFront VPC origin → Nginx → Core`입니다.
 미들웨어는 프록시 공유 비밀값·신뢰 IP만 추가하며 업무/AI 실행을 맡지 않습니다. Core는 운영 Compose에서
 Nginx 한 IP의 전달 헤더만 신뢰하고 기존 계정·Origin 검증을 유지합니다.
