@@ -4,6 +4,8 @@ services:
   web:
     build: .
     init: true
+    # 로컬 소스 변경 자동 반영용. 이미지 자체는 Gunicorn으로 실행됩니다.
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     env_file: .env
     environment:
       DB_NAME: govbiz4
