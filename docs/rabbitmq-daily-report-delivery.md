@@ -50,7 +50,7 @@
 
 ## 저장 구조와 상태
 
-[V27](../backend/core-api/src/main/resources/db/migration/V27__add_daily_report_delivery_outbox.sql)은 기존 `daily_report`에
+[V27](../backend/core-service/src/main/resources/db/migration/V27__add_daily_report_delivery_outbox.sql)은 기존 `daily_report`에
 다음 nullable 컬럼과 CHECK·발행 조회 인덱스만 추가한다. 기존 migration·데이터는 수정·삭제하지 않는다.
 리포트 한 건당 발송권이 하나이므로 별도 발송 작업 테이블이나 중복된 상태 모델을 만들지 않는다.
 

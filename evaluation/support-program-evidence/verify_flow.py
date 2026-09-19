@@ -15,7 +15,7 @@ import unicodedata
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
-DEFAULT_FIXTURE = ROOT / "backend/core-api/src/test/resources/support-program-evidence/official-sources.json"
+DEFAULT_FIXTURE = ROOT / "backend/core-service/src/test/resources/support-program-evidence/official-sources.json"
 HASH = re.compile(r"[0-9a-f]{64}\Z")
 
 

@@ -16,10 +16,10 @@
 | 웹 도구 | Vite 8, Tailwind CSS 4 | 개발 서버, 번들링, 스타일 | [package.json](../frontend/package.json) |
 | 상태·연결 | Redux Toolkit 2, Awilix 13 | 대화 상태, UseCase·Repository 생성과 연결 | [app 구성](../frontend/src/app) |
 | 웹 검증 | Zod 4, React Hook Form 7 | HTTP 응답과 예제 폼 검증 | [Frontend 안내](../frontend/README.md) |
-| 공개 API | JDK 21, Kotlin 2.4.10, Spring Boot 4.1.0 | HTTP 계약, 업무 흐름, 외부 통신 | [build.gradle](../backend/core-api/build.gradle) |
-| DB 접근 | MyBatis Spring Boot Starter 4.0.0, Flyway | XML SQL 실행과 스키마 버전 관리 | [build.gradle](../backend/core-api/build.gradle) |
-| 원문 파싱 | jsoup 1.23.2 | 기업마당 상세 HTML의 제목 확인과 공고 본문 추출 | [build.gradle](../backend/core-api/build.gradle) |
-| 비밀번호 해시 | spring-security-crypto(BCrypt) | 회원 비밀번호 해시·비교. Security filter chain은 사용하지 않음 | [build.gradle](../backend/core-api/build.gradle) |
+| 공개 API | JDK 21, Kotlin 2.4.10, Spring Boot 4.1.0 | HTTP 계약, 업무 흐름, 외부 통신 | [build.gradle](../backend/core-service/build.gradle) |
+| DB 접근 | MyBatis Spring Boot Starter 4.0.0, Flyway | XML SQL 실행과 스키마 버전 관리 | [build.gradle](../backend/core-service/build.gradle) |
+| 원문 파싱 | jsoup 1.23.2 | 기업마당 상세 HTML의 제목 확인과 공고 본문 추출 | [build.gradle](../backend/core-service/build.gradle) |
+| 비밀번호 해시 | spring-security-crypto(BCrypt) | 회원 비밀번호 해시·비교. Security filter chain은 사용하지 않음 | [build.gradle](../backend/core-service/build.gradle) |
 | 사업자 확인 | Bizno(bizno.net) 사업자등록번호 조회 API | 기업 등록 시 등록 여부·상호·사업자 상태 확인. 키는 `BIZNO_API_KEY` | [계정·인증 계약](account-auth-contract.md) |
 | AI API | Python 3.12(Docker)·3.11(CI), FastAPI 0.139.x, Pydantic 2 | 내부 API와 구조화된 요청·응답 검증 | [pyproject.toml](../backend/ai-service/pyproject.toml) |
 | AI 호출 | LangChain 1.x, LangGraph 1.x, OpenAI SDK 3.x, Agents SDK 0.22.x, tiktoken | LangChain 조건 해석·추천·근거 답변, LangGraph 도우미, 임베딩·입력 토큰 제한 | [pyproject.toml](../backend/ai-service/pyproject.toml) |
@@ -69,7 +69,7 @@ MySQL의 `support_program`은 `(source_code, source_program_id)`를 고유키로
 `account`는 이메일(고유)·BCrypt 비밀번호 해시·역할·이메일 인증·정지·삭제 시각을, `account_session`은 세션 JWT의
 SHA-256 해시·만료·마지막 사용 시각을 계정 FK와 함께 저장합니다. `partner_recruitment`는 계정·기업·공고 FK와 계정+공고 UNIQUE로 모집글을 저장하고 역량은 JSON 배열입니다. `partner_proposal`은 모집글·제안 계정·기업 FK와 모집글+제안 계정 UNIQUE로 제안을 저장하고 결정·응답·철회 시각만 두어 상태는 조회 시점에 계산합니다. `company`는 계정당 하나(계정·사업자번호 UNIQUE)로 사업자등록번호
 조회 값(상호·사업자 상태)과 담당자 입력(소재지·업종·설립연도·홈페이지)을 저장합니다.
-스키마는 [Flyway migration](../backend/core-api/src/main/resources/db/migration)으로 관리합니다.
+스키마는 [Flyway migration](../backend/core-service/src/main/resources/db/migration)으로 관리합니다.
 
 접수 상태는 DB에 고정 저장하지 않고 조회 시 `Asia/Seoul`의 오늘 날짜로 계산합니다. 파싱된 날짜를
 우선하고, 날짜만으로 결정하지 못한 경우 예정·종료·상시 등의 알려진 표현을 해석합니다. 종료 표현은
@@ -78,7 +78,7 @@ SHA-256 해시·만료·마지막 사용 시각을 계정 FK와 함께 저장합
 검색 문서는 제목·기관·지원대상·분야·지역·신청기간·요약을 결합합니다. Core가 최대 12,000 코드 포인트로
 제한한 텍스트의 SHA-256을 계산하고, AI Service는 임베딩 입력을 최대 8,191 토큰으로 제한합니다.
 벡터 식별에는 `sourceCode:sourceProgramId`와 내용 해시를 함께 사용합니다. MySQL에 `content_hash` 컬럼은 있지만
-현재 Repository는 이를 읽고 쓰지 않으며, 해시는 [검색 문서 Mapper](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/client/ai/mapper/SupportProgramIndexDocumentMapper.kt)에서 계산합니다.
+현재 Repository는 이를 읽고 쓰지 않으며, 해시는 [검색 문서 Mapper](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/client/ai/mapper/SupportProgramIndexDocumentMapper.kt)에서 계산합니다.
 
 원문 질문은 기업마당 공식 HTTPS 상세 HTML만 최대 500KB로 읽습니다. 자동 리디렉션을 끄고 매 이동마다
 공식 HTTPS 호스트와 동일한 `pblancId`를 확인해 최대 3회 따릅니다. jsoup `1.23.2`로 HTML을 파싱한 뒤

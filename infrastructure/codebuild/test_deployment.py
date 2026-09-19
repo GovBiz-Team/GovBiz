@@ -143,6 +143,32 @@ class CodeBuildReleaseTest(unittest.TestCase):
         with patch.object(release, 'aws', return_value={'failures': [{'failureCode': 'ImageNotFound'}]}):
             self.assertIsNone(release.image_digest('govbiz/core-api', 'git-' + SHA))
 
+    def test_publish_uses_current_source_folders_and_preserves_ecr_names(self):
+        root = Path(__file__).resolve().parents[2]
+        for service, context in [('core-api', 'backend/core-service'), ('ai-service', 'backend/ai-service')]:
+            with self.subTest(service=service):
+                digest = 'sha256:' + '1' * 64
+                ref = REGISTRY + '/govbiz/' + service + ':git-' + SHA
+                self.assertTrue((root / context / 'Dockerfile').is_file())
+                with patch.object(release, 'image_digest', side_effect=[None, digest]) as lookup, \
+                        patch.object(release, 'run') as run:
+                    actual = release.publish(REGISTRY, service, SHA)
+                self.assertEqual(REGISTRY + '/govbiz/' + service + '@' + digest, actual)
+                self.assertEqual([
+                    ('docker', 'build', '--platform', 'linux/amd64', '--label',
+                     'org.opencontainers.image.revision=' + SHA, '--tag', ref, context),
+                    ('docker', 'push', ref),
+                ], [call.args for call in run.call_args_list])
+                self.assertEqual([('govbiz/' + service, 'git-' + SHA)] * 2,
+                                 [call.args for call in lookup.call_args_list])
+
+    def test_existing_immutable_image_is_reused_without_build_or_push(self):
+        digest = 'sha256:' + '2' * 64
+        with patch.object(release, 'image_digest', return_value=digest), patch.object(release, 'run') as run:
+            actual = release.publish(REGISTRY, 'core-api', SHA)
+        self.assertEqual(REGISTRY + '/govbiz/core-api@' + digest, actual)
+        run.assert_not_called()
+
     def test_failed_ssm_is_not_reported_successfully(self):
         with patch.object(release, 'aws', return_value={'Status': 'Failed', 'StandardOutputContent': 'secret'}), \
                 contextlib.redirect_stdout(io.StringIO()), self.assertRaises(RuntimeError) as caught:

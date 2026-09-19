@@ -4,7 +4,7 @@ cd "${CODEBUILD_SRC_DIR:?Run this entrypoint in CodeBuild}"
 
 # Runs in an isolated, disposable CodeBuild Docker daemon, never on production.
 export JAVA_TOOL_OPTIONS="-Dspring.test.context.cache.maxSize=2"
-(cd backend/core-api && ./gradlew clean build --no-daemon)
+(cd backend/core-service && ./gradlew clean build --no-daemon)
 
 qdrant_id="$(docker run --detach --publish 127.0.0.1:6333:6333 qdrant/qdrant:v1.17.1)"
 cleanup_qdrant() { docker rm --force "${qdrant_id}" >/dev/null; }

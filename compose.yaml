@@ -6,4 +6,4 @@ include:
   - path: ./infrastructure/compose.yaml
     env_file: ${GOVBIZ_APP_ENV_FILE:-./.env}
   - path: ./compose.ops.yaml
-    env_file: ${GOVBIZ_DJANGO_ENV_FILE:-./backend/ops/.env}
+    env_file: ${GOVBIZ_DJANGO_ENV_FILE:-./backend/ops-service/.env}

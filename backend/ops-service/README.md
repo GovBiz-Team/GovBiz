@@ -1,8 +1,13 @@
-# GovBiz Ops
+# GovBiz Ops Service
 
-LLMOps·관리자 시스템 개발을 위한 Django 서비스이며, `GovBiz-web` 모노레포의
-`backend/ops`에서 관리합니다. 같은 저장소의 Core API·AI Service와 코드를 함께
+LLMOps·관리자 시스템 개발을 위한 Django 서비스이며, `GovBiz` 모노레포의
+`backend/ops-service`에서 관리합니다. 같은 저장소의 Core API·AI Service와 코드를 함께
 관리하지만, Django 프로세스와 Ops 데이터베이스는 독립적으로 실행합니다.
+
+소스 디렉터리는 `backend/ops-service`로 통일했습니다. 기존 Compose의 `django-api`, Kubernetes의
+`operations-api`, DB·볼륨·이미지 이름과 health 응답은 실행 호환성을 위해 유지합니다.
+이전 `.env.compose`에 `GOVBIZ_DJANGO_ENV_FILE=./backend/ops/.env`를 지정했다면
+값을 `./backend/ops-service/.env`로 갱신하세요. 실제 비밀값과 데이터 볼륨은 바꾸지 않습니다.
 
 [GovBiz-Team/GovBiz-ops](https://github.com/GovBiz-Team/GovBiz-ops)의 커밋
 [`611232de21f69689c4024f3935b8d693b03b7777`](https://github.com/GovBiz-Team/GovBiz-ops/commit/611232de21f69689c4024f3935b8d693b03b7777)
@@ -28,7 +33,7 @@ Django 기본 사용자 테이블과 관리자 화면은 아직 추가하지 않
 
 ## 빠른 시작 — Docker
 
-아래 명령은 모노레포 루트에서 `cd backend/ops`로 이동한 뒤 실행합니다.
+아래 명령은 모노레포 루트에서 `cd backend/ops-service`로 이동한 뒤 실행합니다.
 전체 로컬 스택의 실행 방법은 [루트 README](../../README.md)를 참고합니다.
 단독 Ops Compose와 통합 Compose를 동시에 실행하면 포트가 충돌할 수 있습니다.
 
@@ -62,7 +67,7 @@ docker compose down
 
 ## Python을 호스트에서 실행
 
-이 절의 명령도 `backend/ops`에서 실행합니다.
+이 절의 명령도 `backend/ops-service`에서 실행합니다.
 
 [uv 공식 설치 안내](https://docs.astral.sh/uv/getting-started/installation/)에 따라 uv 0.12.5와 Python 3.13을 준비합니다. 기존 uv는 요구 버전에 맞춥니다.
 
@@ -114,7 +119,7 @@ GitHub Actions는 모노레포 루트의
 수행합니다. Docker job은 루트의 `scripts/check-compose.py --smoke`로 통합 Compose의
 경로·환경 분리를 검사하고, 격리된 Django·MySQL만 빌드·실행하여 상태 확인과 테스트를
 수행합니다. Core API·AI Service나 외부 AI API는 기동·호출하지 않습니다.
-`python3 -B backend/ops/scripts/check-image.py`는 모노레포 루트에서 기본 Gunicorn
+`python3 -B backend/ops-service/scripts/check-image.py`는 모노레포 루트에서 기본 Gunicorn
 이미지를 별도로 검증합니다. 네트워크·DB·실제 환경 파일을 연결하지 않고 non-root,
 읽기 전용 파일시스템, 정상 liveness, DB 장애 readiness, Host 거절, SIGTERM 종료를
 확인한 뒤 이번 실행의 임시 컨테이너와 이미지 태그만 정리합니다.

@@ -123,7 +123,7 @@ services:
 
   core-api:
     build:
-      context: ../backend/core-api
+      context: ../backend/core-service
       dockerfile: Dockerfile
     init: true
     depends_on:

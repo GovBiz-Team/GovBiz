@@ -1,4 +1,8 @@
-# GovBiz Core API
+# GovBiz Core Service
+
+소스 디렉터리는 `backend/core-service`입니다. 기존 배포와 공개 상태 확인 계약을 유지하기 위해
+Compose 서비스/DNS `core-api`, ECR 저장소 `govbiz/core-api`, Gradle·Spring 애플리케이션 이름과
+`govbiz-core-api` health 응답은 변경하지 않습니다. 이번 변경은 소스 경로 정리이며 운영 리소스 이전이 아닙니다.
 
 ## 공고 카탈로그 독립 서비스 전환
 
@@ -227,7 +231,7 @@ Core를 호스트에서 직접 실행할 때 `ELASTICSEARCH_BASE_URL`은 **호�
 연결되지는 않습니다. 전체 Compose 실행을 우선 사용하고, 별도 ES를 쓰는 경우 주소·인증·Nori 설정을 명시합니다.
 
 ```bash
-cd backend/core-api
+cd backend/core-service
 ./gradlew bootRun
 ```
 
@@ -252,7 +256,7 @@ cd backend/core-api
 저장된 신청 시작·종료일로 접수 상태를 다시 계산하는 기준입니다.
 
 ```bash
-cd backend/core-api
+cd backend/core-service
 ./gradlew bootJar
 
 SPRING_PROFILES_ACTIVE=evaluation-fixture-export \
@@ -284,7 +288,7 @@ fixture 내보내기는 지정한 기준 날짜의 `OPEN` 공고만 담으므로
 있으므로 기본 실행이나 CI에는 포함하지 않습니다.
 
 ```bash
-cd backend/core-api
+cd backend/core-service
 ./gradlew bootJar
 SPRING_PROFILES_ACTIVE=evaluation-capture \
 APP_SUPPORT_PROGRAM_SEARCH_CAPTURE_QUERY_SET_PATH=/absolute/path/query-set.json \
@@ -874,7 +878,7 @@ Elasticsearch 실패는 AI 오류와 별도 경계이며 ES 직접 시간 초과
 
 ## 검증
 
-`backend/core-api` 디렉터리에서 JDK 21 환경으로 실행합니다. Repository 통합 테스트가 실제
+`backend/core-service` 디렉터리에서 JDK 21 환경으로 실행합니다. Repository 통합 테스트가 실제
 `mysql:8.4` Testcontainers를 실행하므로 Docker가 필요합니다.
 
 ```bash

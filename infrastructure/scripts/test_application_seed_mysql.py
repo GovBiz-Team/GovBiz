@@ -56,7 +56,7 @@ class PersonalDemoSeedMySqlTest(unittest.TestCase):
         else:
             raise AssertionError("MySQL did not become ready")
 
-        migrations = ROOT / "backend/core-api/src/main/resources/db/migration"
+        migrations = ROOT / "backend/core-service/src/main/resources/db/migration"
         for version in (1, 5, 10, 11, 15, 16, 25, 30, 31, 35, 37):
             path, = migrations.glob(f"V{version}__*.sql")
             cls.query(path.read_text(encoding="utf-8"))

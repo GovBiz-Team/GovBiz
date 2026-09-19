@@ -30,7 +30,7 @@ coverage/
 .kotlin/
 build/
 out/
-backend/core-api/bin/
+backend/core-service/bin/
 *.class
 
 # Runtime and local artifacts

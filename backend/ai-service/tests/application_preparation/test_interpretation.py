@@ -27,7 +27,7 @@ from app.main import create_app
 FIXTURES = (
     Path(os.environ["GOVBIZ_TEST_APPLICATION_PREPARATION_CONTRACT_DIR"])
     if "GOVBIZ_TEST_APPLICATION_PREPARATION_CONTRACT_DIR" in os.environ
-    else Path(__file__).resolve().parents[4] / "backend/core-api/src/test/resources/applicationpreparation"
+    else Path(__file__).resolve().parents[4] / "backend/core-service/src/test/resources/applicationpreparation"
 )
 
 

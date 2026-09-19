@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 APP = ROOT
-DJANGO = ROOT / "backend" / "ops"
+DJANGO = ROOT / "backend" / "ops-service"
 EXISTING_VOLUMES = {
     "elasticsearch-data": "govbiz_elasticsearch-data",
     "rabbitmq-data": "govbiz_rabbitmq-data",
@@ -116,7 +116,7 @@ def validate(model, project):
 
     for name, path in {
         "web": APP,
-        "core-api": APP / "backend/core-api",
+        "core-api": APP / "backend/core-service",
         "ai-service": APP / "backend/ai-service",
         "elasticsearch": APP / "infrastructure/elasticsearch",
         "django-api": DJANGO,
@@ -162,7 +162,7 @@ def validate(model, project):
     require(
         Path(django_mounts["/app/config"]["source"]).resolve()
         == (DJANGO / "config").resolve(),
-        "Django source mount points outside backend/ops.",
+        "Django source mount points outside backend/ops-service.",
     )
     for name, volume in (
         ("mysql", "mysql-data"),
@@ -204,7 +204,7 @@ def main():
     require(
         (APP / "infrastructure/compose.yaml").is_file()
         and (DJANGO / "compose.yaml").is_file(),
-        "Missing application Compose or backend/ops source; use the GovBiz-web monorepo.",
+        "Missing application Compose or backend/ops-service source; use the GovBiz monorepo.",
     )
     project = "govbiz-infra-check-" + uuid.uuid4().hex[:12]
     # Static validation does not bind sockets or require the Docker engine.

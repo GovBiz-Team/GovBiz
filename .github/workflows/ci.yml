@@ -84,7 +84,7 @@ jobs:
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: backend/core-api
+        working-directory: backend/core-service
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -98,8 +98,8 @@ jobs:
           java-version: "21"
           cache: gradle
           cache-dependency-path: |
-            backend/core-api/*.gradle
-            backend/core-api/gradle/wrapper/gradle-wrapper.properties
+            backend/core-service/*.gradle
+            backend/core-service/gradle/wrapper/gradle-wrapper.properties
 
       - name: Clean build and test
         run: ./gradlew clean build --no-daemon

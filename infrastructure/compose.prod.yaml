@@ -39,7 +39,7 @@ services:
 
   core-api:
     <<: *runtime
-    image: ${CORE_API_IMAGE:?Set a release image built from backend/core-api}
+    image: ${CORE_API_IMAGE:?Set a release image built from backend/core-service}
     mem_limit: 2g
     environment:
       JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=60.0

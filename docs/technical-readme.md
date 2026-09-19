@@ -66,7 +66,7 @@ Vercel + AWS 구성은 [배포 구성도](assets/architecture/README-aws-deploye
 | [실행·검증](../infrastructure/README.md) | Compose·환경변수·통합 검증 |
 | [전체 문서 목록](README.md) | API 계약·요청 제한·서비스별 개발·확장 안내 |
 
-서비스별 개발: [Frontend](../frontend/README.md) · [Core API](../backend/core-api/README.md) · [AI Service](../backend/ai-service/README.md)
+서비스별 개발: [Frontend](../frontend/README.md) · [Core API](../backend/core-service/README.md) · [AI Service](../backend/ai-service/README.md)
 
 추천과 AI-only 평가 결과는 실제 신청 자격이나 전체 검색 정확도를 보장하지 않습니다.
 현재 지원 범위와 배포 제약은 [구현 현황](implementation-status.md)에서 확인하세요.

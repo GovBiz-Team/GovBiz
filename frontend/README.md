@@ -41,7 +41,7 @@ Vite 개발 서버가 `http://core-api:8080`으로 중계합니다.
 ### Docker 없이 웹 개발
 
 Node.js `24.x`, pnpm `11.22.x`가 필요합니다. Core API와 검색에 필요한 MySQL·AI Service·Qdrant는
-[Core API 실행 안내](../backend/core-api/README.md)에 따라 먼저 실행합니다.
+[Core API 실행 안내](../backend/core-service/README.md)에 따라 먼저 실행합니다.
 
 ```bash
 # 저장소 루트에서 설치합니다. lockfile은 루트 하나만 사용합니다.

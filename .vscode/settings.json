@@ -2,7 +2,7 @@
   "intellij.projects": [
     {
       "type": "gradle",
-      "path": "file:///$PROJECT_DIR$/backend/core-api/build.gradle"
+      "path": "file:///$PROJECT_DIR$/backend/core-service/build.gradle"
     }
   ],
   "[kotlin]": {

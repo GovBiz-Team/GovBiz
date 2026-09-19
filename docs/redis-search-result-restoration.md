@@ -131,14 +131,14 @@ API 키·DB 비밀번호·회원 비밀번호·세션 JWT·전체 대화 내역�
 
 | 파일 | 책임 |
 |---|---|
-| [SupportProgramController](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/controller/SupportProgramController.kt) | 검색·복원 HTTP 진입점, 회원 정보를 Service에 전달 |
-| [SupportProgramSearchPreviewService](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/service/search/SupportProgramSearchPreviewService.kt) | 공개 건수 정책, 스냅샷 생성·복원 유스케이스 |
-| [SupportProgramSearchSnapshot](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/domain/SupportProgramSearchSnapshot.kt) | 검색어·전체 결과·대화 조건을 담는 내부 모델 |
-| [SupportProgramSearchResultRepository](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/repository/SupportProgramSearchResultRepository.kt) | JSON 변환, 키 해시, 용량 검사, Redis 스크립트 실행·오류 변환 |
-| [save-search-result.lua](../backend/core-api/src/main/resources/redis/supportprogram/save-search-result.lua) | 키 충돌 검사, 저장, Redis 시계 기준 만료 지정 |
-| [claim-search-result.lua](../backend/core-api/src/main/resources/redis/supportprogram/claim-search-result.lua) | TTL·소유 계정 확인과 최초 계정 연결을 원자적으로 실행 |
-| [SupportProgramSearchResultRedisConfig](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/repository/config/SupportProgramSearchResultRedisConfig.kt) | Redis 연결용 DNS 캐시와 리소스 수명 관리 |
-| [ApiExceptionHandler](../backend/core-api/src/main/kotlin/ai/govbiz/core/_common/exception/ApiExceptionHandler.kt) | 만료 410과 저장소 장애 503을 구분한 공개 오류 응답 |
+| [SupportProgramController](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/controller/SupportProgramController.kt) | 검색·복원 HTTP 진입점, 회원 정보를 Service에 전달 |
+| [SupportProgramSearchPreviewService](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/service/search/SupportProgramSearchPreviewService.kt) | 공개 건수 정책, 스냅샷 생성·복원 유스케이스 |
+| [SupportProgramSearchSnapshot](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/domain/SupportProgramSearchSnapshot.kt) | 검색어·전체 결과·대화 조건을 담는 내부 모델 |
+| [SupportProgramSearchResultRepository](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/repository/SupportProgramSearchResultRepository.kt) | JSON 변환, 키 해시, 용량 검사, Redis 스크립트 실행·오류 변환 |
+| [save-search-result.lua](../backend/core-service/src/main/resources/redis/supportprogram/save-search-result.lua) | 키 충돌 검사, 저장, Redis 시계 기준 만료 지정 |
+| [claim-search-result.lua](../backend/core-service/src/main/resources/redis/supportprogram/claim-search-result.lua) | TTL·소유 계정 확인과 최초 계정 연결을 원자적으로 실행 |
+| [SupportProgramSearchResultRedisConfig](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/repository/config/SupportProgramSearchResultRedisConfig.kt) | Redis 연결용 DNS 캐시와 리소스 수명 관리 |
+| [ApiExceptionHandler](../backend/core-service/src/main/kotlin/ai/govbiz/core/_common/exception/ApiExceptionHandler.kt) | 만료 410과 저장소 장애 503을 구분한 공개 오류 응답 |
 
 `spring-boot-starter-data-redis`의 `StringRedisTemplate`과 Lettuce를 사용합니다.
 Redis 접근은 해당 기능의 구체 Repository에 두었고, 별도 DAO·Repository 인터페이스·Facade·범용 캐시 계층은
@@ -206,7 +206,7 @@ Redis는 단일 인스턴스이고 `redis-data` 볼륨에 AOF(`appendfsync every
 
 ## 7. 연결 설정과 확인 방법
 
-설정은 [application.properties](../backend/core-api/src/main/resources/application.properties)와
+설정은 [application.properties](../backend/core-service/src/main/resources/application.properties)와
 [compose.yaml](../infrastructure/compose.yaml)에 있습니다. Spring Data Redis 의존성 버전은 기존 Spring Boot가 관리합니다.
 
 | 설정 | 기본값·적용 범위 |
@@ -267,17 +267,17 @@ Redis 도입 검증 기록(2026-09-12): Core clean build의 테스트 1,206개, 
 
 | 검증 파일 | 확인한 내용 |
 |---|---|
-| [Repository 테스트](../backend/core-api/src/test/kotlin/ai/govbiz/core/supportprogram/repository/SupportProgramSearchResultRepositoryTest.kt) | 실제 Redis에서 JSON·한글·날짜·복합 식별자, 별도 클라이언트 복원, TTL·계정 경합, 충돌·손상 데이터·용량 초과 |
-| [Preview Service 테스트](../backend/core-api/src/test/kotlin/ai/govbiz/core/supportprogram/service/search/SupportProgramSearchPreviewServiceTest.kt) | 공개 건수 분기, 전체 결과·조건 복원, 만료·소유권, 기존 128건 조기 퇴거 제거 |
-| [Controller 테스트](../backend/core-api/src/test/kotlin/ai/govbiz/core/supportprogram/controller/SupportProgramSearchPreviewControllerTest.kt) | 인증·응답 계약·명시적 503·no-store·복원 시 추가 검색 없음 |
-| [DNS 설정 테스트](../backend/core-api/src/test/kotlin/ai/govbiz/core/supportprogram/repository/config/SupportProgramSearchResultRedisConfigTest.kt) | Spring의 Lettuce가 수명 관리되는 DNS 설정을 실제로 사용 |
+| [Repository 테스트](../backend/core-service/src/test/kotlin/ai/govbiz/core/supportprogram/repository/SupportProgramSearchResultRepositoryTest.kt) | 실제 Redis에서 JSON·한글·날짜·복합 식별자, 별도 클라이언트 복원, TTL·계정 경합, 충돌·손상 데이터·용량 초과 |
+| [Preview Service 테스트](../backend/core-service/src/test/kotlin/ai/govbiz/core/supportprogram/service/search/SupportProgramSearchPreviewServiceTest.kt) | 공개 건수 분기, 전체 결과·조건 복원, 만료·소유권, 기존 128건 조기 퇴거 제거 |
+| [Controller 테스트](../backend/core-service/src/test/kotlin/ai/govbiz/core/supportprogram/controller/SupportProgramSearchPreviewControllerTest.kt) | 인증·응답 계약·명시적 503·no-store·복원 시 추가 검색 없음 |
+| [DNS 설정 테스트](../backend/core-service/src/test/kotlin/ai/govbiz/core/supportprogram/repository/config/SupportProgramSearchResultRedisConfigTest.kt) | Spring의 Lettuce가 수명 관리되는 DNS 설정을 실제로 사용 |
 | [Frontend API 테스트](../frontend/src/data/api/__tests__/supportProgramSearchResults.test.ts) | 복원 503을 정상 결과나 만료가 아닌 사용 불가 오류로 변환 |
 | [Compose 검증 스크립트](../infrastructure/scripts/verify-compose.sh) | Core 재시작, 다른 계정 차단, Redis 중지 시 503, 새 IP·동일 AOF 볼륨으로 재생성한 뒤 동일 결과 복구 |
 
 Core 전체 검증은 JDK 21과 Docker가 준비된 상태에서 실행합니다. 실제 MySQL·Redis Testcontainers를 사용합니다.
 
 ```bash
-cd backend/core-api
+cd backend/core-service
 ./gradlew clean build --no-daemon
 ```
 

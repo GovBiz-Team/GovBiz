@@ -94,7 +94,7 @@ worker는 현재 구현되어 있지 않습니다.
 
 ```bash
 cd frontend && pnpm test && pnpm lint && pnpm build
-cd ../backend/core-api && ./gradlew clean test --no-daemon
+cd ../backend/core-service && ./gradlew clean test --no-daemon
 cd ../ai-service && uv lock --check && uv run --locked --extra dev python -m pytest
 cd ../.. && ./infrastructure/scripts/verify-compose.sh
 ```

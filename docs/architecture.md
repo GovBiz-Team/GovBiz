@@ -24,12 +24,17 @@
 소셜 로그인은 `앱 시스템 브라우저 → AccountMobileOAuthController → AccountMobileOAuthService → 기존 OAuthService/Client → 공급자`
 를 거쳐 기존 HTTPS 서버 callback으로 돌아옵니다. 서명 state 쿠키와 V40 MySQL transaction의 일회용 선점이 콜백 재사용을 막습니다.
 허용된 앱 URI에는 60초 일회용 코드만 전달하고, 앱의 PKCE S256 검증 뒤 코드 소비·세션 생성을 같은 DB transaction에서 처리합니다.
-OAuth 외부 호출 중에는 DB transaction을 열지 않습니다. [정확한 인증 API와 설정](../backend/core-api/README.md#모바일-인증-계약)을 참고하세요.
+OAuth 외부 호출 중에는 DB transaction을 열지 않습니다. [정확한 인증 API와 설정](../backend/core-service/README.md#모바일-인증-계약)을 참고하세요.
 
 ## 서비스 경계
 
+소스 폴더는 `backend/{core-service,catalog-service,ai-service,ops-service}`로 통일합니다.
+소스 경로와 배포 식별자는 별개입니다. 기존 Compose의 `core-api`·`django-api`, ECR의
+`govbiz/core-api`, Ops Kubernetes의 `operations-api`와 DB·볼륨·공개 health 계약은 유지합니다.
+아래의 Core API는 `core-service`가 제공하는 HTTP API를 뜻합니다.
+
 저장소는 React·Core API·Catalog Service·AI Service·Django Ops를 함께 관리하는 모노레포입니다.
-`backend/ops`는 전용 MySQL을 쓰는 별도 프로세스이며 현재 상태 확인 API만 제공합니다.
+`backend/ops-service`는 전용 MySQL을 쓰는 별도 프로세스이며 현재 상태 확인 API만 제공합니다.
 Ops와 Core의 계정·관리 업무 연동은 아직 구현하지 않았고, 아래 AWS 운영 경로에 Ops를 추가하지 않았습니다.
 [소스 통합과 로컬 실행](ops-monorepo-migration.md)을 참고하세요.
 
@@ -184,7 +189,7 @@ Frontend는 확인 후 삭제 요청을 보내고 성공 시에만 목록·메�
 삭제 실패 시 기록을 유지하고 재시도를 안내합니다. 원문 공고·Qdrant 색인·다른 업무 문서는 삭제하지 않습니다.
 병합 충돌을 해소한 마이그레이션 순서는 대화 테이블 V19 → 관리자 계정 관리 V20 → 대화 삭제 V21입니다.
 대화용 V19의 기존 이력은 변경하지 않습니다. 관리자용 V19가 적용된 별도 DB의 주의사항은
-[Core API 업그레이드 안내](../backend/core-api/README.md#v19-병합-충돌과-기존-db-업그레이드)를 따릅니다.
+[Core API 업그레이드 안내](../backend/core-service/README.md#v19-병합-충돌과-기존-db-업그레이드)를 따릅니다.
 
 ## 기업 맞춤 일일 리포트
 
@@ -651,7 +656,7 @@ SupportProgramIndexSyncService(Elasticsearch·AI Service/OpenAI/Qdrant) → Repo
 전용 프로필은 Bean 생성 전에 자동 수집·복구·큐/메일 작업과 Flyway를 비활성화하고 HTTP 서버 없이 종료합니다.
 적용 직전 호스트에 영속화한 배타적 receipt로 중복 실행을 막습니다. 실패한 시도도 자동 재시도하지 않습니다.
 일반 API 서버 설정/공개 HTTP 계약은 바뀌지 않습니다. 모델·예산 전제와 실행법은
-[Core API 일회성 수집](../backend/core-api/README.md#예산을-지정한-일회성-수집)을 참고하세요.
+[Core API 일회성 수집](../backend/core-service/README.md#예산을-지정한-일회성-수집)을 참고하세요.
 
 ## K-Startup 수집 범위와 추가 분류
 
@@ -740,7 +745,7 @@ Hook 상태와 Redux 상태 차이를 비교하는 예제입니다.
 Core의 공개 계약은 기능별 `controller/dto`, 외부 계약은 시스템별 `client/dto`, 검증된 실행 결과는
 `service/dto`, 업무 모델은 `domain`에 둡니다. 관계형 DB 접근은 `Repository → Mapper → XML`이며
 `DbRow`를 Repository 밖으로 노출하지 않습니다. 같은 필드가 있어도 외부 입력과 공개 응답을 하나의
-타입으로 합치지 않습니다. 상세 배치 규칙은 [Core API README](../backend/core-api/README.md)에 있습니다.
+타입으로 합치지 않습니다. 상세 배치 규칙은 [Core API README](../backend/core-service/README.md)에 있습니다.
 
 AI Service는 조건 변경 해석·점수화·원문 근거 답변에서 각각 `HTTP API → Service → Agent → LangChain → OpenAI → Response` 흐름으로
 실행합니다. `bootstrap.py`가 클라이언트와 서비스 수명주기를 구성하고, 역할이 다른 Agent가 각각

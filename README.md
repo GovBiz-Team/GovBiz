@@ -3,7 +3,7 @@
 **LLM 기반 정부지원사업 탐색·신청 관리 플랫폼**
 
 이 저장소는 React·Core API·Catalog Service·AI Service와 Django 기반 Ops를 함께 관리하는 **애플리케이션 모노레포**입니다.
-Ops 소스는 [`backend/ops`](backend/ops)에 있으며, 상태 확인 API·전용 MySQL·Gunicorn 실행 이미지를 갖추고 있습니다.
+Ops 소스는 [`backend/ops-service`](backend/ops-service)에 있으며, 상태 확인 API·전용 MySQL·Gunicorn 실행 이미지를 갖추고 있습니다.
 소스를 통합해도 서비스 프로세스·의존성·DB 책임은 분리합니다.
 
 웹(`frontend/`)과 React Native 앱(`mobile/`)을 함께 관리합니다.
@@ -21,10 +21,10 @@ Kubernetes 배포 설정·검증과 향후 Argo CD 연결은 별도 [GovBiz-infr
 | Ops 로컬 개발 | 별도 Django 프로세스·MySQL, 상태 확인 API, 독립 테스트·컨테이너 검증 구현 |
 | Core 공고 기능 분리 | 별도 Catalog 프로세스·MySQL과 인증된 HTTP 복제 경로 구현. 선택형 로컬 Compose로 전환하며 기존 AWS에는 적용하지 않음 |
 | Kubernetes 1단계 | kind에서 Ops + 검증용 MySQL 실행, DB 장애·PVC 보존·Pod 복구·이미지 롤백 검증 완료 |
-| 다음 단계 | Argo CD GitOps, Core·AI의 Kubernetes 이전, Ops 관리자 인증·LLMOps 업무 기능, AWS Kubernetes 운영 전환 |
+| 다음 단계 | Argo CD GitOps, Core·Catalog·AI의 Kubernetes 이전, Ops 관리자 인증·LLMOps 업무 기능, AWS Kubernetes 운영 전환 |
 
 **전체 MSA나 Kubernetes 운영 전환이 완료된 상태는 아닙니다.** 검증용 클러스터는 테스트 후 삭제했습니다.
-[실제 검증 기록](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/kubernetes-validation-20260919.md)에서
+[실제 검증 기록](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/kubernetes-validation-20260919.md)에서
 완료 범위와 미검증 항목을 확인할 수 있습니다.
 
 공고 분리 모드에서는 `Catalog → Catalog MySQL`이 원본 수집·색인을 소유하고,
@@ -141,7 +141,7 @@ GovBiz는 여러 정부기관과 공공 플랫폼에 분산된 지원사업 공�
 ![Gunicorn 26.2](https://img.shields.io/badge/Gunicorn_26.2-499848?style=for-the-badge&logo=gunicorn&logoColor=white)
 
 현재 구현 범위는 상태 확인·DB readiness와 실행·검증 기반입니다. 관리자 화면·인증·평가 관리가
-완성된 서비스라는 뜻은 아닙니다. [Ops 실행·검증 안내](backend/ops/README.md)를 참고하세요.
+완성된 서비스라는 뜻은 아닙니다. [Ops 실행·검증 안내](backend/ops-service/README.md)를 참고하세요.
 
 ### Database · Search
 
@@ -243,7 +243,7 @@ GovBiz는 공고 탐색부터 신청 준비와 진행 관리까지 하나의 흐
 
 ### 📌 기존 배포 흐름
 
-다음은 기존에 연결된 배포 대상 저장소의 흐름입니다. 코드를 `GovBiz-Team/GovBiz-web`으로
+다음은 기존에 연결된 배포 대상 저장소의 흐름입니다. 코드를 `GovBiz-Team/GovBiz`으로
 옮기거나 이 브랜치를 푸시하는 것만으로 AWS·Vercel의 소스 연결이 새 저장소로 이전되지는 않습니다.
 이번 작업에서는 외부 배포 연결을 변경하지 않았습니다.
 
@@ -259,6 +259,10 @@ GovBiz는 공고 탐색부터 신청 준비와 진행 관리까지 하나의 흐
 
 ### 📌 서비스·데이터 경계
 
+서비스 소스 폴더는 `backend/{core-service,catalog-service,ai-service,ops-service}`입니다.
+기존 배포 호환성을 위해 Compose의 `core-api`·`django-api`, ECR의 `govbiz/core-api`,
+Ops Kubernetes의 `operations-api`와 DB·볼륨 이름은 유지합니다.
+
 | 서비스 | 현재 책임 | 분리 원칙 |
 |---|---|---|
 | Core API | 사용자 인증·기업·관심 공고·파트너·신청 업무와 공개 검색 | 사용자 업무 데이터를 소유. Catalog 분리 모드에서는 공고 원본 대신 조회용 복제본 유지 |
@@ -268,7 +272,7 @@ GovBiz는 공고 탐색부터 신청 준비와 진행 관리까지 하나의 흐
 
 저장소를 하나로 관리하는 것과 서비스·DB 책임을 합치는 것은 다릅니다. Ops에 Core의 계정 테이블이나
 JWT 서명 키를 복제하지 않습니다. 업무 서비스 추출과 복제 수 확대 전의 제약은
-[서비스 경계 문서](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/service-boundaries.md)에 정리했습니다.
+[서비스 경계 문서](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/service-boundaries.md)에 정리했습니다.
 
 ### 📌 Kubernetes 검증과 GitOps 전환
 
@@ -279,8 +283,8 @@ JWT 서명 키를 복제하지 않습니다. 업무 서비스 추출과 복제 �
 - 잘못된 이미지 배포 시 기존 정상 Pod 유지와 이전 이미지로 복구
 
 앱 이미지·테스트는 이 저장소, 배포 manifest·검증 도구는 GovBiz-infra가 담당합니다.
-[로컬 재현 안내](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/kubernetes-local.md)와
-[실행 결과·한계](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/kubernetes-validation-20260919.md)를 제공합니다.
+[로컬 재현 안내](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/kubernetes-local.md)와
+[실행 결과·한계](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/kubernetes-validation-20260919.md)를 제공합니다.
 단일 노드 kind 검증은 운영 HA·DB 백업·NetworkPolicy 집행·전체 업무 연동 검증이 아닙니다.
 
 목표 배포 순서는 `앱 CI → ECR 이미지 → Infra 이미지 버전 변경 PR → Argo CD → Kubernetes`입니다.
@@ -371,7 +375,7 @@ AI 대화 검색은 **Qdrant 의미 검색과 Elasticsearch 키워드 검색의 
 
 | 구성 요소 | 구현 역할 | 코드 |
 |---|---|---|
-| 공식 원문·청크 준비 | 원문 수집·캐시와 내용 해시 관리, 검색용 청크 생성 | [Core 원문 Service](backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/service/evidence/SupportProgramEvidenceService.kt) · [Chunker](backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/service/evidence/SupportProgramEvidenceChunker.kt) |
+| 공식 원문·청크 준비 | 원문 수집·캐시와 내용 해시 관리, 검색용 청크 생성 | [Core 원문 Service](backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/service/evidence/SupportProgramEvidenceService.kt) · [Chunker](backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/service/evidence/SupportProgramEvidenceChunker.kt) |
 | Qdrant 색인·검색 | 공고·근거 청크 임베딩, 벡터 저장 및 현재 버전의 유사도 검색 | [공고 검색 Service](backend/ai-service/app/support_program_index/service.py) · [근거 검색 Service](backend/ai-service/app/support_program_evidence/service.py) |
 | LangChain 프롬프트 체인 | 프롬프트와 모델 연결, 구조화 응답 스키마·완료 상태 검증 | [공통 LLM 실행](backend/ai-service/app/support_program_llm.py) |
 | 근거 답변 Agent | 질문·검색 청크로 답변 생성, 인용 번호를 청크 ID로 복원 | [근거 답변 Agent](backend/ai-service/app/support_program_evidence/agent.py) |
@@ -431,10 +435,10 @@ AI 대화 검색, 신청 문서 작성, GovBiz 도우미는 LLM의 판단과 서
 ```text
 GovBiz/
 ├── backend/
-│   ├── core-api/                    # Kotlin·Spring Boot Core API
+│   ├── core-service/                # Kotlin·Spring Boot Core API
 │   ├── catalog-service/             # 독립 공고 수집·게시 서비스, 선택형 분리
 │   ├── ai-service/                  # Python·FastAPI AI Service
-│   └── ops/                         # Django 운영·LLMOps 개발 기반
+│   └── ops-service/                 # Django 운영·LLMOps 개발 기반
 ├── frontend/                        # React·TypeScript 웹 애플리케이션
 ├── evaluation/
 │   ├── assistant/                   # AI 어시스턴트 평가
@@ -579,9 +583,9 @@ python3 -B evaluation/support-program-evidence/verify_flow.py \
 | 기술 | [기술 구성](docs/technology.md) | 기술 스택과 주요 구현 방식 |
 | 구현 | [구현 현황](docs/implementation-status.md) | 기능별 구현·검증 상태 |
 | RAG 구현 | [AI Service 구현 문서](backend/ai-service/README.md) | LangChain·OpenAI·Qdrant 연동 흐름과 핵심 구현 코드 |
-| Ops | [Ops 실행·검증](backend/ops/README.md) · [모노레포 통합](docs/ops-monorepo-migration.md) | 개발 Compose·Gunicorn 이미지·독립 DB·CI와 현재 구현 범위 |
+| Ops | [Ops 실행·검증](backend/ops-service/README.md) · [모노레포 통합](docs/ops-monorepo-migration.md) | 개발 Compose·Gunicorn 이미지·독립 DB·CI와 현재 구현 범위 |
 | Catalog 분리 | [분리·전환 안내](docs/catalog-service-extraction.md) · [서비스 README](backend/catalog-service/README.md) | 별도 공고 DB·HTTP 복제·데이터 보존과 격리 검증 |
-| Kubernetes | [GovBiz-infra 안내](https://github.com/GovBiz-Team/GovBiz-infra/tree/codex/local-kubernetes-validation) | 로컬 배포·장애 복구 검증, 서비스 경계와 GitOps 전환 계획 |
+| Kubernetes | [GovBiz-infra 안내](https://github.com/GovBiz-Team/GovBiz-infra/tree/develop) | 로컬 배포·장애 복구 검증, 서비스 경계와 GitOps 전환 계획 |
 | 테스트 계획 | [CI 정의](.github/workflows/ci.yml) · [통합 검증 안내](infrastructure/README.md) | 서비스별 자동화 검증과 Compose 통합 테스트 |
 | 테스트 결과 | [검색 및 RAG 평가 보고서](#12-검색-및-rag-평가-테스트-계획-및-결과-보고서) | 평가 계획·지표·측정 결과·한계·재현 방법 |
 | 검색 | [지원사업 검색 설계](docs/support-program-search-contract.md) | AI 검색 흐름과 공고 데이터 계약 |

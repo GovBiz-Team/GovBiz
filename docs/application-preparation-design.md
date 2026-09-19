@@ -131,10 +131,10 @@ frontend/src/data/api/applicationPreparationApi.ts
 frontend/src/data/models/ApplicationPreparationDto.ts
 frontend/src/data/repositories/ApplicationPreparationRepositoryImpl.ts
 
-backend/core-api/src/main/kotlin/ai/govbiz/core/applicationpreparation/
+backend/core-service/src/main/kotlin/ai/govbiz/core/applicationpreparation/
   controller/  service/  domain/  repository/  repository/mapper/  client/ai/
-backend/core-api/src/main/resources/mybatis/applicationpreparation/repository/
-backend/core-api/src/main/resources/application-preparation/
+backend/core-service/src/main/resources/mybatis/applicationpreparation/repository/
+backend/core-service/src/main/resources/application-preparation/
 
 backend/ai-service/app/application_preparation/
   router.py  service.py  agent.py  models.py  prompt.py  discovery_prompt.py

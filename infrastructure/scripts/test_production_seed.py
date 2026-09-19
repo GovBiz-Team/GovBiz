@@ -146,7 +146,7 @@ class ProductionSeedMySqlTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         personal_tests.PersonalDemoSeedMySqlTest.setUpClass.__func__(cls)
-        migrations = personal_tests.ROOT / "backend/core-api/src/main/resources/db/migration"
+        migrations = personal_tests.ROOT / "backend/core-service/src/main/resources/db/migration"
         for version in (6, 8, 9, 13, 17, 20, 22):
             path, = migrations.glob(f"V{version}__*.sql")
             cls.query(path.read_text())

@@ -214,7 +214,7 @@ Core 내부 소비자 1개가 기존 검색·근거 답변을 재사용합니다
 [내부 채팅 Hook](../frontend/src/presentation/features/chat/hooks/useSupportProgramChat.ts),
 [내부 준비 상태 Hook](../frontend/src/presentation/features/chat/hooks/useSupportProgramSearchReadiness.ts),
 [원문 질문 페이지](../frontend/src/presentation/features/support-program-detail/view/SupportProgramEvidenceQuestionPage.tsx),
-[공개 Controller](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/controller/SupportProgramController.kt).
+[공개 Controller](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/controller/SupportProgramController.kt).
 | 도우미 자유 질문 | 구현됨 | 위젯 자유 입력을 Core `POST /api/v1/assistant/messages`로 보내 AI Service가 의도(사용법·내 상태·검색·공고 질문·범위 밖·불명확)를 고르고, Core가 인용 검증·개인 정보 마스킹·관심 공고함/받은 제안함/기업 상태 답·이동 버튼을 만듦. 검색·원문 질문은 실행하지 않고 화면 이동만 |
 
 ## 공고 수집·저장·동기화
@@ -245,9 +245,9 @@ Core 내부 소비자 1개가 기존 검색·근거 답변을 재사용합니다
 제공처가 섞이면 전체 응답을 거부합니다. K-Startup 수집·정규화·동기화는 구현했으며 데이터의 독립적인 추가 가치와
 검색 품질 비교는 별도 검증이 필요합니다. K-Startup 원문 질문은 여전히 미지원입니다.
 
-관련 코드: [동기화 Service](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/service/sync/BizInfoSupportProgramCatalogSyncService.kt),
-[Repository](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/repository/SupportProgramRepository.kt),
-[색인·복구 Service](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/service/sync/SupportProgramIndexSyncService.kt).
+관련 코드: [동기화 Service](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/service/sync/BizInfoSupportProgramCatalogSyncService.kt),
+[Repository](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/repository/SupportProgramRepository.kt),
+[색인·복구 Service](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/service/sync/SupportProgramIndexSyncService.kt).
 
 ## 검색·AI 구현 범위
 
@@ -286,7 +286,7 @@ TTL은 성공 후 재사용 기한이며 만료 즉시 물리 삭제를 보장�
 독립적으로 검증하지는 않습니다. 접수 상태 또한 파싱된 날짜와 알려진 문구 규칙을 따르며 신청 기간 밖의
 모든 예외 조건을 반영하지 않습니다.
 
-관련 코드: [검색 Service](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/service/search/SupportProgramSearchService.kt),
+관련 코드: [검색 Service](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/service/search/SupportProgramSearchService.kt),
 [AI 점수화 Service](../backend/ai-service/app/support_program_ranking/service.py),
 [벡터 검색 Service](../backend/ai-service/app/support_program_index/service.py).
 

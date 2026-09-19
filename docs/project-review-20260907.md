@@ -73,7 +73,7 @@ Core 첫 `./gradlew clean test --no-daemon` 시도는 379개 중 335 통과·44 
 경계 16개는 `tmp/core-audit-targeted-test-results`, 최종 336개는 `tmp/core-audit-final-nondb-test-results`에
 로컬 진단 자료로 보존했다. 마지막 XML의 개수·실패·skip 집계를 별도로 다시 확인했다.
 최종 비DB 실행은 `./gradlew test --no-daemon --no-watch-fs`에 전용 Linux 캐시 경로와 로컬 임시
-`backend/core-api/.gradle/core-audit-nondb.init.gradle`을 지정했다. 이 init-script는 위 3개 스위트만 제외한다.
+`backend/core-service/.gradle/core-audit-nondb.init.gradle`을 지정했다. 이 init-script는 위 3개 스위트만 제외한다.
 사용자 승인 후에는 **이 제외 설정 없이** JDK 21에서 `./gradlew clean test --no-daemon --no-watch-fs`와
 전용 Linux 프로젝트 캐시 경로만 지정해 실제 MySQL 8.4 및 379개 전체 결과를 다시 확인했다.
 

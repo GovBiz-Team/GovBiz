@@ -136,7 +136,7 @@ def validate_boundaries(model, project):
     require(Path(services["catalog-service"]["build"]["context"]).resolve()
             == ROOT / "backend/catalog-service", "Catalog must have a standalone build context")
     require(Path(services["core-api"]["build"]["context"]).resolve()
-            == ROOT / "backend/core-api", "Core build context changed")
+            == ROOT / "backend/core-service", "Core build context changed")
     require(core["CATALOG_PROJECTION_ENABLED"] == "true", "Core projection is disabled")
     require(core["CATALOG_SERVICE_URL"] == "http://catalog-service:8081", "Wrong catalog DNS")
     require(core["CATALOG_INTERNAL_TOKEN"] == catalog["CATALOG_INTERNAL_TOKEN"] == TOKEN,
@@ -168,7 +168,8 @@ def validate_boundaries(model, project):
         require(not network.get("external") and network["name"].startswith(project + "_"),
                 "A verification network is not isolated")
     build = (ROOT / "backend/catalog-service/build.gradle").read_text()
-    require("core-api" not in build, "Catalog Gradle build depends on the Core source tree")
+    require(not any(name in build for name in ("core-api", "core-service")),
+            "Catalog Gradle build depends on the Core source tree")
     forbidden = re.compile(r"\bimport\s+ai\.govbiz\.(?:core\.|catalog\.(?:account|chathistory|"
                            r"applicationpreparation|combinationreview|dailyreport|partner|admin)\.)")
     for path in (ROOT / "backend/catalog-service/src/main").rglob("*.kt"):

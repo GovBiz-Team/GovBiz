@@ -203,7 +203,7 @@ AI는 전체 상태를 재작성하지 않고 변경 목록만 반환한다.
   실패·오류·건너뜀 0. 기존 433개와 신규 Client 28·Controller 15·Service 32개를 모두 실행했다.
   MySQL 8.4.11 Testcontainers 통합 43개를 포함하며 H2 대체·테스트 제외는 없다.
   기존 Gradle 캐시 볼륨을 사용한 `--project-cache-dir /root/.gradle/core-audit-project`만 지정했다.
-  결과는 `backend/core-api/build/test-results/test`, 최종 실행 6분 22초다.
+  결과는 `backend/core-service/build/test-results/test`, 최종 실행 6분 22초다.
 - 검증 중 테스트 대역의 Kotlin nullable matcher, 시간 의존, 화면 테스트 갱신 문제를 수정해 전체를 다시 실행했다.
   Windows bind 경로의 일시적인 `clean` 잠금은 같은 명령 재시도로 해소했다. production 검증 규칙 완화나
   별도 buildDirectory/init-script는 사용하지 않았다. `git diff --check`도 통과했다.

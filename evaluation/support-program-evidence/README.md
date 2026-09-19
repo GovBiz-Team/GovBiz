@@ -31,8 +31,8 @@ E12 추가 실행에서 모델이 64자리 인용 ID를 63자리로 복사한 �
 최신 평가 도구·기록 검증 테스트는 118개 통과했습니다.
 테스트 통과를 무결함이나 운영 품질 보장으로 해석하지 않습니다.
 
-관련 테스트: [Facade](../../backend/core-api/src/test/kotlin/ai/govbiz/core/supportprogram/facade/AiSupportProgramEvidenceFacadeTest.kt),
-[Service](../../backend/core-api/src/test/kotlin/ai/govbiz/core/supportprogram/service/evidence/SupportProgramEvidenceServiceTest.kt),
+관련 테스트: [Facade](../../backend/core-service/src/test/kotlin/ai/govbiz/core/supportprogram/facade/AiSupportProgramEvidenceFacadeTest.kt),
+[Service](../../backend/core-service/src/test/kotlin/ai/govbiz/core/supportprogram/service/evidence/SupportProgramEvidenceServiceTest.kt),
 [AI 근거 기능](../../backend/ai-service/tests/support_program_evidence), [평가 도구](test_evaluate.py).
 
 ## 대상 조건 요약 보완 — 실제 모델 검증 완료
@@ -160,10 +160,10 @@ backend/ai-service/.venv/bin/python evaluation/support-program-evidence/evaluate
 
 ## 공식 HTML 전체 경로 재실행
 
-[Core 통합 테스트](../../backend/core-api/src/test/kotlin/ai/govbiz/core/supportprogram/service/evidence/SupportProgramEvidenceIntegrationTest.kt)는
+[Core 통합 테스트](../../backend/core-service/src/test/kotlin/ai/govbiz/core/supportprogram/service/evidence/SupportProgramEvidenceIntegrationTest.kt)는
 기본적으로 실제 MySQL 8.4와 고정 HTML·AI HTTP 스텁을 사용하므로 OpenAI 비용이 없습니다.
 공식 HTML의 제목·본문 조각과 출처·원본/조각 해시는
-[테스트 자료](../../backend/core-api/src/test/resources/support-program-evidence/official-sources.json)에 보관합니다.
+[테스트 자료](../../backend/core-service/src/test/resources/support-program-evidence/official-sources.json)에 보관합니다.
 이 테스트는 운영 DB가 아닌 Testcontainers DB만 사용합니다.
 
 유료 모델 연결을 선택할 때만 아래처럼 실행합니다. 먼저 Docker로 **비어 있는 별도 Qdrant**를 준비하고,
@@ -181,7 +181,7 @@ backend/ai-service/.venv/bin/python evaluation/support-program-evidence/serve_fl
   --max-api-calls 14 --output-dir work/evidence-flow-v2/api
 
 # 터미널 2: JDK 21·Docker 환경에서 실행. capture 경로는 실제 절대 경로로 지정
-cd backend/core-api
+cd backend/core-service
 GOVBIZ_EVIDENCE_FLOW_AI_URL=http://127.0.0.1:18009 \
 GOVBIZ_EVIDENCE_FLOW_CAPTURE_DIR=/absolute/path/to/work/evidence-flow-v2/core \
 ./gradlew test \

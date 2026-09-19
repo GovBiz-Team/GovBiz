@@ -156,7 +156,7 @@ python3 evaluation/support-program-search/evaluate.py --semantic-results /path/t
 오늘이 아니라 저장된 신청 시작·종료일로 접수 상태를 다시 계산하는 평가 기준이다.
 
 ```bash
-cd backend/core-api
+cd backend/core-service
 ./gradlew bootJar
 
 SPRING_PROFILES_ACTIVE=evaluation-fixture-export \
@@ -205,7 +205,7 @@ Core API JAR를 만든 뒤, 실제 MySQL과 AI Service에 연결되는 환경에
 `referenceDate`로 실행한다. 출력 경로는 입력 경로와 달라야 한다.
 
 ```bash
-cd backend/core-api
+cd backend/core-service
 ./gradlew bootJar
 
 SPRING_PROFILES_ACTIVE=evaluation-capture \

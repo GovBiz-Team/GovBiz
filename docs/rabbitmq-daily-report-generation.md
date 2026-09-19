@@ -62,23 +62,23 @@ RabbitMQ → DailyReportGenerationConsumer (Core 내부, active consumer 1개 / 
 
 | 파일 | 책임 |
 |---|---|
-| [DailyReportScheduler](../backend/core-api/src/main/kotlin/ai/govbiz/core/dailyreport/service/DailyReportScheduler.kt) | 발송 시간·대상 계정·배치 상한을 확인하고 정기 작업 예약. 이미 READY인 리포트는 기존 발송 경로로 전달 |
-| [DailyReportService](../backend/core-api/src/main/kotlin/ai/govbiz/core/dailyreport/service/DailyReportService.kt) | `enqueueScheduled`로 예약, `generateQueued`로 선점·수신 자격 재검사·기존 검색/근거 분석 실행. 수동 미리보기와 생성 로직 공유 |
-| [DailyReportRepository](../backend/core-api/src/main/kotlin/ai/govbiz/core/dailyreport/repository/DailyReportRepository.kt) | 리포트·예산·작업 예약의 transaction, 완료 저장, 입력/결과 JSON 변환 |
-| [DailyReportMapper](../backend/core-api/src/main/kotlin/ai/govbiz/core/dailyreport/repository/mapper/DailyReportMapper.kt) / [Mapper XML](../backend/core-api/src/main/resources/mybatis/dailyreport/repository/DailyReportMapper.xml) | 실제 SQL 실행 계약과 조건부 선점·만료·재시도 차단 SQL. RabbitMQ 호출은 하지 않음 |
-| [DailyReportOutboxScheduler](../backend/core-api/src/main/kotlin/ai/govbiz/core/dailyreport/service/DailyReportOutboxScheduler.kt) | 만료 정리, 미실행 작업 조회, 다음 발행 시점 예약, 발행 확인 시각 기록 |
-| [DailyReportQueueClient](../backend/core-api/src/main/kotlin/ai/govbiz/core/dailyreport/client/DailyReportQueueClient.kt) | 작업 ID 메시지 발행, confirm과 반환 메시지 검사 |
-| [DailyReportGenerationConsumer](../backend/core-api/src/main/kotlin/ai/govbiz/core/dailyreport/service/DailyReportGenerationConsumer.kt) | 메시지 형식 검증, Service 호출, ACK 또는 재큐잉 없는 거부 |
-| [DailyReportRabbitConfig](../backend/core-api/src/main/kotlin/ai/govbiz/core/dailyreport/config/DailyReportRabbitConfig.kt) | 주 큐·DLQ·exchange·binding, 소비자 수·prefetch·수동 ACK, Outbox 전용 스레드 구성 |
-| [DailyReportConfig](../backend/core-api/src/main/kotlin/ai/govbiz/core/dailyreport/config/DailyReportConfig.kt) / [DailyReportQueueProperties](../backend/core-api/src/main/kotlin/ai/govbiz/core/dailyreport/config/DailyReportQueueProperties.kt) | 큐 스위치 바인딩과 정기 실행/큐 설정 조합 검증 |
-| [V23 migration](../backend/core-api/src/main/resources/db/migration/V23__create_daily_report_generation_job.sql) / [Compose](../infrastructure/compose.yaml) | 작업 테이블·제약조건 추가 / 브로커·볼륨·내부 연결 및 기동 순서 |
+| [DailyReportScheduler](../backend/core-service/src/main/kotlin/ai/govbiz/core/dailyreport/service/DailyReportScheduler.kt) | 발송 시간·대상 계정·배치 상한을 확인하고 정기 작업 예약. 이미 READY인 리포트는 기존 발송 경로로 전달 |
+| [DailyReportService](../backend/core-service/src/main/kotlin/ai/govbiz/core/dailyreport/service/DailyReportService.kt) | `enqueueScheduled`로 예약, `generateQueued`로 선점·수신 자격 재검사·기존 검색/근거 분석 실행. 수동 미리보기와 생성 로직 공유 |
+| [DailyReportRepository](../backend/core-service/src/main/kotlin/ai/govbiz/core/dailyreport/repository/DailyReportRepository.kt) | 리포트·예산·작업 예약의 transaction, 완료 저장, 입력/결과 JSON 변환 |
+| [DailyReportMapper](../backend/core-service/src/main/kotlin/ai/govbiz/core/dailyreport/repository/mapper/DailyReportMapper.kt) / [Mapper XML](../backend/core-service/src/main/resources/mybatis/dailyreport/repository/DailyReportMapper.xml) | 실제 SQL 실행 계약과 조건부 선점·만료·재시도 차단 SQL. RabbitMQ 호출은 하지 않음 |
+| [DailyReportOutboxScheduler](../backend/core-service/src/main/kotlin/ai/govbiz/core/dailyreport/service/DailyReportOutboxScheduler.kt) | 만료 정리, 미실행 작업 조회, 다음 발행 시점 예약, 발행 확인 시각 기록 |
+| [DailyReportQueueClient](../backend/core-service/src/main/kotlin/ai/govbiz/core/dailyreport/client/DailyReportQueueClient.kt) | 작업 ID 메시지 발행, confirm과 반환 메시지 검사 |
+| [DailyReportGenerationConsumer](../backend/core-service/src/main/kotlin/ai/govbiz/core/dailyreport/service/DailyReportGenerationConsumer.kt) | 메시지 형식 검증, Service 호출, ACK 또는 재큐잉 없는 거부 |
+| [DailyReportRabbitConfig](../backend/core-service/src/main/kotlin/ai/govbiz/core/dailyreport/config/DailyReportRabbitConfig.kt) | 주 큐·DLQ·exchange·binding, 소비자 수·prefetch·수동 ACK, Outbox 전용 스레드 구성 |
+| [DailyReportConfig](../backend/core-service/src/main/kotlin/ai/govbiz/core/dailyreport/config/DailyReportConfig.kt) / [DailyReportQueueProperties](../backend/core-service/src/main/kotlin/ai/govbiz/core/dailyreport/config/DailyReportQueueProperties.kt) | 큐 스위치 바인딩과 정기 실행/큐 설정 조합 검증 |
+| [V23 migration](../backend/core-service/src/main/resources/db/migration/V23__create_daily_report_generation_job.sql) / [Compose](../infrastructure/compose.yaml) | 작업 테이블·제약조건 추가 / 브로커·볼륨·내부 연결 및 기동 순서 |
 
 소비자는 Service를 통해서만 업무를 수행하고, Service·Repository가 큐의 `Channel`이나 ACK를 직접 다루지 않습니다.
 DB는 기존 `Repository → MyBatis Mapper → XML → MySQL` 경계를 유지합니다.
 
 ## 저장 구조와 메시지
 
-Flyway [V23](../backend/core-api/src/main/resources/db/migration/V23__create_daily_report_generation_job.sql)은
+Flyway [V23](../backend/core-service/src/main/resources/db/migration/V23__create_daily_report_generation_job.sql)은
 `daily_report_generation_job` 테이블을 추가합니다. 이 테이블 하나가 실행 기록과 **Outbox(발행 대기 기록)** 를 겸합니다.
 기존 migration이나 공고·회원·리포트 데이터를 삭제하지 않습니다.
 
@@ -224,7 +224,7 @@ LIMIT 100;
 
 ## 검증 방법
 
-- `backend/core-api`: JDK 21에서 `./gradlew clean build --no-daemon`.
+- `backend/core-service`: JDK 21에서 `./gradlew clean build --no-daemon`.
 - `DailyReportRepositoryIntegrationTest`: 실제 MySQL 8.4에서 예약/예산/작업 rollback, 동시 선점,
   한도, 대기 만료, 실행 불명 재시도 차단, 오래된 키 차단을 검증합니다.
 - `DailyReportQueueIntegrationTest`: 실제 MySQL·RabbitMQ, AI 경계만 스텁. 소비자 중단 중 적재, 중복 메시지,

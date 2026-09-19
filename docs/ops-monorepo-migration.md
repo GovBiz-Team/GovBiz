@@ -4,7 +4,7 @@
 
 - 원본 저장소: `https://github.com/GovBiz-Team/GovBiz-ops`
 - 가져온 커밋: `611232de21f69689c4024f3935b8d693b03b7777`
-- 새 코드 위치: `backend/ops/`
+- 새 코드 위치: `backend/ops-service/`
 - 방식: 원본 커밋의 추적 파일을 가져오는 snapshot import. 과거 Ops 커밋 이력은 기존 저장소에 보존한다.
 
 실제 `.env`, 가상환경, Git 관리 디렉터리, 데이터 볼륨은 복사하지 않는다.
@@ -17,7 +17,7 @@ Core의 계정·인증 테이블을 복제하거나 기존 Core·AI의 업무 �
 
 ## 저장소 책임
 
-- `GovBiz-web`: 프론트·Core·AI·Ops 코드, 테스트, Dockerfile, 로컬 통합 Compose.
+- `GovBiz`: 프론트·Core·AI·Ops 코드, 테스트, Dockerfile, 로컬 통합 Compose.
 - `GovBiz-infra`: 로컬 Kubernetes 배포 설정·검증과 향후 Argo CD 연결의 기준 저장소.
 - 기존 `infrastructure/compose.prod.yaml`과 `infrastructure/codebuild/`는 현행 EC2 Compose 배포를 위해 유지한다. Kubernetes 전환 시 한 대상에 두 배포 경로가 동시에 쓰지 않도록 별도 승인 후 이전한다.
 
@@ -32,7 +32,7 @@ Argo CD 연결과 AWS Kubernetes 운영 전환은 별도 단계다.
 ```bash
 # 세 파일이 없을 때만 각 예시를 복사하고 로컬 설정을 입력한다.
 cp -n .env.example .env
-cp -n backend/ops/.env.example backend/ops/.env
+cp -n backend/ops-service/.env.example backend/ops-service/.env
 cp -n .env.compose.example .env.compose
 
 # 먼저 실제 외부 API 키 없이 경로·환경 분리·볼륨 연결을 검증한다.
@@ -43,10 +43,12 @@ docker compose --env-file .env.compose config --quiet
 docker compose --env-file .env.compose up -d --build
 ```
 
-루트 `.env`는 기존 웹·Core·AI 설정, `backend/ops/.env`는 Ops 전용 설정이다.
+루트 `.env`는 기존 웹·Core·AI 설정, `backend/ops-service/.env`는 Ops 전용 설정이다.
 `.env.compose`는 두 파일의 위치만 지정한다. `GOVBIZ_APP_ENV_FILE`은 React Native 설정이 아니다.
+기존 `.env.compose`가 `./backend/ops/.env`를 가리키면 `GOVBIZ_DJANGO_ENV_FILE`의 경로만
+`./backend/ops-service/.env`로 갱신한다. 파일 안의 비밀값과 기존 DB·볼륨은 그대로 보존한다.
 Python과 DB 이름은 이전 값을 유지하고, 통합 실행 서비스 이름은 `django-api`, `django-mysql`이다.
-Ops만 단독 개발하려면 `backend/ops/README.md`를 따른다.
+Ops만 단독 개발하려면 `backend/ops-service/README.md`를 따른다.
 
 ## 기존 컨테이너·데이터 이전
 
@@ -75,7 +77,7 @@ docker compose --env-file .env.compose -f compose.yaml -f compose.existing-data.
 
 ## 검증·PR
 
-Ops 변경도 `GovBiz-Team/GovBiz-web`에 PR을 올린다. GitHub 루트의 `ops-ci.yml`이 Ops 전용
+Ops 변경도 `GovBiz-Team/GovBiz`에 PR을 올린다. GitHub 루트의 `ops-ci.yml`이 Ops 전용
 의존성 잠금·Ruff·Django·MySQL 테스트를 수행한다. Docker 작업은 통합 Compose의 Ops와
 기본 Gunicorn 이미지의 non-root·read-only·상태 확인·종료 동작을 별도로 검증한다.
 기존 프론트·Core·AI CI와 운영 배포 스크립트는 그대로 유지한다.
@@ -94,8 +96,8 @@ git diff --check
 ## 이번 통합의 검증 기록 — 2026-09-19
 
 아래는 최초 소스 통합 당시 기록이다. 후속 Gunicorn·로컬 Kubernetes 변경 전을 기준으로 하며,
-현재 이미지 실행·검증 범위는 [Ops 안내](../backend/ops/README.md)와
-[Kubernetes 검증 기록](https://github.com/GovBiz-Team/GovBiz-infra/blob/codex/local-kubernetes-validation/docs/kubernetes-validation-20260919.md)을 따른다.
+현재 이미지 실행·검증 범위는 [Ops 안내](../backend/ops-service/README.md)와
+[Kubernetes 검증 기록](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/kubernetes-validation-20260919.md)을 따른다.
 
 - 통합 Compose의 빌드·마운트 경로, 환경 파일 분리, 프로젝트·볼륨 격리, 기존 볼륨 매핑 검사 통과.
 - Ops 단독 Compose 정적 구성 검사 통과.

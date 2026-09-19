@@ -85,6 +85,30 @@ class LexicalV2ComparisonTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "Report inputs/configuration/provenance changed"):
                     comparison.verify(changed)
 
+    def test_new_metadata_uses_current_source_folder(self):
+        _, _, provenance = comparison.load_inputs()
+        sources = comparison.metadata(self.fixture, self.cases, provenance)["sourceSha256"]
+        self.assertEqual(3, sum(path.startswith("backend/core-service/") for path in sources))
+        self.assertFalse(any(path.startswith("backend/core-api/") for path in sources))
+
+    def test_frozen_capture_still_requires_exact_original_paths_and_source_hashes(self):
+        for path in self.report["sourceSha256"]:
+            if not path.startswith("backend/core-api/"):
+                continue
+            for kind in ("hash", "renamed", "extra"):
+                with self.subTest(path=path, kind=kind):
+                    report = copy.deepcopy(self.report)
+                    sources = report["sourceSha256"]
+                    current_path = path.replace("backend/core-api/", "backend/core-service/", 1)
+                    if kind == "hash":
+                        sources[path] = "0" * 64
+                    elif kind == "renamed":
+                        sources[current_path] = sources.pop(path)
+                    else:
+                        sources[current_path] = sources[path]
+                    with self.assertRaisesRegex(ValueError, "Report inputs/configuration/provenance changed"):
+                        comparison.verify(report)
+
     def test_extra_cases_are_separate_ai_only_targets_with_exact_source_quotes(self):
         self.assertEqual(316, len(self.cases))
         self.assertEqual(316, len({case["targetId"] for case in self.cases}))

@@ -110,14 +110,14 @@ python -X utf8 -B -m unittest discover -s evaluation/combination-review -p 'test
 ## 자동 수집·서비스 연결의 무료 검증 (4-2~4-4)
 
 다음 검증은 18개 사례의 의미 정확도를 평가한 것이 아니다. Core와 AI가 공유하는 최소 HTTP fixture에 고정 응답을 사용한다.
-고정 원문 테스트 입력은 `backend/core-api/src/test/resources/combinationreview`에 보관한다.
+고정 원문 테스트 입력은 `backend/core-service/src/test/resources/combinationreview`에 보관한다.
 원문 bytes는 4-1과 같으며 `contract-request.json`, `contract-response.json`은 가상 입력·고정 출력이다.
 AI 테스트도 같은 파일을 읽어 생산자/소비자 계약을 확인한다.
 
 일반형과 딥테크의 **실제 공식 사이트 다운로드·파싱만** 확인하려면 JDK 21에서 실행한다.
 
 ```bash
-cd backend/core-api
+cd backend/core-service
 ./gradlew test -PincludeLiveSources --tests '*CombinationReviewLiveSourceTest' --no-daemon
 ```
 
@@ -137,10 +137,10 @@ production 앱에 테스트 모드나 fallback을 추가한 것이 아니며 서
 ```bash
 uv run --project backend/ai-service --locked --extra dev python \
   evaluation/combination-review/serve_contract_agent.py \
-  --fixture backend/core-api/src/test/resources/combinationreview/contract-response.json
+  --fixture backend/core-service/src/test/resources/combinationreview/contract-response.json
 
 # 별도 터미널, JDK 21 + Docker(MySQL Testcontainers)
-cd backend/core-api
+cd backend/core-service
 GOVBIZ_TEST_AI_URL=http://127.0.0.1:18042 ./gradlew test -PincludeLiveSources \
   --tests '*CombinationReviewLiveFlowIntegrationTest' --no-daemon
 ```

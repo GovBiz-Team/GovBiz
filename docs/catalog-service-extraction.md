@@ -96,7 +96,9 @@ Core V1의 숫자 PK를 Catalog 숫자 PK로 대체하거나 기존 `support_pro
 
 ## 무료 격리 검증
 
-저장소 루트에서 Docker Engine과 Python 3을 사용할 수 있어야 한다. 아래 도구는 실제 `.env`를
+저장소 루트에서 Docker Engine과 Python 3.11 이상을 사용할 수 있어야 한다. 소수초 자릿수가
+달라지는 ISO 날짜 비교를 사용하므로 macOS 기본 Python 3.9가 아닌 버전을 선택한다.
+아래 도구는 실제 `.env`를
 읽지 않고 임시 fixture 설정·새 Compose 프로젝트·전용 볼륨을 만든다. 공공 API와 OpenAI는
 로컬 스텁만 호출하며, 기존 컨테이너·AWS·운영 DB를 변경하지 않는다.
 

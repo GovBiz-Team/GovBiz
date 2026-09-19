@@ -23,7 +23,7 @@ spec = importlib.util.spec_from_file_location("budget300", BUDGET / "compare.py"
 budget = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(budget)
 base = budget.base
-CONFIGS = {name: PROJECT / f"backend/core-api/src/main/resources/elasticsearch/support-program-lexical-{name}.json"
+CONFIGS = {name: PROJECT / f"backend/core-service/src/main/resources/elasticsearch/support-program-lexical-{name}.json"
            for name in ("v1", "v2")}
 SCHEMA = "govbiz-lexical-v2-comparison-v1"
 PASSES = 2  # First pass and one warm repeat; not a load or end-to-end latency test.
@@ -66,7 +66,7 @@ def metadata(fixture, cases, provenance):
     sources = [Path(__file__).resolve(), ROOT / "metric_comparison.py", ADDED, *CONFIGS.values(), base.FIXTURE, base.QUESTIONS,
                budget.ADDED, BUDGET / "compare.py", BUDGET / "report.json", base.RUN / "compare.py",
                ROOT / "compare_elasticsearch.py", ROOT / "evaluate.py",
-               PROJECT / "backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/client/elasticsearch/ElasticsearchSupportProgramClient.kt"]
+               PROJECT / "backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/client/elasticsearch/ElasticsearchSupportProgramClient.kt"]
     return {
         "sourceSha256": {path.relative_to(PROJECT).as_posix(): base.sha256(path) for path in sources},
         "catalog": fixture["catalog"], "referenceDate": fixture["referenceDate"],
@@ -133,6 +133,13 @@ def verify(report):
         expected["sourceSha256"][verifier_path] = CAPTURE_COMPARISON_SHA256
         # The captured revision had no shared metric comparator.
         del expected["sourceSha256"][(ROOT / "metric_comparison.py").relative_to(PROJECT).as_posix()]
+        # Keep the frozen capture's original path labels, but verify the hashes
+        # against the files in today's source folder. Do not rewrite the report.
+        expected["sourceSha256"] = {
+            ("backend/core-api/" + path[len("backend/core-service/"):]
+             if path.startswith("backend/core-service/") else path): digest
+            for path, digest in expected["sourceSha256"].items()
+        }
     if (report.get("schemaVersion") != SCHEMA or report.get("status") != "complete"
             or any(report.get(key) != value for key, value in expected.items())):
         raise ValueError("Report inputs/configuration/provenance changed")

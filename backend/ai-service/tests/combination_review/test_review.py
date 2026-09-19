@@ -21,7 +21,7 @@ from app.config import Settings
 from app.main import create_app
 
 FIXTURES = (Path(os.environ["GOVBIZ_TEST_CONTRACT_DIR"]) if "GOVBIZ_TEST_CONTRACT_DIR" in os.environ
-            else Path(__file__).resolve().parents[4] / "backend/core-api/src/test/resources/combinationreview")
+            else Path(__file__).resolve().parents[4] / "backend/core-service/src/test/resources/combinationreview")
 
 
 def request_data():

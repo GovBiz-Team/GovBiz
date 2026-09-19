@@ -158,7 +158,7 @@ Google은 지원되는 앱에서는 OAuth 로그인을 권장합니다. 앱 비�
 
 ## 개발 검증 기록 (2026-09-09)
 
-- JDK 21: `backend/core-api`에서 `./gradlew clean build --no-daemon` — 전체 1,023건 통과, 실패·건너뜀 0건. 기본 제외 대상인 `live-source` 태그는 실행하지 않음.
+- JDK 21: `backend/core-service`에서 `./gradlew clean build --no-daemon` — 전체 1,023건 통과, 실패·건너뜀 0건. 기본 제외 대상인 `live-source` 태그는 실행하지 않음.
 - 리포트 관련 41건에는 실제 MySQL 8.4 Testcontainers 11건이 포함됩니다. 확인 토큰 만료·재사용 차단, 동의 없는 발송 차단, 계정별 격리, JSON/복합 공고 ID, rollback, 동시 생성·전역 예산, 실행 키, 오래된 해지 링크와 발송 중단을 검증했습니다.
 - 동시 전역 예산 테스트가 발견한 gap-lock 교착은 생성 예약의 `READ_COMMITTED` 적용 후 재검증했고, 최종 전체 빌드에도 포함했습니다.
 - Node 24/pnpm 11: `frontend`에서 `pnpm test --maxWorkers=1`, `pnpm lint`, `pnpm build` — 750건 및 lint/build 통과. 로컬 병렬 부하에 따른 기존 UI 테스트 timeout은 테스트 한도를 수정하지 않고 실행 순서를 분리해 해소했습니다. 빌드의 500kB 청크 경고는 남아 있습니다.

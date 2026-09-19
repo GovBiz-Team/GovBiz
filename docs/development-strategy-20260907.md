@@ -54,10 +54,10 @@ C01/E01 전체나 기획서 전체 완료로 표시하지 않는다.
 
 ### 실제 구현 근거
 
-- [검색 Service](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/service/search/SupportProgramSearchService.kt): 접수 상태 필터, 공개/검색 가능 카탈로그, 후보·랭킹 연결.
+- [검색 Service](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/service/search/SupportProgramSearchService.kt): 접수 상태 필터, 공개/검색 가능 카탈로그, 후보·랭킹 연결.
 - [검색 UseCase](../frontend/src/domain/usecases/SearchSupportProgramsUseCase.ts), [채팅 Hook](../frontend/src/presentation/features/chat/hooks/useSupportProgramChat.ts): `query`와 `acceptingOnly=true`, 현재 질의만 전송.
-- [공개 공고 DTO](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/controller/dto/SupportProgramResponse.kt), [AI 판정 모델](../backend/ai-service/app/support_program_ranking/models.py): 내부 자격 판정과 공개 이유/점수의 차이.
-- [원문 질문 Service](../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/service/evidence/SupportProgramEvidenceService.kt): 기업마당 한정, 명시적 질문 때 HTML 수집, 6시간 캐시.
+- [공개 공고 DTO](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/controller/dto/SupportProgramResponse.kt), [AI 판정 모델](../backend/ai-service/app/support_program_ranking/models.py): 내부 자격 판정과 공개 이유/점수의 차이.
+- [원문 질문 Service](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/service/evidence/SupportProgramEvidenceService.kt): 기업마당 한정, 명시적 질문 때 HTML 수집, 6시간 캐시.
 - [다중 제공처 준비 문서](support-program-multi-source-preparation.md): 준비된 기반과 미구현 수집 범위를 구분.
 - [기존 CI](../.github/workflows/ci.yml): Frontend/Core/AI/평가/스텁 Compose 검증이 이미 있음. CI를 새로 만드는 과제로 중복 등록하지 않는다.
 

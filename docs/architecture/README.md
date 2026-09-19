@@ -255,7 +255,7 @@ Facade는 하위 시스템의 여러 처리 단계를 하나의 진입점으로 
 | `AiSupportProgramEvidenceFacade` | 원문 청크 색인·검색·답변 호출 → 청크·점수·인용 범위 검증 | 답변 상태와 공식 원문 인용 |
 
 예를 들어 AI가 후보에 없는 ID나 잘못된 점수 합계를 반환하면
-[점수화 Facade](../../backend/core-api/src/main/kotlin/ai/govbiz/core/supportprogram/facade/AiSupportProgramRankingFacade.kt)가
+[점수화 Facade](../../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/facade/AiSupportProgramRankingFacade.kt)가
 계약 위반으로 거부합니다. Service는 성공 결과를 받아 검색 응답을 만들고 잘못된 외부 응답 검증은 Facade에 맡깁니다.
 
 모든 호출에 Facade를 추가하지는 않습니다. 상세 DB 조회는 Service가 Repository를 사용하고,
@@ -292,7 +292,7 @@ Core의 Service에는 Spring annotation과 구체 Repository 의존성이 있습
 DB 행 타입인 `DbRow`는 MyBatis 경계에서만 사용하며 공개 응답이나 Domain 모델로 노출하지 않습니다.
 
 공개 DTO, 외부 DTO, 예외, 설정은 이를 소유하는 기능 가까이에 둡니다. 정확한 디렉터리와 명명 규칙은
-[아키텍처](../architecture.md), 실행·환경변수는 [Core API 안내](../../backend/core-api/README.md)를 참고하세요.
+[아키텍처](../architecture.md), 실행·환경변수는 [Core API 안내](../../backend/core-service/README.md)를 참고하세요.
 
 ## AI Service: 기능별 모듈과 객체 조립
 

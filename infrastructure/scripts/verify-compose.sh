@@ -252,7 +252,7 @@ verify_application_preparation_flow() {
   # A bundled legacy manifest alone no longer authorizes new drafts. Seed this known fixture only
   # inside the isolated verification database, through the same snapshot + availability contract.
   local manifest_hex
-  manifest_hex="$(od -An -v -tx1 "${INFRASTRUCTURE_DIR}/../backend/core-api/src/main/resources/application-preparation/innovation-voucher-2026-v1.json" | tr -d ' \n')"
+  manifest_hex="$(od -An -v -tx1 "${INFRASTRUCTURE_DIR}/../backend/core-service/src/main/resources/application-preparation/innovation-voucher-2026-v1.json" | tr -d ' \n')"
   "${COMPOSE[@]}" exec -T mysql sh -c 'exec mysql --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" "$MYSQL_DATABASE"' <<SQL
 SET @manifest = CONVERT(UNHEX('${manifest_hex}') USING utf8mb4);
 START TRANSACTION;

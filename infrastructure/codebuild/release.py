@@ -6,6 +6,11 @@ import re
 import subprocess
 import time
 
+BUILD_CONTEXTS = {
+    'core-api': 'backend/core-service',
+    'ai-service': 'backend/ai-service',
+}
+
 
 def run(*args, **kwargs):
     return subprocess.run(args, check=True, text=True, **kwargs)
@@ -47,12 +52,13 @@ def image_digest(repository, tag):
 
 
 def publish(registry, service, sha):
+    context = BUILD_CONTEXTS[service]
     repository, tag = 'govbiz/' + service, 'git-' + sha
     digest = image_digest(repository, tag)
     if digest is None:
         ref = registry + '/' + repository + ':' + tag
         run('docker', 'build', '--platform', 'linux/amd64', '--label',
-            'org.opencontainers.image.revision=' + sha, '--tag', ref, 'backend/' + service)
+            'org.opencontainers.image.revision=' + sha, '--tag', ref, context)
         run('docker', 'push', ref)
         digest = image_digest(repository, tag)
     if not digest or not re.fullmatch('sha256:[0-9a-f]{64}', digest):

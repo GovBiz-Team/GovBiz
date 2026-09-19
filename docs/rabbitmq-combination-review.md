@@ -144,7 +144,7 @@ Spring 테스트 컨텍스트가 서로 다른 MySQL 컨테이너를 캐시에 �
 **테스트 프로세스만** 캐시를 제한한다. 전체 테스트를 생략하거나 H2로 대체하는 설정이 아니다.
 
 ```bash
-# backend/core-api에서 실행. 완료 후 별도로 Compose 검증을 실행한다.
+# backend/core-service에서 실행. 완료 후 별도로 Compose 검증을 실행한다.
 JAVA_TOOL_OPTIONS='-Dspring.test.context.cache.maxSize=4' ./gradlew clean build --no-daemon
 ```
 

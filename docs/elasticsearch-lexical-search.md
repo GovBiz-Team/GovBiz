@@ -36,7 +36,7 @@ MySQL 전체 대상 조회와 ID 허용 목록 전송은 유지한다. 전체 �
 
 ### v2 한국어 분석·유사 표현 개선
 
-설정 원본은 [support-program-lexical-v2.json](../backend/core-api/src/main/resources/elasticsearch/support-program-lexical-v2.json)이다.
+설정 원본은 [support-program-lexical-v2.json](../backend/core-service/src/main/resources/elasticsearch/support-program-lexical-v2.json)이다.
 v1 설정 파일과 과거 평가 보고서는 재현용으로 보존하며, 실행 중인 기존 색인을 덮어쓰지 않는다.
 변경은 ES 분석 설정에 한정된다. HTTP 계약·본문/내용 해시·Qdrant·RRF·AI 랭킹·최대 후보 20개는 유지한다.
 

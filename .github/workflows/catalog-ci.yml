@@ -4,14 +4,14 @@ on:
   push:
     paths:
       - "backend/catalog-service/**"
-      - "backend/core-api/**"
+      - "backend/core-service/**"
       - "backend/ai-service/**"
       - "infrastructure/**"
       - ".github/workflows/catalog-ci.yml"
   pull_request:
     paths:
       - "backend/catalog-service/**"
-      - "backend/core-api/**"
+      - "backend/core-service/**"
       - "backend/ai-service/**"
       - "infrastructure/**"
       - ".github/workflows/catalog-ci.yml"
