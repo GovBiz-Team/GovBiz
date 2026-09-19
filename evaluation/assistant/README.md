@@ -55,7 +55,7 @@ uv run --project backend/ai-service python evaluation/assistant/evaluate.py --ag
   - 사용법 30개: 챗봇 표면 도움말 10항목 × 표현 3개. 세 번째 표현은 `heldout`.
   - 회원 상태 4개, 검색 3개, 공고 질문 3개(공고 상세 화면·`programSelected: true`).
   - 답할 수 없는 10개: 범위 밖 7개(`OUT_OF_SCOPE`), 정보 부족 3개(`UNCLEAR`). 이 열 개에서 기권했는지가 `abstainRateOnUnanswerable`이다.
-- 도움말 항목은 따로 복사하지 않고 실행할 때 `frontend/src/presentation/shared/help/helpContent.ts`에서 `chatbot` 표면의
+- 도움말 항목은 따로 복사하지 않고 실행할 때 `frontend/web/src/presentation/shared/help/helpContent.ts`에서 `chatbot` 표면의
   항목을 읽어 프런트가 보내는 것과 같은 모양으로 요청에 싣는다. 항목 id가 바뀌면 `expectedCitation`도 고쳐야 하며 검증 단계에서 걸린다.
 - `dev`는 프롬프트를 고칠 때 보는 분할, `heldout`은 고친 뒤 한 번 확인하는 분할이다. `heldout`으로 프롬프트를 조정하면 더 이상
   미사용 검증 자료가 아니다. 같은 항목의 표현이 양쪽에 있으므로 독립적인 일반화 성능을 뜻하지 않는다.

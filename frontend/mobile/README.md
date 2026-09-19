@@ -1,7 +1,7 @@
 # GovBiz Mobile
 
 기존 웹과 같은 계정·API·데이터를 사용하는 Expo React Native iOS·Android 앱입니다.
-웹은 `frontend/`, 공통 TypeScript 업무 계약·응답 검증은 `packages/shared/`에서 관리합니다.
+웹은 `frontend/web/`, 공통 TypeScript 업무 계약·응답 검증은 `frontend/packages/shared/`에서 관리합니다.
 
 ## 현재 제공하는 기능
 
@@ -22,7 +22,7 @@ Node.js **24.x**, pnpm **11.22.x**에서 저장소 루트에서 설치합니다.
 
 ```bash
 pnpm install --frozen-lockfile
-cp mobile/.env.example mobile/.env.local
+cp frontend/mobile/.env.example frontend/mobile/.env.local
 pnpm dev:mobile
 ```
 
@@ -37,7 +37,7 @@ OpenAI 키, DB 비밀번호, Vercel 프록시 비밀값, OAuth client secret을 
 | 운영 앱 | HTTPS 공개 API origin 또는 `/api`를 제공하는 Vercel origin |
 
 Core API·MySQL·AI Service와 검색 데이터가 먼저 준비되어야 합니다. 시작 방법은
-[인프라 README](../infrastructure/README.md)를 따릅니다. 기기의 `localhost`는 개발 PC가 아닙니다.
+[인프라 README](../../infrastructure/README.md)를 따릅니다. 기기의 `localhost`는 개발 PC가 아닙니다.
 방화벽 및 API listen 주소가 기기의 접근을 허용하는지도 확인합니다.
 API 장애를 가짜 공고·정상 빈 결과로 대체하지 않습니다.
 
@@ -91,6 +91,6 @@ export는 iOS·Android JavaScript/리소스 번들 생성이며 `.ipa`/`.apk` �
 테스트는 mock API로 인증 경계·복원 경합·화면 동작을 확인합니다. 유료 AI 호출이나 실제 OAuth 로그인을
 실행하지 않으므로 실제 검색 품질·공급자 로그인 동작 검증과 구분합니다.
 
-공고 응답/필터/업무 규칙을 바꾸면 `packages/shared/`를 수정하고 웹·앱 검증을 함께 실행합니다.
+공고 응답/필터/업무 규칙을 바꾸면 `frontend/packages/shared/`를 수정하고 웹·앱 검증을 함께 실행합니다.
 화면과 기기 저장소 코드는 각 앱에서 수정합니다. 서버 인증·API가 바뀌면 Core API 테스트도 실행합니다.
-전체 구조와 Vercel/Docker 변경사항은 [웹·앱 공동 관리](../docs/mobile-monorepo.md)를 참고하세요.
+전체 구조와 Vercel/Docker 변경사항은 [웹·앱 공동 관리](../../docs/mobile-monorepo.md)를 참고하세요.

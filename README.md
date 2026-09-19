@@ -6,8 +6,8 @@
 Ops 소스는 [`backend/ops-service`](backend/ops-service)에 있으며, 상태 확인 API·전용 MySQL·Gunicorn 실행 이미지를 갖추고 있습니다.
 소스를 통합해도 서비스 프로세스·의존성·DB 책임은 분리합니다.
 
-웹(`frontend/`)과 React Native 앱(`mobile/`)을 함께 관리합니다.
-[모바일 실행·기능 안내](mobile/README.md) · [공통 코드·workspace 관리](docs/mobile-monorepo.md)
+사용자 클라이언트는 [`frontend/`](frontend/README.md) 아래의 웹(`frontend/web/`)과 React Native 앱(`frontend/mobile/`)으로 나눠 관리합니다.
+[모바일 실행·기능 안내](frontend/mobile/README.md) · [공통 코드·workspace 관리](docs/mobile-monorepo.md)
 
 전체 로컬 실행은 루트 `compose.yaml`, 기존 웹·Core·AI 실행은 `infrastructure/compose.yaml`을 사용합니다.
 [통합 개발·이전 안내](docs/ops-monorepo-migration.md)를 먼저 확인하세요.
@@ -45,5 +45,5 @@ Compose가 생성하는 이름은 `<프로젝트명>-core-service-1`, `<프로�
 
 - [3차 프로젝트 README](docs/third-project/README.md): 기존 프로젝트 소개와 결과·회고
 - [전체 문서 목록](docs/README.md) · [기술 README](docs/technical-readme.md): 설계·API·실행·검증 안내
-- [웹](frontend/README.md) · [모바일](mobile/README.md): 클라이언트 개발·실행 안내
+- [웹](frontend/web/README.md) · [모바일](frontend/mobile/README.md): 클라이언트 개발·실행 안내
 - [Core](backend/core-service/README.md) · [Catalog](backend/catalog-service/README.md) · [AI](backend/ai-service/README.md) · [Ops](backend/ops-service/README.md): 서비스별 책임·실행·검증 안내

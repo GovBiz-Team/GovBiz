@@ -55,7 +55,7 @@ Core **433개**가 통과했고, 사용자 승인 후 로컬 Core·AI를 재빌�
 접수 상태 선택 상자와 상시 장문 안내를 제거했습니다. 현재는 조건 변경·해제나 전체 접수 상태 요청을
 대화로 전달하고, 변경 제안을 확인한 뒤 검색합니다. 기본 접수 중 검색, 새 대화·새로고침 초기화,
 검색 당시 조건 스냅샷과 백엔드 자격 검증은 유지합니다. 이 변경의 현재 흐름은
-[Frontend 안내](../frontend/README.md#화면과-현재-동작)와 [대화 조건 계약](conversation-condition-update.md)에 정리했습니다.
+[Frontend 안내](../frontend/web/README.md#화면과-현재-동작)와 [대화 조건 계약](conversation-condition-update.md)에 정리했습니다.
 UI 간소화 후 Frontend 전체 **29파일 281개**(15.52초), 타입 검사·lint·production build가 통과했습니다.
 삭제된 수동 폼 전용 테스트를 정리하고 대화 기반 변경·해제·스냅샷 회귀를 보강한 결과입니다.
 실행 중인 Web의 `/`·`/chat`에서도 패널 제거를 확인했습니다. 백엔드 변경·재시작이나 추가 유료 호출은 없었습니다.
@@ -210,10 +210,10 @@ Core 내부 소비자 1개가 기존 검색·근거 답변을 재사용합니다
 `POST /detail/answers`는 사용자가 질문한 기업마당 현재 공고에 한해 공식 상세 HTML을 추가 수집해 근거 답변을
 만듭니다. 첨부문서는 수집하지 않습니다. 추천 이유·점수는 검색 문장에 종속되므로 상세 GET API에서는 빈 이유·null 점수로 반환합니다.
 
-관련 코드: [화면 라우트](../frontend/src/App.tsx), [채팅 페이지 ViewModel](../frontend/src/presentation/features/chat/viewmodel/useChatPageViewModel.ts),
-[내부 채팅 Hook](../frontend/src/presentation/features/chat/hooks/useSupportProgramChat.ts),
-[내부 준비 상태 Hook](../frontend/src/presentation/features/chat/hooks/useSupportProgramSearchReadiness.ts),
-[원문 질문 페이지](../frontend/src/presentation/features/support-program-detail/view/SupportProgramEvidenceQuestionPage.tsx),
+관련 코드: [화면 라우트](../frontend/web/src/App.tsx), [채팅 페이지 ViewModel](../frontend/web/src/presentation/features/chat/viewmodel/useChatPageViewModel.ts),
+[내부 채팅 Hook](../frontend/web/src/presentation/features/chat/hooks/useSupportProgramChat.ts),
+[내부 준비 상태 Hook](../frontend/web/src/presentation/features/chat/hooks/useSupportProgramSearchReadiness.ts),
+[원문 질문 페이지](../frontend/web/src/presentation/features/support-program-detail/view/SupportProgramEvidenceQuestionPage.tsx),
 [공개 Controller](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/controller/SupportProgramController.kt).
 | 도우미 자유 질문 | 구현됨 | 위젯 자유 입력을 Core `POST /api/v1/assistant/messages`로 보내 AI Service가 의도(사용법·내 상태·검색·공고 질문·범위 밖·불명확)를 고르고, Core가 인용 검증·개인 정보 마스킹·관심 공고함/받은 제안함/기업 상태 답·이동 버튼을 만듦. 검색·원문 질문은 실행하지 않고 화면 이동만 |
 

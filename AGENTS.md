@@ -184,12 +184,12 @@
   의심이 있으면 `./gradlew clean test --no-daemon`을 사용한다. 위 MySQL 통합 테스트 요구는 유지한다.
 - AI Service 코드·실행 설정·의존성·프롬프트·테스트 변경: `backend/ai-service`에서
   `uv run --locked --extra dev python -m pytest`로 AI Service 전체 테스트를 실행한다.
-- Frontend 코드·설정·의존성·테스트 변경: `frontend/package.json`의 Node.js·pnpm 버전에 맞춰
-  `frontend`에서 `pnpm test`, `pnpm lint`, `pnpm build`를 실행한다.
+- Frontend 코드·설정·의존성·테스트 변경: `frontend/web/package.json`의 Node.js·pnpm 버전에 맞춰
+  `frontend/web`에서 `pnpm test`, `pnpm lint`, `pnpm build`를 실행한다.
 - Node 의존성은 저장소 루트에서 `pnpm install --frozen-lockfile`로 설치하며 루트 잠금 파일만 관리한다.
-- Mobile 코드·설정·의존성·테스트 변경: `mobile`에서 `pnpm test`, `pnpm typecheck`, `pnpm lint`,
+- Mobile 코드·설정·의존성·테스트 변경: `frontend/mobile`에서 `pnpm test`, `pnpm typecheck`, `pnpm lint`,
   `pnpm export`를 실행한다. export는 iOS·Android JS 번들 검증이며 실제 기기 실행이나 스토어 빌드로 보고하지 않는다.
-- 공통 `packages/shared` 변경: 해당 패키지의 `pnpm typecheck`, `pnpm test`, `pnpm lint`와 웹·앱 검증을
+- 공통 `frontend/packages/shared` 변경: 해당 패키지의 `pnpm typecheck`, `pnpm test`, `pnpm lint`와 웹·앱 검증을
   함께 실행한다. 공통 업무 계약·DTO 구현은 shared에서 수정하고 frontend의 재수출 파일에 복제하지 않는다.
 - 평가 도구 변경: 해당 평가 디렉터리의 README와 `.github/workflows/ci.yml`에 있는 관련 검증을
   실행한다. 검색 평가와 근거 답변 평가는 각각의 실행 환경에서 별도 프로세스로 실행한다.

@@ -11,11 +11,11 @@
 
 | 영역 | 기술·설정 | 역할 | 기준 파일 |
 |---|---|---|---|
-| 웹 런타임 | Node.js 24.x, pnpm 11.22.x | 개발·빌드 환경 | [package.json](../frontend/package.json) |
-| 화면 | React 19, TypeScript 6, React Router 8 | 채팅·상세·계정 화면과 로그인 여부에 따른 URL 라우팅 | [package.json](../frontend/package.json) |
-| 웹 도구 | Vite 8, Tailwind CSS 4 | 개발 서버, 번들링, 스타일 | [package.json](../frontend/package.json) |
-| 상태·연결 | Redux Toolkit 2, Awilix 13 | 대화 상태, UseCase·Repository 생성과 연결 | [app 구성](../frontend/src/app) |
-| 웹 검증 | Zod 4, React Hook Form 7 | HTTP 응답과 예제 폼 검증 | [Frontend 안내](../frontend/README.md) |
+| 웹 런타임 | Node.js 24.x, pnpm 11.22.x | 개발·빌드 환경 | [package.json](../frontend/web/package.json) |
+| 화면 | React 19, TypeScript 6, React Router 8 | 채팅·상세·계정 화면과 로그인 여부에 따른 URL 라우팅 | [package.json](../frontend/web/package.json) |
+| 웹 도구 | Vite 8, Tailwind CSS 4 | 개발 서버, 번들링, 스타일 | [package.json](../frontend/web/package.json) |
+| 상태·연결 | Redux Toolkit 2, Awilix 13 | 대화 상태, UseCase·Repository 생성과 연결 | [app 구성](../frontend/web/src/app) |
+| 웹 검증 | Zod 4, React Hook Form 7 | HTTP 응답과 예제 폼 검증 | [Frontend 안내](../frontend/web/README.md) |
 | 공개 API | JDK 21, Kotlin 2.4.10, Spring Boot 4.1.0 | HTTP 계약, 업무 흐름, 외부 통신 | [build.gradle](../backend/core-service/build.gradle) |
 | DB 접근 | MyBatis Spring Boot Starter 4.0.0, Flyway | XML SQL 실행과 스키마 버전 관리 | [build.gradle](../backend/core-service/build.gradle) |
 | 원문 파싱 | jsoup 1.23.2 | 기업마당 상세 HTML의 제목 확인과 공고 본문 추출 | [build.gradle](../backend/core-service/build.gradle) |

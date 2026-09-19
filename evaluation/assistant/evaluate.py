@@ -24,8 +24,8 @@ sys.path.insert(0, str(ROOT / "backend/ai-service"))
 from app.assistant.models import AssistantAnswerRequest, SCHEMA_VERSION  # noqa: E402
 from app.assistant_agent.models import SCHEMA_VERSION as AGENT_SCHEMA_VERSION, AssistantAgentRequest  # noqa: E402
 
-HELP_CONTENT = ROOT / "frontend/src/presentation/shared/help/helpContent.ts"
-APP_PATHS = ROOT / "frontend/src/presentation/shared/routes/appPaths.ts"
+HELP_CONTENT = ROOT / "frontend/web/src/presentation/shared/help/helpContent.ts"
+APP_PATHS = ROOT / "frontend/web/src/presentation/shared/routes/appPaths.ts"
 QUESTIONS = HERE / "questions.json"
 ABSTAIN_INTENTS = {"OUT_OF_SCOPE", "UNCLEAR"}
 INTENTS = ["PRODUCT_HELP", "ACCOUNT_STATE", "SEARCH", "PROGRAM_QUESTION", "OUT_OF_SCOPE", "UNCLEAR"]

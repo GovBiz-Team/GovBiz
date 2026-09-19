@@ -93,7 +93,7 @@ worker는 현재 구현되어 있지 않습니다.
 실행 중인 Docker가 필요합니다. Core API 통합 테스트는 실제 MySQL 8.4 Testcontainers를 사용합니다.
 
 ```bash
-cd frontend && pnpm test && pnpm lint && pnpm build
+cd frontend/web && pnpm test && pnpm lint && pnpm build
 cd ../backend/core-service && ./gradlew clean test --no-daemon
 cd ../ai-service && uv lock --check && uv run --locked --extra dev python -m pytest
 cd ../.. && ./infrastructure/scripts/verify-compose.sh

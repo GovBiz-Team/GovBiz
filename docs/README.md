@@ -36,7 +36,7 @@
 | [계정·인증 계약](account-auth-contract.md) | 로그인·세션(유지·유휴 만료)·로그아웃·권한 단계·개발용 시드 로그인의 요청·응답과 설정 |
 | [기업 맞춤 일일 리포트](daily-reports.md) | 기업별 추천·근거 확인, 웹 미리보기, 수신 주소 확인·동의·해지, SMTP 설정과 중복·비용 경계 |
 | [요청량·동시 실행 제한](support-program-request-limits.md) | 제한 설정·429/503 계약·운영 한계·4단계 최종 통합 검증 |
-| [Frontend 개발](../frontend/README.md) | 화면 구조, 실행, 테스트·lint·build |
+| [Frontend 개발](../frontend/web/README.md) | 화면 구조, 실행, 테스트·lint·build |
 | [Core API 개발](../backend/core-service/README.md) | 패키지·DB 규칙, 평가 프로필, JDK 21·MySQL 테스트 |
 | [AI Service 개발](../backend/ai-service/README.md) | 실행 설정, 내부 API, 테스트와 패키지 빌드 |
 | [Ops 개발·컨테이너](../backend/ops-service/README.md) | Django·전용 MySQL, 개발 runserver·기본 Gunicorn 구분, 상태 확인과 격리 테스트 |
@@ -60,7 +60,7 @@
 ## 평가와 개발 확장
 
 C01 문서의 수동 조건 입력 UI와 개발 전략의 최초 UI 계획은 과거 기록입니다. 현재는 해당 패널을 제거하고
-대화의 변경 제안 확인을 유지합니다. [현재 화면 안내](../frontend/README.md#화면과-현재-동작)와
+대화의 변경 제안 확인을 유지합니다. [현재 화면 안내](../frontend/web/README.md#화면과-현재-동작)와
 [대화 조건 계약](conversation-condition-update.md)을 함께 참고하세요.
 
 | 문서 | 확인할 내용 |

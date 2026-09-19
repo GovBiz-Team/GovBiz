@@ -49,7 +49,7 @@ AWS 리전은 시드니(`ap-southeast-2`)이며 CloudFront는 글로벌 서비�
 - 기존 배포 과정에서 EC2 생성·SSM 접속, NAT 및 라우팅, Compose 서비스 기동, CloudFront VPC origin,
   Vercel 화면 표시, RDS TLS 연결과 운영 데모 입력을 확인한 기록을 반영했습니다.
 - 소스 근거: [운영 Compose](../../../infrastructure/compose.prod.yaml),
-  [Vercel 미들웨어](../../../frontend/middleware.ts), [Vercel 설정](../../../frontend/vercel.json),
+  [Vercel 미들웨어](../../../frontend/web/middleware.ts), [Vercel 설정](../../../frontend/web/vercel.json),
   [CodeBuild buildspec](../../../infrastructure/codebuild/backend.yml),
   [이미지 게시·SSM 호출](../../../infrastructure/codebuild/release.py),
   [호스트 이미지 교체](../../../infrastructure/codebuild/deploy_host.py).

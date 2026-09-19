@@ -284,12 +284,12 @@ services:
   web:
     build:
       context: ..
-      dockerfile: frontend/Dockerfile.dev
+      dockerfile: frontend/web/Dockerfile.dev
     init: true
     depends_on:
       core-service:
         condition: service_healthy
-    working_dir: /app/frontend
+    working_dir: /app/frontend/web
     environment:
       CHOKIDAR_USEPOLLING: "true"
       # 바인드 마운트(Windows/macOS)는 파일 stat이 느려 폴링 간격을 너무 줄이면 Vite 프록시까지 느려진다. 기본 1000ms.
@@ -309,12 +309,12 @@ services:
       - ../package.json:/app/package.json
       - ../pnpm-lock.yaml:/app/pnpm-lock.yaml
       - ../pnpm-workspace.yaml:/app/pnpm-workspace.yaml
-      - ../frontend:/app/frontend
-      - ../packages/shared:/app/packages/shared
-      - ../mobile/package.json:/app/mobile/package.json:ro
+      - ../frontend/web:/app/frontend/web
+      - ../frontend/packages/shared:/app/frontend/packages/shared
+      - ../frontend/mobile/package.json:/app/frontend/mobile/package.json:ro
       - web-workspace-node-modules:/app/node_modules
-      - web-frontend-node-modules:/app/frontend/node_modules
-      - web-shared-node-modules:/app/packages/shared/node_modules
+      - web-frontend-node-modules:/app/frontend/web/node_modules
+      - web-shared-node-modules:/app/frontend/packages/shared/node_modules
 
   bizinfo-stub:
     profiles:

@@ -142,12 +142,13 @@ def validate(model, project):
 
     web_mounts = {v["target"]: v for v in services["web"]["volumes"]}
     require(
-        services["web"]["working_dir"] == "/app/frontend",
+        services["web"]["working_dir"] == "/app/frontend/web",
         "The web development server must run in its workspace.",
     )
     for target, source in (
-        ("/app/frontend", APP / "frontend"),
-        ("/app/packages/shared", APP / "packages/shared"),
+        ("/app/frontend/web", APP / "frontend/web"),
+        ("/app/frontend/mobile/package.json", APP / "frontend/mobile/package.json"),
+        ("/app/frontend/packages/shared", APP / "frontend/packages/shared"),
         ("/app/pnpm-lock.yaml", APP / "pnpm-lock.yaml"),
     ):
         require(

@@ -57,7 +57,7 @@ ElastiCache·Amazon MQ·OpenSearch 등 관리형 서비스로 전환한 것으�
 
 ### 프론트엔드
 
-1. GitHub 저장소와 Vercel 프로젝트를 연결하고 작업 루트를 `frontend`로 지정합니다.
+1. GitHub 저장소와 Vercel 프로젝트를 연결하고 작업 루트를 `frontend/web`로 지정합니다.
 2. Vercel에서 React·Vite 빌드와 정적 파일 배포를 수행합니다. 프론트엔드 이미지를 ECR/EC2로 배포하지 않습니다.
 3. 고정된 운영 `*.vercel.app` 주소를 정하고 `VITE_CORE_API_BASE_URL="/"`로 같은 origin의 `/api`를 사용하도록 구성합니다.
    현재 URL 조합 코드가 마지막 `/`를 제거하므로 각 API의 `/api/...` 경로가 그대로 유지되는 것을 배포 테스트로 확인합니다.

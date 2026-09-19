@@ -6,7 +6,7 @@
 ## 1. 기준과 결론
 
 - 기준: `388bf91` — 로그인·가입·파트너 모집·프로필·관리자 화면이 합쳐진 새 코드.
-- 이전 감사 결과를 그대로 재적용하지 않고 현재 `frontend/src`의 라우팅, 전체 feature, 공용 UI, Domain·Data·DI·상태·설정·테스트를 다시 검토했습니다.
+- 이전 감사 결과를 그대로 재적용하지 않고 현재 `frontend/web/src`의 라우팅, 전체 feature, 공용 UI, Domain·Data·DI·상태·설정·테스트를 다시 검토했습니다.
 - 범위: 현재 구현의 버그 수정, 오해를 만드는 데모 표시 정리, 응답 경계 방어, 회귀 검사. 실제 계정·모집·관리자 백엔드를 새로 만드는 작업은 포함하지 않았습니다.
 - 발견된 주요 결함은 **중간 화면 폭에서 폼 붕괴**, **오류 재확인 중 검색 잠금 해제**, **재시도 시 다른 입력 유실**, **스크롤 대상 오류**, **잘못된 상세 복귀·모집 상세 연결**, **미구현 기능의 성공 오인**입니다.
 - 현재의 기능별 MVVM·UseCase·Repository 구조 자체가 잘못된 것은 아닙니다. 실제 문제를 고치기 위해 새 범용 프레임워크나 계층을 추가하지 않았습니다.
@@ -40,12 +40,12 @@
 
 ### 주요 변경 위치
 
-- [공용 작업 레이아웃](../frontend/src/presentation/shared/workspace/WorkspacePage.styles.ts), [사이드바 스타일](../frontend/src/presentation/shared/app-sidebar/AppSidebar.styles.ts), [헤더](../frontend/src/presentation/shared/app-header/AppHeader.styles.ts)
-- [채팅 ViewModel](../frontend/src/presentation/features/chat/viewmodel/useChatPageViewModel.ts), [준비 상태 Hook](../frontend/src/presentation/features/chat/hooks/useSupportProgramSearchReadiness.ts), [chat slice](../frontend/src/presentation/features/chat/state/chatSlice.ts), [채팅 View](../frontend/src/presentation/features/chat/view/ChatPage.tsx)
-- [상세 ViewModel](../frontend/src/presentation/features/support-program-detail/viewmodel/useSupportProgramDetailViewModel.ts), [복귀 경로 검증](../frontend/src/presentation/features/support-program-detail/view/supportProgramNavigation.ts), [질문 View](../frontend/src/presentation/features/support-program-detail/view/SupportProgramEvidenceQuestionPage.tsx)
-- [가입 ViewModel](../frontend/src/presentation/features/auth/viewmodel/useSignupViewModel.ts), [인증 화면 스타일](../frontend/src/presentation/features/auth/view/AuthPage.styles.ts)
-- [모집 작성 ViewModel](../frontend/src/presentation/features/partner-recruitment/viewmodel/usePartnerRecruitmentCreateViewModel.ts), [모집 상세 ViewModel](../frontend/src/presentation/features/partner-recruitment/viewmodel/usePartnerRecruitmentDetailViewModel.ts)
-- [Core 상태 Hook](../frontend/src/presentation/shared/core-api-status/useCoreApiHealth.ts), [Hook 예제](../frontend/src/presentation/features/sample-item/viewmodel/useSampleItemViewModel.ts), [Redux 예제](../frontend/src/presentation/features/sample-item/viewmodel/useReduxSampleItemViewModel.ts)
+- [공용 작업 레이아웃](../frontend/web/src/presentation/shared/workspace/WorkspacePage.styles.ts), [사이드바 스타일](../frontend/web/src/presentation/shared/app-sidebar/AppSidebar.styles.ts), [헤더](../frontend/web/src/presentation/shared/app-header/AppHeader.styles.ts)
+- [채팅 ViewModel](../frontend/web/src/presentation/features/chat/viewmodel/useChatPageViewModel.ts), [준비 상태 Hook](../frontend/web/src/presentation/features/chat/hooks/useSupportProgramSearchReadiness.ts), [chat slice](../frontend/web/src/presentation/features/chat/state/chatSlice.ts), [채팅 View](../frontend/web/src/presentation/features/chat/view/ChatPage.tsx)
+- [상세 ViewModel](../frontend/web/src/presentation/features/support-program-detail/viewmodel/useSupportProgramDetailViewModel.ts), [복귀 경로 검증](../frontend/web/src/presentation/features/support-program-detail/view/supportProgramNavigation.ts), [질문 View](../frontend/web/src/presentation/features/support-program-detail/view/SupportProgramEvidenceQuestionPage.tsx)
+- [가입 ViewModel](../frontend/web/src/presentation/features/auth/viewmodel/useSignupViewModel.ts), [인증 화면 스타일](../frontend/web/src/presentation/features/auth/view/AuthPage.styles.ts)
+- [모집 작성 ViewModel](../frontend/web/src/presentation/features/partner-recruitment/viewmodel/usePartnerRecruitmentCreateViewModel.ts), [모집 상세 ViewModel](../frontend/web/src/presentation/features/partner-recruitment/viewmodel/usePartnerRecruitmentDetailViewModel.ts)
+- [Core 상태 Hook](../frontend/web/src/presentation/shared/core-api-status/useCoreApiHealth.ts), [Hook 예제](../frontend/web/src/presentation/features/sample-item/viewmodel/useSampleItemViewModel.ts), [Redux 예제](../frontend/web/src/presentation/features/sample-item/viewmodel/useReduxSampleItemViewModel.ts)
 
 ### 레이아웃·스크롤 검증에서 지킨 조건
 
@@ -70,7 +70,7 @@
 | 응답 검색어 | 요청과 다른 검색어의 결과를 현재 요청 결과처럼 수용 | `command.query.trim()`과 응답 query 대조. 빈 검색어 최신 목록 API 계약 유지 |
 | 타입 설정 | 엄격 검사를 프로젝트 설정으로 보장하지 않음 | app/node `strict: true` 명시, 전체 타입 검사 통과 |
 
-위치: [SupportProgramDto.ts](../frontend/src/data/models/SupportProgramDto.ts), [supportProgramApi.ts](../frontend/src/data/api/supportProgramApi.ts), [tsconfig.app.json](../frontend/tsconfig.app.json), [tsconfig.node.json](../frontend/tsconfig.node.json).
+위치: [SupportProgramDto.ts](../frontend/web/src/data/models/SupportProgramDto.ts), [supportProgramApi.ts](../frontend/web/src/data/api/supportProgramApi.ts), [tsconfig.app.json](../frontend/web/tsconfig.app.json), [tsconfig.node.json](../frontend/web/tsconfig.node.json).
 
 서버의 관련성 점수와 신청 자격 판정은 계속 별개입니다. 높은 관련도와 `REVIEW_REQUIRED`·`UNKNOWN`이 공존하는 응답은 유효합니다. 클라이언트는 자격 충족 여부를 재판정하거나 장애를 성공 fallback으로 숨기지 않습니다.
 
@@ -138,7 +138,7 @@ git -c core.safecrlf=false diff --check
 
 ### 실제 브라우저 회귀
 
-[재실행 스크립트](../frontend/scripts/check-ui-layout.cjs)는 별도 설치된 Playwright와 Edge를 사용했습니다. 설치 방법을 실행 중 임의로 바꾸거나 새 production 의존성을 추가하지 않았습니다.
+[재실행 스크립트](../frontend/web/scripts/check-ui-layout.cjs)는 별도 설치된 Playwright와 Edge를 사용했습니다. 설치 방법을 실행 중 임의로 바꾸거나 새 production 의존성을 추가하지 않았습니다.
 
 - 해상도: **320×568, 375×667, 768×800, 844×390, 1024×800, 1280×800, 1440×900**.
 - 경로: 공개 검색, 작업 채팅, 로그인, 가입, 모집 목록·작성·상세, 프로필, 관리자, 공고 상세·질문, Hook·Redux 예제 — **13개**.

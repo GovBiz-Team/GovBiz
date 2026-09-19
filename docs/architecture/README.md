@@ -85,9 +85,9 @@ DB 상태 전이로 중복 실행을 막습니다. SMTP·수동 미리보기는 
 객체 조립: App에서 Domain UseCase와 Data 구현체를 연결
 ```
 
-[검색 UseCase](../../frontend/src/domain/usecases/SearchSupportProgramsUseCase.ts)는 Domain의 Repository
+[검색 UseCase](../../frontend/web/src/domain/usecases/SearchSupportProgramsUseCase.ts)는 Domain의 Repository
 계약만 생성자로 받고 HTTP 함수를 직접 import하지 않습니다. 반대로
-[Repository 구현](../../frontend/src/data/repositories/SupportProgramRepositoryImpl.ts)은 Domain interface를
+[Repository 구현](../../frontend/web/src/data/repositories/SupportProgramRepositoryImpl.ts)은 Domain interface를
 구현하고, HTTP DTO를 `SupportProgram`으로 바꿉니다. API 형식 변경의 영향을 Data 경계에서 처리하고
 UseCase 테스트에는 필요한 Repository 대역을 전달할 수 있습니다.
 
@@ -100,8 +100,8 @@ Domain 계약에 요청 취소용 Web 표준 `AbortSignal`이 있고, ViewModel 
 DI는 객체가 필요한 협력 객체를 스스로 만들지 않고 외부에서 받는 방식입니다. 검색 UseCase가
 Repository 구현체를 직접 생성하지 않으므로 데이터 접근 구현과 객체 생성 책임을 분리할 수 있습니다.
 
-[registerRepositories.ts](../../frontend/src/app/di/registerRepositories.ts)가 구체 구현체를 등록하고,
-[registerUseCases.ts](../../frontend/src/app/di/registerUseCases.ts)의 factory가 Repository를 UseCase 생성자에
+[registerRepositories.ts](../../frontend/web/src/app/di/registerRepositories.ts)가 구체 구현체를 등록하고,
+[registerUseCases.ts](../../frontend/web/src/app/di/registerUseCases.ts)의 factory가 Repository를 UseCase 생성자에
 전달합니다. 두 역할의 인스턴스는 Awilix의 `singleton()`으로 앱 컨테이너 단위로 재사용합니다.
 다음은 연결 코드의 핵심입니다.
 
@@ -127,12 +127,12 @@ MVVM은 Model·View·ViewModel의 책임을 나누는 화면 설계입니다. �
 
 | 역할 | 실제 코드 | 담당 작업 |
 |---|---|---|
-| View | [ChatPage.tsx](../../frontend/src/presentation/features/chat/view/ChatPage.tsx) | 입력창·결과 카드 렌더링, 사용자 이벤트 연결 |
-| 페이지 ViewModel | [useChatPageViewModel.ts](../../frontend/src/presentation/features/chat/viewmodel/useChatPageViewModel.ts) | 채팅·준비 상태 조합, 검색 가능 여부 검사, IME·스크롤, 화면 이벤트 제공 |
-| 내부 채팅 Hook | [useSupportProgramChat.ts](../../frontend/src/presentation/features/chat/hooks/useSupportProgramChat.ts) | `draft`, `messages`, `isSearching` 등 Redux 상태 구독과 검색·해석 요청의 시작·취소·시간 제한. 요청 객체 자체는 아래 요청 레지스트리가 소유 |
-| 요청 레지스트리 | [chatRequestRegistry.ts](../../frontend/src/presentation/features/chat/state/chatRequestRegistry.ts) | 진행 중 `AbortController`·타이머의 주인. Store와 수명이 같아 화면을 떠나도 요청이 이어지고, thunk의 extraArgument로 주입 |
-| 내부 준비 상태 Hook | [useSupportProgramSearchReadiness.ts](../../frontend/src/presentation/features/chat/hooks/useSupportProgramSearchReadiness.ts) | 검색 준비 상태 조회와 준비 중 polling 관리 |
-| 공용 레이아웃 ViewModel | [useWorkspaceLayoutViewModel.ts](../../frontend/src/presentation/shared/app-sidebar/useWorkspaceLayoutViewModel.ts), [useWorkspaceChatActions.ts](../../frontend/src/presentation/shared/app-sidebar/useWorkspaceChatActions.ts) | 사이드바 접기·모바일 메뉴·포커스 이동과 새검색·대화 열기·삭제의 확인 대화상자 흐름. `WorkspaceLayout` View는 JSX와 문구만 가짐 |
+| View | [ChatPage.tsx](../../frontend/web/src/presentation/features/chat/view/ChatPage.tsx) | 입력창·결과 카드 렌더링, 사용자 이벤트 연결 |
+| 페이지 ViewModel | [useChatPageViewModel.ts](../../frontend/web/src/presentation/features/chat/viewmodel/useChatPageViewModel.ts) | 채팅·준비 상태 조합, 검색 가능 여부 검사, IME·스크롤, 화면 이벤트 제공 |
+| 내부 채팅 Hook | [useSupportProgramChat.ts](../../frontend/web/src/presentation/features/chat/hooks/useSupportProgramChat.ts) | `draft`, `messages`, `isSearching` 등 Redux 상태 구독과 검색·해석 요청의 시작·취소·시간 제한. 요청 객체 자체는 아래 요청 레지스트리가 소유 |
+| 요청 레지스트리 | [chatRequestRegistry.ts](../../frontend/web/src/presentation/features/chat/state/chatRequestRegistry.ts) | 진행 중 `AbortController`·타이머의 주인. Store와 수명이 같아 화면을 떠나도 요청이 이어지고, thunk의 extraArgument로 주입 |
+| 내부 준비 상태 Hook | [useSupportProgramSearchReadiness.ts](../../frontend/web/src/presentation/features/chat/hooks/useSupportProgramSearchReadiness.ts) | 검색 준비 상태 조회와 준비 중 polling 관리 |
+| 공용 레이아웃 ViewModel | [useWorkspaceLayoutViewModel.ts](../../frontend/web/src/presentation/shared/app-sidebar/useWorkspaceLayoutViewModel.ts), [useWorkspaceChatActions.ts](../../frontend/web/src/presentation/shared/app-sidebar/useWorkspaceChatActions.ts) | 사이드바 접기·모바일 메뉴·포커스 이동과 새검색·대화 열기·삭제의 확인 대화상자 흐름. `WorkspaceLayout` View는 JSX와 문구만 가짐 |
 | Model 측 | Domain 모델·UseCase·Repository | 검색 조건과 공고 데이터, 검색·상세 조회 실행 |
 
 View는 페이지 ViewModel 하나가 반환한 상태를 렌더링하고 사용자 이벤트를 반환된 handler에 연결합니다.
@@ -143,9 +143,9 @@ View는 페이지 ViewModel 하나가 반환한 상태를 렌더링하고 사용
 View에는 JSX·스타일·ARIA 구조와 날짜·상태 문구 등의 순수 표시용 포맷만 남깁니다.
 
 상세 조회·원문 근거 질문은 별도 `support-program-detail` feature에 둡니다.
-[SupportProgramDetailPage.tsx](../../frontend/src/presentation/features/support-program-detail/view/SupportProgramDetailPage.tsx)는
+[SupportProgramDetailPage.tsx](../../frontend/web/src/presentation/features/support-program-detail/view/SupportProgramDetailPage.tsx)는
 `useSupportProgramDetailViewModel`을, 별도 질문 페이지인
-[SupportProgramEvidenceQuestionPage.tsx](../../frontend/src/presentation/features/support-program-detail/view/SupportProgramEvidenceQuestionPage.tsx)는
+[SupportProgramEvidenceQuestionPage.tsx](../../frontend/web/src/presentation/features/support-program-detail/view/SupportProgramEvidenceQuestionPage.tsx)는
 `useSupportProgramEvidenceQuestionViewModel`을 사용합니다. 각 페이지의 View·스타일·ViewModel·테스트를
 함께 배치하고, 채팅 feature의 화면 구현이나 상태에 의존하지 않습니다.
 기업마당 상세의 **이 공고에 질문하기** 링크로 `/support-programs/detail/question`(사이드바 안에서는 `/app/support-programs/detail/question`)에 제공처·원본 ID를 전달합니다.
@@ -176,8 +176,8 @@ ChatPage의 제출 이벤트
 ```
 
 Thunk는 비동기 처리를 수행하는 함수이며, 검색·해석 Thunk는 내부 채팅 Hook 안에, 진행 중 요청을 끊는 취소 Thunk는
-[chatRequestThunks.ts](../../frontend/src/presentation/features/chat/state/chatRequestThunks.ts)에 정의되어 Redux 미들웨어가 실행합니다.
-HTTP 호출은 UseCase·Repository를 통해 수행하고 [chatSlice](../../frontend/src/presentation/features/chat/state/chatSlice.ts)의
+[chatRequestThunks.ts](../../frontend/web/src/presentation/features/chat/state/chatRequestThunks.ts)에 정의되어 Redux 미들웨어가 실행합니다.
+HTTP 호출은 UseCase·Repository를 통해 수행하고 [chatSlice](../../frontend/web/src/presentation/features/chat/state/chatSlice.ts)의
 Reducer에는 상태 변경 규칙을 둡니다. Slice 내부의 `state.messages.push(...)` 표기는 Redux Toolkit이
 Immer로 처리하는 갱신 방식이며 View나 HTTP 코드가 Store 상태를 직접 변경하는 흐름이 아닙니다.
 

@@ -90,7 +90,7 @@ Origin/Referer 검증도 그대로 적용합니다. 복원은 검색의 AI 요�
 또한 복원 시점의 최신 공고·접수 상태·점수를 재계산하지 않고 검색 당시 결과를 반환합니다.
 그 사이 공고가 변경되거나 날짜가 바뀌어도 스냅샷을 자동 갱신하지 않으므로 최신 조건은 상세·원문에서 확인해야 합니다.
 
-프론트엔드의 [복원 Hook](../frontend/src/presentation/features/chat/hooks/useRestoreSupportProgramSearch.ts)은
+프론트엔드의 [복원 Hook](../frontend/web/src/presentation/features/chat/hooks/useRestoreSupportProgramSearch.ts)은
 로그인 후 URL의 `searchResult`를 읽고 주소에서 제거한 뒤 복원합니다. 그동안 계정·대화·화면이 바뀌면
 진행 중인 복원 응답을 현재 대화에 적용하지 않습니다. 이 화면 처리도 Redis가 대화 전체를 저장한다는 의미는 아닙니다.
 
@@ -271,7 +271,7 @@ Redis 도입 검증 기록(2026-09-12): Core clean build의 테스트 1,206개, 
 | [Preview Service 테스트](../backend/core-service/src/test/kotlin/ai/govbiz/core/supportprogram/service/search/SupportProgramSearchPreviewServiceTest.kt) | 공개 건수 분기, 전체 결과·조건 복원, 만료·소유권, 기존 128건 조기 퇴거 제거 |
 | [Controller 테스트](../backend/core-service/src/test/kotlin/ai/govbiz/core/supportprogram/controller/SupportProgramSearchPreviewControllerTest.kt) | 인증·응답 계약·명시적 503·no-store·복원 시 추가 검색 없음 |
 | [DNS 설정 테스트](../backend/core-service/src/test/kotlin/ai/govbiz/core/supportprogram/repository/config/SupportProgramSearchResultRedisConfigTest.kt) | Spring의 Lettuce가 수명 관리되는 DNS 설정을 실제로 사용 |
-| [Frontend API 테스트](../frontend/src/data/api/__tests__/supportProgramSearchResults.test.ts) | 복원 503을 정상 결과나 만료가 아닌 사용 불가 오류로 변환 |
+| [Frontend API 테스트](../frontend/web/src/data/api/__tests__/supportProgramSearchResults.test.ts) | 복원 503을 정상 결과나 만료가 아닌 사용 불가 오류로 변환 |
 | [Compose 검증 스크립트](../infrastructure/scripts/verify-compose.sh) | Core 재시작, 다른 계정 차단, Redis 중지 시 503, 새 IP·동일 AOF 볼륨으로 재생성한 뒤 동일 결과 복구 |
 
 Core 전체 검증은 JDK 21과 Docker가 준비된 상태에서 실행합니다. 실제 MySQL·Redis Testcontainers를 사용합니다.

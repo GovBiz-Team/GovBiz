@@ -17,7 +17,7 @@ C01/E01 전체나 기획서 전체 완료로 표시하지 않는다.
 
 후속 UI 간소화로 C01 계획의 수동 조건 폼·조건 칩 해제·접수 상태 선택 상자는 제거했다. 조건 변경·해제와
 접수 전체 요청은 대화의 제안 확인 방식으로 유지한다. 아래 최초 계획은 보존하며, 현행 화면은
-[Frontend 안내](../frontend/README.md#화면과-현재-동작)와 [C02 현재 흐름](conversation-condition-update.md)을 우선한다.
+[Frontend 안내](../frontend/web/README.md#화면과-현재-동작)와 [C02 현재 흐름](conversation-condition-update.md)을 우선한다.
 
 ## 1. 결론과 범위
 
@@ -55,7 +55,7 @@ C01/E01 전체나 기획서 전체 완료로 표시하지 않는다.
 ### 실제 구현 근거
 
 - [검색 Service](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/service/search/SupportProgramSearchService.kt): 접수 상태 필터, 공개/검색 가능 카탈로그, 후보·랭킹 연결.
-- [검색 UseCase](../frontend/src/domain/usecases/SearchSupportProgramsUseCase.ts), [채팅 Hook](../frontend/src/presentation/features/chat/hooks/useSupportProgramChat.ts): `query`와 `acceptingOnly=true`, 현재 질의만 전송.
+- [검색 UseCase](../frontend/web/src/domain/usecases/SearchSupportProgramsUseCase.ts), [채팅 Hook](../frontend/web/src/presentation/features/chat/hooks/useSupportProgramChat.ts): `query`와 `acceptingOnly=true`, 현재 질의만 전송.
 - [공개 공고 DTO](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/controller/dto/SupportProgramResponse.kt), [AI 판정 모델](../backend/ai-service/app/support_program_ranking/models.py): 내부 자격 판정과 공개 이유/점수의 차이.
 - [원문 질문 Service](../backend/core-service/src/main/kotlin/ai/govbiz/core/supportprogram/service/evidence/SupportProgramEvidenceService.kt): 기업마당 한정, 명시적 질문 때 HTML 수집, 6시간 캐시.
 - [다중 제공처 준비 문서](support-program-multi-source-preparation.md): 준비된 기반과 미구현 수집 범위를 구분.

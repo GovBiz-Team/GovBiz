@@ -413,7 +413,10 @@ GovBiz/
 │   ├── catalog-service/             # 독립 공고 수집·게시 서비스, 선택형 분리
 │   ├── ai-service/                  # Python·FastAPI AI Service
 │   └── ops-service/                 # Django 운영·LLMOps 개발 기반
-├── frontend/                        # React·TypeScript 웹 애플리케이션
+├── frontend/                       # 사용자 클라이언트
+│   ├── web/                        # React·TypeScript 웹 애플리케이션
+│   ├── mobile/                     # Expo·React Native 앱
+│   └── packages/shared/            # 웹·앱 공통 업무 모델·API 계약
 ├── evaluation/
 │   ├── assistant/                   # AI 어시스턴트 평가
 │   ├── combination-review/          # 중복 지원·수혜 검토 평가

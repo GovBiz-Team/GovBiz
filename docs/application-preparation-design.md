@@ -123,13 +123,13 @@ Router → Service → 구체 Agent → OpenAI
 제안 파일 경계:
 
 ```text
-frontend/src/presentation/features/application-preparation/
-frontend/src/domain/entities/ApplicationPreparation.ts
-frontend/src/domain/repositories/ApplicationPreparationRepository.ts
-frontend/src/domain/usecases/ApplicationPreparationUseCase.ts
-frontend/src/data/api/applicationPreparationApi.ts
-frontend/src/data/models/ApplicationPreparationDto.ts
-frontend/src/data/repositories/ApplicationPreparationRepositoryImpl.ts
+frontend/web/src/presentation/features/application-preparation/
+frontend/web/src/domain/entities/ApplicationPreparation.ts
+frontend/web/src/domain/repositories/ApplicationPreparationRepository.ts
+frontend/web/src/domain/usecases/ApplicationPreparationUseCase.ts
+frontend/web/src/data/api/applicationPreparationApi.ts
+frontend/web/src/data/models/ApplicationPreparationDto.ts
+frontend/web/src/data/repositories/ApplicationPreparationRepositoryImpl.ts
 
 backend/core-service/src/main/kotlin/ai/govbiz/core/applicationpreparation/
   controller/  service/  domain/  repository/  repository/mapper/  client/ai/

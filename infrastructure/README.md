@@ -62,10 +62,17 @@ JavaScript가 `http://core-service:8080`을 직접 호출하면 실패합니다.
 
 ## 실행
 
-웹 이미지는 저장소 루트를 build context로 사용하고, 루트 pnpm lockfile로 `frontend`와
-`packages/shared` 의존성만 설치합니다. 개발 컨테이너의 작업 경로는 `/app/frontend`입니다.
+웹 이미지는 저장소 루트를 build context로 사용하고, 루트 pnpm lockfile로 `frontend/web`와
+`frontend/packages/shared` 의존성만 설치합니다. 개발 컨테이너의 작업 경로는 `/app/frontend/web`입니다.
 웹·공유 소스를 각각 바인드 마운트하며 루트·웹·공유 `node_modules`는 별도 named volume에 둡니다.
 모바일 네이티브 도구와 번들은 웹 이미지에 포함하지 않습니다.
+빌드·실행의 pnpm store 경로를 동일하게 유지하고 웹 패키지만 실행합니다.
+Docker 시작 명령은 `verify-deps-before-run=false`로 실행 전 자동 설치를 끕니다. 이미지 빌드의 frozen install은 유지합니다.
+의존성을 변경했다면 웹 이미지 재빌드 후 컨테이너의 캐시는 `pnpm --filter govbiz-web... install --frozen-lockfile`로 갱신합니다.
+workspace 전체의 모바일 의존성을 웹 시작 시 다시 설치하지 않습니다.
+웹·공통 패키지 이동 전의 Node 볼륨을 재사용할 때도 같은 갱신이 필요합니다. 웹이 시작되지 않는 경우,
+기존과 동일한 Compose 프로젝트·환경 설정에서 `run --rm --no-deps web pnpm --filter govbiz-web... install --frozen-lockfile`로
+의존성 링크를 먼저 갱신합니다. 이 작업 때문에 DB·검색·메시지 데이터 볼륨을 삭제하지 않습니다.
 단일 웹에서 사용하던 `web-node-modules` 캐시는 마운트하지 않고 `web-workspace-node-modules`에
 새 레이아웃을 설치합니다. 기존 캐시를 삭제하거나 MySQL·검색·메시지 데이터 볼륨 이름을 변경하지 않습니다.
 

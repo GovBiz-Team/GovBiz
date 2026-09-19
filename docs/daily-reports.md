@@ -161,7 +161,7 @@ Google은 지원되는 앱에서는 OAuth 로그인을 권장합니다. 앱 비�
 - JDK 21: `backend/core-service`에서 `./gradlew clean build --no-daemon` — 전체 1,023건 통과, 실패·건너뜀 0건. 기본 제외 대상인 `live-source` 태그는 실행하지 않음.
 - 리포트 관련 41건에는 실제 MySQL 8.4 Testcontainers 11건이 포함됩니다. 확인 토큰 만료·재사용 차단, 동의 없는 발송 차단, 계정별 격리, JSON/복합 공고 ID, rollback, 동시 생성·전역 예산, 실행 키, 오래된 해지 링크와 발송 중단을 검증했습니다.
 - 동시 전역 예산 테스트가 발견한 gap-lock 교착은 생성 예약의 `READ_COMMITTED` 적용 후 재검증했고, 최종 전체 빌드에도 포함했습니다.
-- Node 24/pnpm 11: `frontend`에서 `pnpm test --maxWorkers=1`, `pnpm lint`, `pnpm build` — 750건 및 lint/build 통과. 로컬 병렬 부하에 따른 기존 UI 테스트 timeout은 테스트 한도를 수정하지 않고 실행 순서를 분리해 해소했습니다. 빌드의 500kB 청크 경고는 남아 있습니다.
+- Node 24/pnpm 11: `frontend/web`에서 `pnpm test --maxWorkers=1`, `pnpm lint`, `pnpm build` — 750건 및 lint/build 통과. 로컬 병렬 부하에 따른 기존 UI 테스트 timeout은 테스트 한도를 수정하지 않고 실행 순서를 분리해 해소했습니다. 빌드의 500kB 청크 경고는 남아 있습니다.
 - Python 3.11: `python -B -m unittest discover -s infrastructure/scripts -p 'test_*.py'` — 15건 통과. 검증 스크립트가 실제 SMTP 설정·자동 발송을 강제로 비활성화하는지 포함합니다.
 - Docker Compose 이미지 빌드와 가짜 제공처/OpenAI 기반 기존 검색·장애 복구 스모크 통과. 기존 13306 포트 점유를 피하기 위해 검증용 MySQL/Web/Core/Qdrant 포트를 각각 23306/25173/28080/26333으로 분리했습니다.
 - 로컬 Core API 재빌드·재시작 후 Flyway `V12` 적용과 상태 확인 API `200`을 확인했습니다. 리포트 설정·최신 조회 API는 웹 프록시에서도 기존 `404` 대신 비로그인 요청에 `401 AUTHENTICATION_REQUIRED`를 반환합니다. 이는 경로 반영·인증 확인이며 로그인 후 리포트 생성·메일 전달 검증은 아닙니다. 기존 데이터와 자동 수집·색인 비활성 상태를 유지했고 리포트 자동 발송·메일도 켜지 않았습니다.
