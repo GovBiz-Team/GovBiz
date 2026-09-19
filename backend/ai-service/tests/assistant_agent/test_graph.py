@@ -32,7 +32,7 @@ class Harness:
         self.fake = fake or FakeCoreTools()
         self.classify_model = ScriptedChatModel(responses=classify)
         self.agent_model = ScriptedChatModel(responses=agent)
-        self.client = CoreToolClient(base_url="http://core-api:8080", secret=self.fake.secret, timeout_seconds=1, transport=self.fake.transport())
+        self.client = CoreToolClient(base_url="http://core-service:8080", secret=self.fake.secret, timeout_seconds=1, transport=self.fake.transport())
         self.retriever = FakeRetriever()
         graph = build_assistant_agent_graph(
             classify_model=self.classify_model, agent_model=self.agent_model, tool_client=self.client, max_tool_calls=max_tool_calls,

@@ -23,7 +23,7 @@ def main():
     nginx_image = os.environ.get("VERIFY_NGINX_IMAGE", "nginx@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c")
     try:
         network_id = docker("network", "create", prefix)
-        containers.append(docker("run", "-d", "--network", prefix, "--network-alias", "core-api",
+        containers.append(docker("run", "-d", "--network", prefix, "--network-alias", "core-service",
                                  "--mount", f"type=bind,src={ROOT / 'scripts/proxy-test-server.py'},dst=/server.py,readonly",
                                  "python:3.11-slim-bookworm", "python", "/server.py"))
         containers.append(docker("run", "-d", "--network", prefix, "-p", "127.0.0.1::8080",

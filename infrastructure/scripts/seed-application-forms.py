@@ -32,7 +32,7 @@ def checked_config(compose):
     result = subprocess.run(compose + ["config", "--format", "json"], capture_output=True, text=True)
     if result.returncode:
         raise ValueError("Compose 설정을 읽지 못했습니다. 비밀정보가 포함될 수 있어 원문은 출력하지 않습니다.")
-    return json.loads(result.stdout)["services"]["core-api"]
+    return json.loads(result.stdout)["services"]["core-service"]
 
 
 def run(args):
@@ -44,7 +44,7 @@ def run(args):
                "-f", str(args.compose_file.resolve())]
     # --no-deps: never start/recreate deployment services; no service ports are published.
     container = compose + ["run", "--rm", "--no-deps", "-T", "--entrypoint", "java",
-                           "--volume", f"{SEED.resolve()}:{INPUT_PATH}:ro", "core-api"]
+                           "--volume", f"{SEED.resolve()}:{INPUT_PATH}:ro", "core-service"]
     dry_run = container + [
         "-Dloader.main=ai.govbiz.core.applicationpreparation.service.backfill.ApplicationFormBackfillInput",
         "-cp", "/app/application.jar", "org.springframework.boot.loader.launch.PropertiesLauncher",
@@ -59,10 +59,10 @@ def run(args):
     service = checked_config(compose)
     if service["environment"].get("SPRING_DATASOURCE_URL") != args.expected_jdbc_url:
         raise ValueError("명시한 DB 주소와 Compose 대상 DB가 다릅니다.")
-    running = subprocess.run(compose + ["ps", "--status", "running", "--services", "core-api"],
+    running = subprocess.run(compose + ["ps", "--status", "running", "--services", "core-service"],
                              capture_output=True, text=True)
     if running.returncode or running.stdout.strip():
-        raise ValueError("동시 변경 방지를 위해 해당 배포의 core-api를 먼저 중지하세요. 다른 인스턴스도 중지해야 합니다.")
+        raise ValueError("동시 변경 방지를 위해 해당 배포의 core-service를 먼저 중지하세요. 다른 인스턴스도 중지해야 합니다.")
     command = container + ["-jar", "/app/application.jar", "--server.port=0",
         "--app.application-form-backfill.apply=true", "--app.application-form-backfill.exit-after-run=true",
         f"--app.application-form-backfill.input={INPUT_PATH}", f"--app.application-form-backfill.sha256={SHA256}",

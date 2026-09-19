@@ -12,7 +12,7 @@ from app.config import Settings, SettingsConfigurationError
 
 SETTINGS = Settings(
     openai_api_key="private-key", openai_model="test-model", llm_model_timeout_seconds=1.25, llm_run_timeout_seconds=1.75,
-    assistant_tools_token="assistant-tools-secret-for-tests-0123456789", assistant_tools_base_url="http://core-api:8080",
+    assistant_tools_token="assistant-tools-secret-for-tests-0123456789", assistant_tools_base_url="http://core-service:8080",
 )
 
 
@@ -68,7 +68,7 @@ async def test_agent_models_tool_client_and_service_are_wired_and_closed(monkeyp
                                 "reasoning": {"effort": "low"}, "timeout": 1.25, "max_retries": 0}
         tool_client = container.assistant_tool_client
         assert tool_client is not None and tool_client.enabled
-        assert str(tool_client._client.base_url) == "http://core-api:8080"
+        assert str(tool_client._client.base_url) == "http://core-service:8080"
         assert tool_client._client.timeout.read == 3.0
     finally:
         await container.close()
@@ -99,7 +99,7 @@ def test_agent_settings_read_from_environment(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "private-key")
     monkeypatch.setenv("OPENAI_ASSISTANT_AGENT_MODEL", " gpt-5-nano ")
     monkeypatch.setenv("OPENAI_ASSISTANT_AGENT_REASONING_EFFORT", "low")
-    monkeypatch.setenv("ASSISTANT_TOOLS_BASE_URL", "http://core-api:8080/")
+    monkeypatch.setenv("ASSISTANT_TOOLS_BASE_URL", "http://core-service:8080/")
     monkeypatch.setenv("ASSISTANT_TOOLS_TOKEN", " secret-value-that-is-long-enough-0123456789 ")
     monkeypatch.setenv("ASSISTANT_AGENT_MAX_TOOL_CALLS", "2")
     monkeypatch.setenv("ASSISTANT_AGENT_TIMEOUT_SECONDS", "12")
@@ -107,7 +107,7 @@ def test_agent_settings_read_from_environment(monkeypatch):
     settings = Settings.from_environment()
     assert settings.openai_assistant_agent_model == "gpt-5-nano"
     assert settings.openai_assistant_agent_reasoning_effort == "low"
-    assert settings.assistant_tools_base_url == "http://core-api:8080/"
+    assert settings.assistant_tools_base_url == "http://core-service:8080/"
     assert settings.assistant_tools_token == "secret-value-that-is-long-enough-0123456789"
     assert settings.assistant_agent_max_tool_calls == 2
     assert settings.assistant_agent_timeout_seconds == 12
@@ -132,7 +132,7 @@ def test_agent_settings_defaults(monkeypatch):
     ("ASSISTANT_AGENT_MAX_TOOL_CALLS", "0"),
     ("ASSISTANT_AGENT_MAX_TOOL_CALLS", "7"),
     ("ASSISTANT_AGENT_MAX_TOOL_CALLS", "three"),
-    ("ASSISTANT_TOOLS_BASE_URL", "core-api:8080"),
+    ("ASSISTANT_TOOLS_BASE_URL", "core-service:8080"),
     ("ASSISTANT_TOOL_TIMEOUT_SECONDS", "20"),
 ])
 def test_invalid_agent_settings_fail_startup(monkeypatch, name, value):

@@ -19,7 +19,7 @@ Core의 계정·인증 테이블을 복제하거나 기존 Core·AI의 업무 �
 
 - `GovBiz`: 프론트·Core·AI·Ops 코드, 테스트, Dockerfile, 로컬 통합 Compose.
 - `GovBiz-infra`: 로컬 Kubernetes 배포 설정·검증과 향후 Argo CD 연결의 기준 저장소.
-- 기존 `infrastructure/compose.prod.yaml`과 `infrastructure/codebuild/`는 현행 EC2 Compose 배포를 위해 유지한다. Kubernetes 전환 시 한 대상에 두 배포 경로가 동시에 쓰지 않도록 별도 승인 후 이전한다.
+- 기존 `infrastructure/compose.prod.yaml`과 `infrastructure/codebuild/`는 향후 재배포용 템플릿으로 남긴다. 현재 운영 환경은 없다. Kubernetes 전환 시 한 대상에 두 배포 경로가 동시에 쓰지 않도록 별도 승인 후 이전한다.
 
 코드 통합만으로 CodeConnections·CodeBuild·Vercel 연결, ECR 이미지, 운영 컨테이너는 바뀌지 않는다.
 후속 작업에서 Ops + 검증용 MySQL의 로컬 kind 실행·복구 검증을 완료했다.
@@ -47,16 +47,19 @@ docker compose --env-file .env.compose up -d --build
 `.env.compose`는 두 파일의 위치만 지정한다. `GOVBIZ_APP_ENV_FILE`은 React Native 설정이 아니다.
 기존 `.env.compose`가 `./backend/ops/.env`를 가리키면 `GOVBIZ_DJANGO_ENV_FILE`의 경로만
 `./backend/ops-service/.env`로 갱신한다. 파일 안의 비밀값과 기존 DB·볼륨은 그대로 보존한다.
-Python과 DB 이름은 이전 값을 유지하고, 통합 실행 서비스 이름은 `django-api`, `django-mysql`이다.
+Python 패키지·health 응답은 `govbiz-ops-service`, 통합·단독 Compose 서비스는 `ops-service`, `ops-mysql`이다. DB 스키마·사용자는 변경하지 않는다.
 Ops만 단독 개발하려면 `backend/ops-service/README.md`를 따른다.
 
 ## 기존 컨테이너·데이터 이전
+
+새 기본 실행은 이전 컨테이너 이름 별칭을 만들지 않는다. 단독 Ops 프로젝트는 `govbiz-ops`로 변경되었으며 새 기본 볼륨은 `govbiz-ops_mysql-data`다.
 
 기존 개발 컨테이너를 자동으로 종료하거나 데이터를 옮기지 않는다. 전환 전에 본인이 사용하던 Compose
 파일·환경 파일·프로젝트명과 `docker volume ls`로 실제 볼륨 이름을 확인한다.
 같은 데이터 볼륨에 두 MySQL 프로세스를 동시에 연결하지 않는다.
 
-- 기존 **GovBiz-infra 통합 실행** 사용자는 기본 프로젝트명 `govbiz-infra`와 서비스·볼륨 이름을 유지한다.
+- 기존 **GovBiz-infra 통합 실행** 사용자는 프로젝트명 `govbiz-infra`를 그대로 쓸 수 있지만, Ops 논리 볼륨이 `ops-mysql-data`로 변경되었다.
+  Ops 데이터를 이어 쓰려면 `compose.existing-data.yaml`과 `GOVBIZ_EXISTING_DJANGO_MYSQL_VOLUME=govbiz-infra_django-mysql-data`를 사용하고 나머지 `GOVBIZ_EXISTING_*_VOLUME`도 실제 기존 볼륨명으로 맞춘다.
   웹·앱 workspace 도입 이후 Node 의존성 캐시는 새 `web-workspace-node-modules` 레이아웃을 사용하며 기존 캐시는 마운트하지 않는다.
   기존 환경에서 원래 설정으로 `down`한 뒤 새 폴더에서 같은 프로젝트명으로 실행한다. 기존에 external 볼륨을
   선택했다면 그 설정도 유지한다. `down --volumes`/`down -v`는 사용하지 않는다.

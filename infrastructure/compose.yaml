@@ -105,7 +105,7 @@ services:
       OPENAI_ASSISTANT_MODEL: ${OPENAI_ASSISTANT_MODEL:-gpt-5-nano}
       OPENAI_ASSISTANT_REASONING_EFFORT: ${OPENAI_ASSISTANT_REASONING_EFFORT:-low}
       OPENAI_ASSISTANT_AGENT_MODEL: ${OPENAI_ASSISTANT_AGENT_MODEL:-gpt-5.6-luna}
-      ASSISTANT_TOOLS_BASE_URL: http://core-api:8080
+      ASSISTANT_TOOLS_BASE_URL: http://core-service:8080
       ASSISTANT_TOOLS_TOKEN: ${ASSISTANT_TOOLS_TOKEN:-}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
       OPENAI_EMBEDDING_DIMENSIONS: ${OPENAI_EMBEDDING_DIMENSIONS:-1536}
@@ -121,7 +121,7 @@ services:
     expose:
       - "8000"
 
-  core-api:
+  core-service:
     build:
       context: ../backend/core-service
       dockerfile: Dockerfile
@@ -256,7 +256,7 @@ services:
       retries: 12
       start_period: 20s
 
-  # 데모 데이터 적재. core-api가 healthy(마이그레이션 완료)된 뒤 공용 seed는 최초 1회, 개인 seed는 매번 누락분만 실행합니다.
+  # 데모 데이터 적재. core-service가 healthy(마이그레이션 완료)된 뒤 공용 seed는 최초 1회, 개인 seed는 매번 누락분만 실행합니다.
   # DEMO_SEED_ENABLED=false면 바로 종료하고, DEMO_SEED_FORCE=true면 공용 자료와 선택 계정의 고정 키 개인 목업을 다시 넣습니다.
   demo-seed:
     image: mysql:8.4
@@ -265,7 +265,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-      core-api:
+      core-service:
         condition: service_healthy
     environment:
       DEMO_SEED_ENABLED: ${DEMO_SEED_ENABLED:-true}
@@ -287,7 +287,7 @@ services:
       dockerfile: frontend/Dockerfile.dev
     init: true
     depends_on:
-      core-api:
+      core-service:
         condition: service_healthy
     working_dir: /app/frontend
     environment:
@@ -300,7 +300,7 @@ services:
       # TTY 없이도 lockfile 변경 뒤 node_modules 정리를 묻지 않고 진행한다.
       CI: "true"
       VITE_CORE_API_BASE_URL: /
-      VITE_DEV_PROXY_TARGET: http://core-api:8080
+      VITE_DEV_PROXY_TARGET: http://core-service:8080
       VITE_KAKAO_CHANNEL_ID: ${KAKAO_CHANNEL_ID:-}
       VITE_ASSISTANT_AI_ENABLED: ${ASSISTANT_AI_ENABLED:-false}
     ports:

@@ -7,7 +7,7 @@ import subprocess
 import time
 
 BUILD_CONTEXTS = {
-    'core-api': 'backend/core-service',
+    'core-service': 'backend/core-service',
     'ai-service': 'backend/ai-service',
 }
 
@@ -107,7 +107,7 @@ def main():
     try:
         run('docker', 'login', '--username', 'AWS', '--password-stdin', registry,
             input=password, capture_output=True)
-        images = {service: publish(registry, service, sha) for service in ('core-api', 'ai-service')}
+        images = {service: publish(registry, service, sha) for service in ('core-service', 'ai-service')}
     finally:
         subprocess.run(['docker', 'logout', registry], capture_output=True)
     if not is_current_main(sha):
@@ -117,7 +117,7 @@ def main():
     response = aws('ssm', 'send-command', '--document-name', os.environ['GOVBIZ_DEPLOY_DOCUMENT'],
                    '--document-version', os.environ['GOVBIZ_DEPLOY_DOCUMENT_VERSION'], '--instance-ids', instance,
                    '--parameters', json.dumps({'Mode': ['deploy'], 'Commit': [sha],
-                       'CoreImage': [images['core-api']], 'AiImage': [images['ai-service']]}),
+                       'CoreImage': [images['core-service']], 'AiImage': [images['ai-service']]}),
                    '--comment', 'GovBiz main ' + sha)
     wait_command(response['Command']['CommandId'], instance)
 

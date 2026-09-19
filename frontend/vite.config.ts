@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 // Docker Compose에서는 브라우저가 /api를 Vite 개발 서버로 보내고,
-// Vite가 Compose 내부 DNS 이름(core-api)으로 프록시한다.
+// Vite가 Compose 내부 DNS 이름(core-service)으로 프록시한다.
 // 네이티브 개발의 기본 대상은 기존 localhost:8080을 유지한다.
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')

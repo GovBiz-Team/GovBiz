@@ -79,7 +79,7 @@ jobs:
       - name: Export iOS and Android JavaScript bundles
         run: pnpm --filter @govbiz/mobile export
 
-  core-api:
+  core-service:
     name: Core API
     runs-on: ubuntu-24.04
     defaults:
@@ -192,7 +192,7 @@ jobs:
     name: Container integration
     needs:
       - frontend
-      - core-api
+      - core-service
       - ai-service
     runs-on: ubuntu-24.04
     timeout-minutes: 20

@@ -1,25 +1,25 @@
-# Django의 단독 Compose를 재사용하고 통합 환경에서 충돌하는 이름만 조정합니다.
+# ops-service의 단독 Compose를 재사용하고 통합 환경의 환경 파일·볼륨을 분리합니다.
 services:
-  django-api:
+  ops-service:
     extends:
       file: ./backend/ops-service/compose.yaml
-      service: web
+      service: ops-service
     env_file: !override
       - ${GOVBIZ_DJANGO_ENV_FILE:-./backend/ops-service/.env}
     environment:
-      DB_HOST: django-mysql
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1},django-api
+      DB_HOST: ops-mysql
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1},ops-service
     depends_on: !override
-      django-mysql:
+      ops-mysql:
         condition: service_healthy
 
-  django-mysql:
+  ops-mysql:
     extends:
       file: ./backend/ops-service/compose.yaml
-      service: db
+      service: ops-mysql
     volumes:
       # 동일한 /var/lib/mysql 대상만 교체하여 원본 초기화 SQL 마운트는 유지합니다.
-      - django-mysql-data:/var/lib/mysql
+      - ops-mysql-data:/var/lib/mysql
 
 volumes:
-  django-mysql-data:
+  ops-mysql-data:

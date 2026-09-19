@@ -701,7 +701,7 @@ Luna의 Responses·구조화 출력·`low` 지원은 [OpenAI 공식 모델 문�
 조건 해석·근거 답변·랭킹 모델은 바뀌지 않습니다.
 도우미 도구 에이전트(`app/assistant_agent`)는 분류에 같은 nano/low를 쓰고, 계획·답에는 `OPENAI_ASSISTANT_AGENT_MODEL`
 (기본 `gpt-5.6-luna`)과 `OPENAI_ASSISTANT_AGENT_REASONING_EFFORT`(기본 `none`, `low` 허용)를 씁니다. Core 내부 도구 API 주소는
-`ASSISTANT_TOOLS_BASE_URL`(Compose는 `http://core-api:8080`), 공유 비밀은 Core와 같은 `ASSISTANT_TOOLS_TOKEN`(32자 이상)입니다.
+`ASSISTANT_TOOLS_BASE_URL`(Compose는 `http://core-service:8080`), 공유 비밀은 Core와 같은 `ASSISTANT_TOOLS_TOKEN`(32자 이상)입니다.
 비밀이 비어 있으면 도구 호출이 전부 실패로 기록되고 답이 강등되므로, 에이전트를 켤 때는 Core와 AI Service에 같은 값을 넣습니다.
 이는 시작 시 선택하는 명시적 설정이며, 장애 시 다른 모델로 재시도하는 fallback이 아닙니다.
 출력 축약은 미채택이며 기존 후보 ID·필드명·출력 계약을 유지합니다. 실험 구현은 평가 경로에만 보존합니다.

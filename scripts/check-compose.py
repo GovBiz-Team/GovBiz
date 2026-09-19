@@ -20,7 +20,7 @@ EXISTING_VOLUMES = {
     "redis-data": "govbiz_redis-data",
     "mysql-data": "govbiz_mysql-data",
     "qdrant-data": "govbiz_qdrant-data",
-    "django-mysql-data": "govbiz4-django_mysql-data",
+    "ops-mysql-data": "govbiz4-django_mysql-data",
 }
 
 
@@ -60,7 +60,7 @@ def validate(model, project):
     require(
         {
             "web",
-            "core-api",
+            "core-service",
             "ai-service",
             "mysql",
             "elasticsearch",
@@ -68,58 +68,59 @@ def validate(model, project):
             "redis",
             "rabbitmq",
             "demo-seed",
-            "django-api",
-            "django-mysql",
+            "ops-service",
+            "ops-mysql",
         }
         <= services.keys(),
         "A required service is missing.",
     )
     require(
-        "db" not in services, "The standalone Django dependency leaked into the model."
+        not {"db", "core-api", "django-api", "django-mysql"}.intersection(services),
+        "A retired runtime service name leaked into the model."
     )
     require(
-        set(services["django-api"]["depends_on"]) == {"django-mysql"},
+        set(services["ops-service"]["depends_on"]) == {"ops-mysql"},
         "Django must depend only on its own database.",
     )
     require(
-        services["django-api"]["environment"]["DB_HOST"] == "django-mysql",
+        services["ops-service"]["environment"]["DB_HOST"] == "ops-mysql",
         "Django database DNS is incorrect.",
     )
     require(
-        "django-api"
-        in services["django-api"]["environment"]["DJANGO_ALLOWED_HOSTS"].split(","),
+        "ops-service"
+        in services["ops-service"]["environment"]["DJANGO_ALLOWED_HOSTS"].split(","),
         "The integrated Django hostname must be allowed.",
     )
     require(
         services["web"]["environment"]["VITE_DEV_PROXY_TARGET"]
-        == "http://core-api:8080",
+        == "http://core-service:8080",
         "The existing frontend proxy changed.",
     )
     # Distinct fixture values catch accidental environment leakage between includes.
     for service, expected in (
         ("mysql", "app-root-fixture"),
-        ("django-mysql", "django-root-fixture"),
+        ("ops-mysql", "django-root-fixture"),
     ):
         require(
             services[service]["environment"]["MYSQL_ROOT_PASSWORD"] == expected,
             f"Environment isolation failed for {service}.",
         )
     require(
-        services["django-api"]["environment"]["DB_PASSWORD"] == "django-user-fixture",
+        services["ops-service"]["environment"]["DB_PASSWORD"] == "django-user-fixture",
         "Django did not receive its selected environment file.",
     )
     require(
-        services["core-api"]["environment"]["SPRING_DATASOURCE_PASSWORD"]
+        services["core-service"]["environment"]["SPRING_DATASOURCE_PASSWORD"]
         == "app-user-fixture",
         "The Core API did not receive its selected environment file.",
     )
 
     for name, path in {
         "web": APP,
-        "core-api": APP / "backend/core-service",
+        "core-service": APP / "backend/core-service",
         "ai-service": APP / "backend/ai-service",
         "elasticsearch": APP / "infrastructure/elasticsearch",
-        "django-api": DJANGO,
+        "ops-service": DJANGO,
     }.items():
         build = services[name]["build"]
         require(
@@ -158,7 +159,7 @@ def validate(model, project):
         "The old single-app dependency cache must not be reused as the workspace root.",
     )
 
-    django_mounts = {v["target"]: v for v in services["django-api"]["volumes"]}
+    django_mounts = {v["target"]: v for v in services["ops-service"]["volumes"]}
     require(
         Path(django_mounts["/app/config"]["source"]).resolve()
         == (DJANGO / "config").resolve(),
@@ -166,14 +167,14 @@ def validate(model, project):
     )
     for name, volume in (
         ("mysql", "mysql-data"),
-        ("django-mysql", "django-mysql-data"),
+        ("ops-mysql", "ops-mysql-data"),
     ):
         mounts = {v["target"]: v for v in services[name]["volumes"]}
         require(
             mounts["/var/lib/mysql"]["source"] == volume,
             f"Database storage is not separated: {name}",
         )
-    db_mounts = {v["target"]: v for v in services["django-mysql"]["volumes"]}
+    db_mounts = {v["target"]: v for v in services["ops-mysql"]["volumes"]}
     sql = "/docker-entrypoint-initdb.d/01-development-test-database.sql"
     require(
         Path(db_mounts[sql]["source"]).resolve()
@@ -324,7 +325,7 @@ def main():
         if not args.smoke:
             return
 
-        run(base + ["build", "django-api"], environment)
+        run(base + ["build", "ops-service"], environment)
         started = False
         try:
             started = True
@@ -337,7 +338,7 @@ def main():
                     "--wait",
                     "--wait-timeout",
                     "180",
-                    "django-api",
+                    "ops-service",
                 ],
                 environment,
             )
@@ -354,18 +355,18 @@ def main():
                 ["test", "--noinput"],
             ):
                 run(
-                    base + ["exec", "-T", "django-api", "python", "manage.py"] + arguments,
+                    base + ["exec", "-T", "ops-service", "python", "manage.py"] + arguments,
                     environment,
                 )
             probe = (
                 "import json,urllib.request; "
-                "r=urllib.request.urlopen('http://django-api:8000/api/v1/health/ready',timeout=10); "
+                "r=urllib.request.urlopen('http://ops-service:8000/api/v1/health/ready',timeout=10); "
                 "assert r.status == 200 and json.load(r)['status'] == 'UP'; "
                 "print('PASS: Django service DNS and database readiness.')"
             )
             run(
                 base
-                + ["run", "--rm", "--no-deps", "django-api", "python", "-c", probe],
+                + ["run", "--rm", "--no-deps", "ops-service", "python", "-c", probe],
                 environment,
             )
         finally:

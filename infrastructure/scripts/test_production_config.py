@@ -45,7 +45,7 @@ class ProductionConfigTest(unittest.TestCase):
         services = json.loads(result.stdout)["services"]
         for name, service in services.items():
             environment = service.get("environment", {})
-            if name in {"core-api", "ai-service"}:
+            if name in {"core-service", "ai-service"}:
                 self.assertEqual(environment["DOCUMENT_INTERNAL_TOKEN"], token)
             else:
                 self.assertNotIn("DOCUMENT_INTERNAL_TOKEN", environment)
@@ -53,8 +53,8 @@ class ProductionConfigTest(unittest.TestCase):
             self.assertNotIn("DOCUMENT_HWP_BRIDGE_TOKEN", environment)
 
     def test_assistant_disabled_by_default(self):
-        self.assertEqual(self.config["services"]["core-api"]["environment"]["ASSISTANT_AGENT_ENABLED"], "false")
-        for name in ("core-api", "ai-service"):
+        self.assertEqual(self.config["services"]["core-service"]["environment"]["ASSISTANT_AGENT_ENABLED"], "false")
+        for name in ("core-service", "ai-service"):
             self.assertEqual(self.config["services"][name]["environment"]["ASSISTANT_TOOLS_TOKEN"], "")
 
     def test_assistant_server_token_is_forwarded_to_both_services_only(self):
@@ -67,21 +67,21 @@ class ProductionConfigTest(unittest.TestCase):
         config = json.loads(result.stdout)
         self.assertEqual(checker.validate(config), [])
         for name, service in config["services"].items():
-            if name in {"core-api", "ai-service"}:
+            if name in {"core-service", "ai-service"}:
                 self.assertEqual(service["environment"]["ASSISTANT_TOOLS_TOKEN"], token)
             else:
                 self.assertNotIn("ASSISTANT_TOOLS_TOKEN", service.get("environment", {}))
-        for name, key, value in [("core-api", "ASSISTANT_TOOLS_TOKEN", "short"),
+        for name, key, value in [("core-service", "ASSISTANT_TOOLS_TOKEN", "short"),
                                  ("ai-service", "ASSISTANT_TOOLS_TOKEN", "different-token-" * 3),
                                  ("ai-service", "ASSISTANT_TOOLS_BASE_URL", "http://127.0.0.1:8080"),
-                                 ("core-api", "ASSISTANT_AGENT_ENABLED", "yes")]:
+                                 ("core-service", "ASSISTANT_AGENT_ENABLED", "yes")]:
             with self.subTest(service=name, key=key):
                 invalid = copy.deepcopy(config)
                 invalid["services"][name]["environment"][key] = value
                 self.assertTrue(checker.validate(invalid))
 
     def test_default_schedulers_do_not_start_paid_work(self):
-        env = self.config["services"]["core-api"]["environment"]
+        env = self.config["services"]["core-service"]["environment"]
         for key in ["BIZINFO_SYNC_ENABLED", "KSTARTUP_SYNC_ENABLED", "MSIT_SYNC_ENABLED",
                     "CNTRADE_NOTICE_SYNC_ENABLED", "SUPPORT_PROGRAM_INDEX_ENABLED", "DAILY_REPORT_ENABLED",
                     "DAILY_REPORT_MAIL_ENABLED", "ACCOUNT_PASSWORD_RESET_MAIL_ENABLED", "ACCOUNT_EMAIL_VERIFICATION_MAIL_ENABLED",
@@ -91,7 +91,7 @@ class ProductionConfigTest(unittest.TestCase):
             self.assertEqual(env[key], "false", key)
 
     def test_document_token_is_empty_by_default(self):
-        for name in ("core-api", "ai-service"):
+        for name in ("core-service", "ai-service"):
             self.assertEqual(self.config["services"][name]["environment"]["DOCUMENT_INTERNAL_TOKEN"], "")
 
     def test_document_token_is_forwarded_to_core_and_ai_only(self):
@@ -104,19 +104,19 @@ class ProductionConfigTest(unittest.TestCase):
         config = json.loads(result.stdout)
         self.assertEqual(checker.validate(config), [])
         for name, service in config["services"].items():
-            if name in {"core-api", "ai-service"}:
+            if name in {"core-service", "ai-service"}:
                 self.assertEqual(service["environment"]["DOCUMENT_INTERNAL_TOKEN"], token)
             else:
                 self.assertNotIn("DOCUMENT_INTERNAL_TOKEN", service.get("environment", {}))
-        for name, value in [("core-api", ""), ("ai-service", ""),
-                            ("core-api", "short"), ("ai-service", "different-token-" * 3)]:
+        for name, value in [("core-service", ""), ("ai-service", ""),
+                            ("core-service", "short"), ("ai-service", "different-token-" * 3)]:
             with self.subTest(service=name):
                 invalid = copy.deepcopy(config)
                 invalid["services"][name]["environment"]["DOCUMENT_INTERNAL_TOKEN"] = value
                 self.assertTrue(checker.validate(invalid))
         for value in ("short", " " * 64):
             invalid = copy.deepcopy(config)
-            for name in ("core-api", "ai-service"):
+            for name in ("core-service", "ai-service"):
                 invalid["services"][name]["environment"]["DOCUMENT_INTERNAL_TOKEN"] = value
             self.assertTrue(checker.validate(invalid))
 
@@ -133,7 +133,7 @@ class ProductionConfigTest(unittest.TestCase):
                                  "config", "--format", "json"], env=environment, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0)
         config = json.loads(result.stdout)
-        core = config["services"]["core-api"]["environment"]
+        core = config["services"]["core-service"]["environment"]
         for key in environment.keys() - self.env.keys():
             # Compose config는 다시 파싱할 수 있도록 리터럴 $를 $$로 직렬화한다.
             self.assertEqual(core[key], environment[key].replace("$", "$$"), key)
@@ -142,7 +142,7 @@ class ProductionConfigTest(unittest.TestCase):
     def test_account_mail_configuration_is_forwarded(self):
         config = self.mail_config()
         self.assertEqual(checker.validate(config), [])
-        core = config["services"]["core-api"]["environment"]
+        core = config["services"]["core-service"]["environment"]
         self.assertEqual(core["ACCOUNT_PASSWORD_RESET_FRONTEND_BASE_URL"], self.env["GOVBIZ_FRONTEND_ORIGIN"])
         self.assertEqual(core["ACCOUNT_DEV_LOGIN_ENABLED"], "false")
         self.assertEqual(core["ACCOUNT_COOKIE_SECURE"], "true")
@@ -158,10 +158,10 @@ class ProductionConfigTest(unittest.TestCase):
                            ("ACCOUNT_EMAIL_VERIFICATION_MAIL_ENABLED", "yes")]:
             with self.subTest(key=key, value=value):
                 config = copy.deepcopy(base)
-                config["services"]["core-api"]["environment"][key] = value
+                config["services"]["core-service"]["environment"][key] = value
                 self.assertTrue(checker.validate(config))
         ssl_config = copy.deepcopy(base)
-        ssl_config["services"]["core-api"]["environment"].update(
+        ssl_config["services"]["core-service"]["environment"].update(
             SMTP_PORT="465", SMTP_STARTTLS_ENABLED="false", SMTP_SSL_ENABLED="true")
         self.assertEqual(checker.validate(ssl_config), [])
 
@@ -181,11 +181,11 @@ class ProductionConfigTest(unittest.TestCase):
                            ("SPRING_DATASOURCE_URL", "jdbc:mysql://mysql:3306/govbiz")]:
             with self.subTest(key=key):
                 config = copy.deepcopy(self.config)
-                config["services"]["core-api"]["environment"][key] = value
+                config["services"]["core-service"]["environment"][key] = value
                 self.assertTrue(checker.validate(config))
 
     def test_internal_ports_and_public_binding_are_rejected(self):
-        for name in ["core-api", "qdrant", "redis", "rabbitmq", "elasticsearch", "ai-service"]:
+        for name in ["core-service", "qdrant", "redis", "rabbitmq", "elasticsearch", "ai-service"]:
             config = copy.deepcopy(self.config)
             config["services"][name]["ports"] = [{"published": "9999", "target": 9999}]
             self.assertTrue(checker.validate(config), name)

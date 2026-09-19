@@ -124,9 +124,9 @@ HWP는 Windows COM에서 Core hwplib으로 변경했다. 아래 구분선 이후
 실제 MCP, OpenAI 호출 없는 스모크(AI Service 디렉터리):
 
 ```text
-python document-tools/smoke.py --format hwpx --fixture ../core-api/src/test/resources/combinationreview/general.hwpx
+python document-tools/smoke.py --format hwpx --fixture ../core-service/src/test/resources/combinationreview/general.hwpx
 python document-tools/smoke.py --format hwpx --fixture <공식 HWPX> --target <사람이 확인한 native target> --output <새 결과 경로>
-python document-tools/smoke.py --format pdf --fixture ../core-api/src/test/resources/combinationreview/deeptech.pdf
+python document-tools/smoke.py --format pdf --fixture ../core-service/src/test/resources/combinationreview/deeptech.pdf
 ```
 
 스모크는 job 복사본만 수정한다. 예시값은 가상기업이며 출력 경로 덮어쓰기를 거절한다. HWPX 텍스트/XML 검사와 한글 렌더링은 별도이다. HWP 파일을 HWPX에서 이름만 바꿔 만들지 않는다.

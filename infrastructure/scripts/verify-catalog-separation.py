@@ -131,11 +131,11 @@ def fixture_env():
 
 def validate_boundaries(model, project):
     services = model["services"]
-    core = services["core-api"]["environment"]
+    core = services["core-service"]["environment"]
     catalog = services["catalog-service"]["environment"]
     require(Path(services["catalog-service"]["build"]["context"]).resolve()
             == ROOT / "backend/catalog-service", "Catalog must have a standalone build context")
-    require(Path(services["core-api"]["build"]["context"]).resolve()
+    require(Path(services["core-service"]["build"]["context"]).resolve()
             == ROOT / "backend/core-service", "Core build context changed")
     require(core["CATALOG_PROJECTION_ENABLED"] == "true", "Core projection is disabled")
     require(core["CATALOG_SERVICE_URL"] == "http://catalog-service:8081", "Wrong catalog DNS")
@@ -153,7 +153,7 @@ def validate_boundaries(model, project):
     require("catalog-mysql:" in catalog["SPRING_DATASOURCE_URL"], "Catalog points outside its database")
     require(not services["catalog-mysql"].get("ports"), "Catalog MySQL must not publish a host port")
     for name, service in services.items():
-        if name not in ("core-api", "catalog-service"):
+        if name not in ("core-service", "catalog-service"):
             require("CATALOG_INTERNAL_TOKEN" not in service.get("environment", {}),
                     "Catalog token reached another service: " + name)
         for port in service.get("ports", []):
@@ -247,7 +247,7 @@ def main():
         started = False
         try:
             started = True
-            selected_services = ("catalog-service", "core-api", "bizinfo-stub", "kstartup-stub",
+            selected_services = ("catalog-service", "core-service", "bizinfo-stub", "kstartup-stub",
                                  "public-notices-stub", "openai-stub", "qdrant")
             required_services = set(selected_services)
             pending = list(selected_services)
@@ -258,7 +258,7 @@ def main():
                         pending.append(dependency)
             # Distinct Gradle containers share the BuildKit cache mount. Separate
             # commands avoid both its lock timeout and simultaneous compiler heaps.
-            for service in sorted(required_services, key=lambda name: (name not in ("catalog-service", "core-api"), name)):
+            for service in sorted(required_services, key=lambda name: (name not in ("catalog-service", "core-service"), name)):
                 if "build" in model["services"][service]:
                     print("Building verification image: " + service, flush=True)
                     run(compose + ["build", service])
@@ -366,7 +366,7 @@ def main():
             stopped_at = datetime.now(timezone.utc).isoformat(timespec="microseconds")
 
             def polling_retains_projection():
-                logs = run(compose + ["logs", "--no-color", "--since", stopped_at, "core-api"], capture=True).stdout
+                logs = run(compose + ["logs", "--no-color", "--since", stopped_at, "core-service"], capture=True).stdout
                 observed = set(re.findall(r"catalog_projection source=([A-Z_]+) outcome=retained_previous failure=", logs))
                 return set(SOURCES) <= observed
 
@@ -381,7 +381,7 @@ def main():
             print("PASS: catalog outage retains Core public catalog/search; no paid APIs were called", flush=True)
         except BaseException:
             run(compose + ["ps"], check=False)
-            run(compose + ["logs", "--no-color", "--tail", "100", "catalog-service", "core-api"], check=False)
+            run(compose + ["logs", "--no-color", "--tail", "100", "catalog-service", "core-service"], check=False)
             raise
         finally:
             if started:

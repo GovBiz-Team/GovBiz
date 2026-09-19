@@ -13,7 +13,7 @@ PRINCIPAL = AssistantPrincipal(accountId=7, toolToken="7.1900000000.sig", hasCom
 
 def client_for(fake: FakeCoreTools, secret: str | None = None) -> CoreToolClient:
     return CoreToolClient(
-        base_url="http://core-api:8080/", secret=fake.secret if secret is None else secret, timeout_seconds=1, transport=fake.transport(),
+        base_url="http://core-service:8080/", secret=fake.secret if secret is None else secret, timeout_seconds=1, transport=fake.transport(),
     )
 
 
@@ -51,7 +51,7 @@ async def test_transport_errors_and_missing_secret_are_tool_call_errors():
     def boom(request: httpx.Request) -> httpx.Response:
         raise httpx.ConnectError("refused", request=request)
 
-    client = CoreToolClient(base_url="http://core-api:8080", secret="s" * 40, timeout_seconds=1, transport=httpx.MockTransport(boom))
+    client = CoreToolClient(base_url="http://core-service:8080", secret="s" * 40, timeout_seconds=1, transport=httpx.MockTransport(boom))
     try:
         with pytest.raises(ToolCallError):
             await client.get("/company-profile", PRINCIPAL)

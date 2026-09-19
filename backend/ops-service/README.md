@@ -4,8 +4,9 @@ LLMOps·관리자 시스템 개발을 위한 Django 서비스이며, `GovBiz` �
 `backend/ops-service`에서 관리합니다. 같은 저장소의 Core API·AI Service와 코드를 함께
 관리하지만, Django 프로세스와 Ops 데이터베이스는 독립적으로 실행합니다.
 
-소스 디렉터리는 `backend/ops-service`로 통일했습니다. 기존 Compose의 `django-api`, Kubernetes의
-`operations-api`, DB·볼륨·이미지 이름과 health 응답은 실행 호환성을 위해 유지합니다.
+소스 디렉터리·Compose 서비스·Kubernetes Deployment/Service/컨테이너 이름은 `ops-service`로 통일했습니다.
+DB 컨테이너·내부 DNS는 `ops-mysql`, Python 패키지·health 응답은 `govbiz-ops-service`,
+Kubernetes 검증 이미지 접두사는 `govbiz-ops-service`입니다.
 이전 `.env.compose`에 `GOVBIZ_DJANGO_ENV_FILE=./backend/ops/.env`를 지정했다면
 값을 `./backend/ops-service/.env`로 갱신하세요. 실제 비밀값과 데이터 볼륨은 바꾸지 않습니다.
 
@@ -51,13 +52,13 @@ Linux/macOS에서는 첫 명령을 `cp .env.example .env`로 실행합니다. �
 - 실행 확인: [http://127.0.0.1:8001/api/v1/health](http://127.0.0.1:8001/api/v1/health)
 - DB 연결 확인: [http://127.0.0.1:8001/api/v1/health/ready](http://127.0.0.1:8001/api/v1/health/ready)
 - MySQL: `127.0.0.1:3308`, DB/사용자 `govbiz4`
-- Compose 프로젝트: `govbiz4-django`
+- Compose 프로젝트: `govbiz-ops` (컨테이너 `govbiz-ops-ops-service-1`, `govbiz-ops-ops-mysql-1`)
 - 데이터 볼륨: 이 프로젝트의 `mysql-data`
 
-Core API·AI Service의 컨테이너·네트워크·DB 볼륨과 분리됩니다. 기존 로컬 데이터와 실행 호환성을 위해 DB 이름 `govbiz4`, Compose 프로젝트 `govbiz4-django`, health 응답의 서비스명 `govbiz-django`는 유지합니다. `config/`, `apps/`, `manage.py`를 컨테이너에 연결하므로 Python 코드 변경은 개발 서버에 반영됩니다. 의존성을 변경하면 이미지를 다시 빌드합니다.
+Core·AI의 컨테이너·네트워크·DB 볼륨과 분리됩니다. DB 스키마·사용자 `govbiz4`는 컨테이너 이름과 별개이며 이번에 변경하지 않습니다. 이전 데이터는 자동 이전되지 않으므로 [전환 안내](../../docs/ops-monorepo-migration.md)를 따르세요. `config/`, `apps/`, `manage.py`를 컨테이너에 연결하므로 Python 코드 변경은 개발 서버에 반영됩니다. 의존성을 변경하면 이미지를 다시 빌드합니다.
 
 ```powershell
-docker compose logs --follow web
+docker compose logs --follow ops-service
 docker compose down
 ```
 
@@ -74,13 +75,13 @@ docker compose down
 ```powershell
 Copy-Item .env.example .env
 uv sync --locked
-docker compose up --detach db --wait
+docker compose up --detach ops-mysql --wait
 uv run --locked python manage.py check
 uv run --locked python manage.py migrate
 uv run --locked python manage.py runserver 127.0.0.1:8001
 ```
 
-호스트에서 실행할 때는 Compose의 `web`을 동시에 실행하지 않습니다. 이미 켜져 있다면 `docker compose stop web`을 먼저 실행합니다. Linux에서 mysqlclient 빌드 도구가 없다면 `default-libmysqlclient-dev`, `build-essential`, `pkg-config`를 설치하거나 Docker 실행 경로를 사용합니다.
+호스트에서 실행할 때는 Compose의 `ops-service`를 동시에 실행하지 않습니다. 이미 켜져 있다면 `docker compose stop ops-service`를 먼저 실행합니다. Linux에서 mysqlclient 빌드 도구가 없다면 `default-libmysqlclient-dev`, `build-essential`, `pkg-config`를 설치하거나 Docker 실행 경로를 사용합니다.
 
 ## API
 
@@ -109,7 +110,7 @@ uv run --locked python manage.py test --noinput
 Docker 안에서도 테스트할 수 있습니다.
 
 ```powershell
-docker compose exec -T web python manage.py test --noinput
+docker compose exec -T ops-service python manage.py test --noinput
 ```
 
 테스트 러너는 별도 `test_govbiz4` DB를 생성·삭제합니다. Compose의 최초 DB 초기화 SQL은 개발 사용자에게 그 DB의 권한만 추가로 부여합니다. 테스트는 실제 MySQL 연결, DB 장애 시 503 응답, liveness의 DB 비의존성, HTTP 메서드 제한, 허용 호스트를 확인합니다.

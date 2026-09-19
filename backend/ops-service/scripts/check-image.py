@@ -42,7 +42,7 @@ with response:
 
 
 def main():
-    name = "govbiz-ops-image-check-" + uuid.uuid4().hex[:12]
+    name = "govbiz-ops-service-image-check-" + uuid.uuid4().hex[:12]
     image = name + ":test"
     built = False
     created = False
@@ -92,7 +92,7 @@ def main():
                     raise RuntimeError("Gunicorn did not start within 30 seconds.") from None
                 time.sleep(0.5)
         require(
-            json.loads(response["body"]) == {"status": "UP", "service": "govbiz-django"},
+            json.loads(response["body"]) == {"status": "UP", "service": "govbiz-ops-service"},
             "The public liveness response changed.",
         )
         readiness = request(name, "/api/v1/health/ready")

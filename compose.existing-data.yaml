@@ -17,6 +17,6 @@ volumes:
   qdrant-data:
     external: true
     name: ${GOVBIZ_EXISTING_QDRANT_VOLUME:-govbiz_qdrant-data}
-  django-mysql-data:
+  ops-mysql-data:
     external: true
     name: ${GOVBIZ_EXISTING_DJANGO_MYSQL_VOLUME:-govbiz4-django_mysql-data}

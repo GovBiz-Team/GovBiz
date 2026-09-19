@@ -15,10 +15,10 @@ COMPOSE = Path(__file__).resolve().parents[1] / "compose.prod.yaml"
 def validate(config):
     services = config["services"]
     errors = []
-    if set(services) != {"nginx", "core-api", "ai-service", "elasticsearch", "qdrant", "redis", "rabbitmq"}:
+    if set(services) != {"nginx", "core-service", "ai-service", "elasticsearch", "qdrant", "redis", "rabbitmq"}:
         errors.append("운영 서비스 구성이 다릅니다. 개발 Compose와 병합하지 마세요.")
         return errors
-    core = services["core-api"]["environment"]
+    core = services["core-service"]["environment"]
     ai = services["ai-service"]["environment"]
     document_token = core.get("DOCUMENT_INTERNAL_TOKEN", "")
     ai_document_token = ai.get("DOCUMENT_INTERNAL_TOKEN", "")
@@ -32,8 +32,8 @@ def validate(config):
         token = core.get("ASSISTANT_TOOLS_TOKEN", "")
         if len(token.strip()) < 32 or token != ai.get("ASSISTANT_TOOLS_TOKEN"):
             errors.append("도우미 활성화에는 Core/AI에 동일한 32자 이상 서버 전용 토큰이 필요합니다.")
-        if ai.get("ASSISTANT_TOOLS_BASE_URL") != "http://core-api:8080":
-            errors.append("도우미 도구는 내부 Core 주소 http://core-api:8080을 사용해야 합니다.")
+        if ai.get("ASSISTANT_TOOLS_BASE_URL") != "http://core-service:8080":
+            errors.append("도우미 도구는 내부 Core 주소 http://core-service:8080을 사용해야 합니다.")
     origin = core.get("APP_CORS_ALLOWED_ORIGIN", "")
     if not re.fullmatch(r"https://[a-z0-9-]+\.vercel\.app", origin):
         errors.append("고정 운영 Vercel HTTPS origin이 필요합니다(끝 / 제외).")
@@ -107,7 +107,7 @@ def main():
         return 1
     config = json.loads(result.stdout)
     errors = validate(config)
-    for volume in config["services"]["core-api"].get("volumes", []):
+    for volume in config["services"]["core-service"].get("volumes", []):
         if volume.get("target") == "/run/secrets/rds-truststore.p12" and not Path(volume["source"]).is_file():
             errors.append("RDS PKCS12 truststore 파일이 없습니다.")
     for error in errors:

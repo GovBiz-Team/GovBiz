@@ -9,7 +9,7 @@ class HealthTests(SimpleTestCase):
         # SimpleTestCase는 DB 접근을 금지하므로 실수로 추가한 질의도 실패합니다.
         response = self.client.get("/api/v1/health")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"status": "UP", "service": "govbiz-django"})
+        self.assertEqual(response.json(), {"status": "UP", "service": "govbiz-ops-service"})
 
     def test_health_is_read_only(self):
         self.assertEqual(self.client.post("/api/v1/health").status_code, 405)

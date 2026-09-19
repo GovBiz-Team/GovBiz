@@ -17,7 +17,7 @@ FORM_FOUND 공고는 공식 첨부를 다시 다운로드·파싱해 파일 해�
 - 정상 배포를 통해 Flyway migration을 먼저 적용하고 해당 기업마당 공고 원본을 동기화한다.
   공고 원본이 없으면 양식 활성화에 실패한다. 적재 스크립트는 migration·공고 동기화를 실행하지 않는다.
 - 운영 DB 백업 후 유지보수 시간에 모든 Core 인스턴스의 쓰기·자동 분석·동기화를 중지한다.
-  스크립트는 선택한 Compose의 core-api 실행 여부를 검사하지만 다른 호스트는 검사하지 못한다.
+  스크립트는 선택한 Compose의 core-service 실행 여부를 검사하지만 다른 호스트는 검사하지 못한다.
 
 ## 1. 입력만 검증 (DB 및 외부 API 접근 없음)
 
@@ -40,7 +40,7 @@ Compose 환경 파일에 필요한 기존 배포 설정은 있어야 한다. 다
 
 ```sh
 docker compose --env-file /srv/govbiz/.env.production \
-  -f infrastructure/compose.prod.yaml stop core-api
+  -f infrastructure/compose.prod.yaml stop core-service
 
 python3 infrastructure/scripts/seed-application-forms.py \
   --env-file /srv/govbiz/.env.production \
@@ -73,7 +73,7 @@ python3 infrastructure/scripts/seed-application-forms.py \
 
 ```sh
 docker compose --env-file /srv/govbiz/.env.production \
-  -f infrastructure/compose.prod.yaml up -d --no-deps core-api
+  -f infrastructure/compose.prod.yaml up -d --no-deps core-service
 ```
 
 양식 발견 공고의 작성 진입, NO_FORM·오류 공고의 안내를 확인한다. 실제 배포·적재는 운영자가 실행한다.

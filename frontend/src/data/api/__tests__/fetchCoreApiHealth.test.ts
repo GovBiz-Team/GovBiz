@@ -9,7 +9,7 @@ afterEach(() => {
 describe('fetchCoreApiHealth', () => {
   it('gets and validates Core API health with the supplied abort signal', async () => {
     const controller = new AbortController()
-    const response = { service: 'govbiz-core-api', status: 'up' }
+    const response = { service: 'govbiz-core-service', status: 'up' }
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(response))
     vi.stubGlobal('fetch', fetchMock)
 

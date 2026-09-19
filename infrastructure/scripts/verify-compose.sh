@@ -365,7 +365,7 @@ verify_search_result_store() {
   [[ "$(grep -o '"sourceCode"' "${restored_file}" | wc -l | tr -d ' ')" == "5" ]] || return 1
 
   echo "Restarting Core to verify that saved results and token ownership are not process-local"
-  "${COMPOSE[@]}" restart core-api
+  "${COMPOSE[@]}" restart core-service
   wait_for_http "Core health after restart" "${WEB_BASE_URL}/api/v1/health" "200"
   actual_status="$(curl --silent --output "${LAST_RESPONSE_FILE}" --write-out '%{http_code}' --max-time 10 \
     --request POST --cookie "${first_cookie}" --header 'Content-Type: application/json' --header "Origin: ${WEB_BASE_URL}" \
@@ -534,7 +534,7 @@ echo "Building and starting the GovBiz verification stack (${PROJECT_NAME})"
 "${COMPOSE[@]}" up --build --detach --remove-orphans
 
 wait_for_http "Vite web" "${WEB_BASE_URL}/" "200"
-wait_for_http "Vite-proxied Core API health" "${WEB_BASE_URL}/api/v1/health" "200" '"status"[[:space:]]*:[[:space:]]*"up".*"service"[[:space:]]*:[[:space:]]*"govbiz-core-api"'
+wait_for_http "Vite-proxied Core API health" "${WEB_BASE_URL}/api/v1/health" "200" '"status"[[:space:]]*:[[:space:]]*"up".*"service"[[:space:]]*:[[:space:]]*"govbiz-core-service"'
 wait_for_http "Vite-proxied Core to AI Service health" "${WEB_BASE_URL}/api/v1/health/ai-service" "200" '"status"[[:space:]]*:[[:space:]]*"up".*"service"[[:space:]]*:[[:space:]]*"govbiz-ai-service"'
 verify_application_preparation_flow
 wait_for_synchronized_catalog_program
@@ -716,7 +716,7 @@ wait_for_json_post \
 echo "Stopping only AI Service to verify failure isolation"
 "${COMPOSE[@]}" stop ai-service
 
-wait_for_http "Core API health while AI Service is stopped" "${WEB_BASE_URL}/api/v1/health" "200" '"status"[[:space:]]*:[[:space:]]*"up".*"service"[[:space:]]*:[[:space:]]*"govbiz-core-api"'
+wait_for_http "Core API health while AI Service is stopped" "${WEB_BASE_URL}/api/v1/health" "200" '"status"[[:space:]]*:[[:space:]]*"up".*"service"[[:space:]]*:[[:space:]]*"govbiz-core-service"'
 wait_for_ai_failure "Core to AI Service health failure contract" "${WEB_BASE_URL}/api/v1/health/ai-service"
 wait_for_ai_failure \
   "Required AI search failure while AI Service is stopped" \

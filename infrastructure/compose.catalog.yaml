@@ -85,7 +85,7 @@ services:
       retries: 24
       start_period: 20s
 
-  core-api:
+  core-service:
     environment:
       CATALOG_SERVICE_URL: http://catalog-service:8081
       CATALOG_INTERNAL_TOKEN: ${CATALOG_INTERNAL_TOKEN:?Set a catalog server token of at least 32 characters}

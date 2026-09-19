@@ -1,5 +1,7 @@
 # 백엔드 자동 배포 — AWS CodeBuild
 
+> 현재 운영 환경은 없습니다. 아래 AWS/Vercel 구성·배포 이력은 재구성 참고 자료이며 현재 가동 상태를 뜻하지 않습니다. 재배포 전 저장소·브랜치·대상 리소스와 비밀 설정을 다시 검토해야 합니다. 런타임 이름은 `core-service`·`ops-service`로 통일했습니다.
+
 ## 배포 경로
 
 `GitHub main push(PR 병합 포함) → CodeBuild 백엔드 검증 → ECR 고정 digest → SSM → 기존 EC2 Core/AI 교체`
@@ -25,7 +27,7 @@ CodePipeline, S3 아티팩트 버킷, EC2의 별도 GitHub runner는 필요하�
 - 로그 그룹: `/aws/codebuild/govbiz-backend-deploy`, 보존 14일.
 - 프로젝트 환경값(비밀값 아님): `GOVBIZ_DEPLOY_ENABLED`, `GOVBIZ_INSTANCE_ID`,
   `GOVBIZ_DEPLOY_DOCUMENT`, `GOVBIZ_DEPLOY_DOCUMENT_VERSION`. `AWS_REGION`은 CodeBuild가 제공한다.
-- ECR: **동일 AWS 계정**의 `govbiz/core-api`, `govbiz/ai-service`에 immutable tag 사용.
+- ECR: **동일 AWS 계정**의 `govbiz/core-service`, `govbiz/ai-service`에 immutable tag 사용.
 - SSM: `GovBiz-DeployBackend-v1`, 검증한 문서 버전을 숫자로 고정하며 대상은 기존 `govbiz-app` EC2 한 대.
   SSM Agent 3.3.2746.0 이상이 필요하다. 외부 SSH/HTTP 인바운드 추가는 필요하지 않다.
 

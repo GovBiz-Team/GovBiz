@@ -32,7 +32,7 @@ Core의 첫 문서 생성은 위치 매핑과 생성을 순서대로 호출하�
 PDF는 기존 입력 필드 또는 FFDetr 탐지 결과를 원문 글자·표 선과 대조한 입력 영역(`PDF_INPUT`)을 선택한다. 모델은 좌표를 만들지 않으며 서버가 선택된 영역의 좌표를 Core PDFBox에 전달한다. 입력 영역을 확인할 수 없는 선택 문항은 원문 직접 작성으로 표시하고, 필수 문항 또는 답변이 있는 문항을 조용히 누락하지 않는다. 매핑의 라벨·영역 검증 실패는 근거를 전달해 최대 한 번 수정 요청하며, 계속 실패하면 오류를 반환한다. 매핑 HTTP 전체 제한 240초와 최대 2회 모델 호출은 유지한다. `govbiz_pdf_text_regions`는 기존 pdfminer 의존성으로 CropBox·회전 적용 좌표를 제공한다. 원문은 읽기 전용으로 보존하며 작성 계획은 제공된 답변 ID만 사용한다. Core가 제공한 HWP 표·필드 문맥은 축약하지 않는다.
 
 1. 루트 `.env`에 `DOCUMENT_INTERNAL_TOKEN`을 설정한다. 무작위 32자 이상 비밀값을 Core와 AI가 함께 사용한다. 생성 예: `python -c "import secrets; print(secrets.token_hex(32))"`.
-2. `docker compose --env-file .env -f infrastructure/compose.yaml up -d --build core-api ai-service web`으로 새 코드를 적용한다. 기존 DB 볼륨은 삭제하지 않는다.
+2. `docker compose --env-file .env -f infrastructure/compose.yaml up -d --build core-service ai-service web`으로 새 코드를 적용한다. 기존 DB 볼륨은 삭제하지 않는다.
 3. 저장된 신청 준비를 열어 원본 양식을 분석하거나 문서 생성을 다시 실행한다. 새 HWP 엔진의 pipeline fingerprint가 과거 Windows 엔진 지도·결과의 재사용을 막는다. 기존 답변과 파일 다운로드 이력은 유지한다.
 
 이전 HWPX 분석이 표 전체를 하나의 질문으로 추출했다면 기존 작성본에서 **기존 답변을 보관하고 새 양식 확인**으로 이동해 **입력칸별 양식 다시 분석**을 누른다. 재분석 결과는 새 활성 양식으로 게시되고 이전 작성본·답변은 보존된다. 새 양식으로 작성본을 만들고 실제 입력칸별 질문에 답한다. 기존 포괄 답변을 여러 칸에 임의 분배하지 않는다.

@@ -16,7 +16,7 @@ BASH = Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Git/bin/bash.
 FAKE_DOCKER = r"""#!/usr/bin/env bash
 printf '%s\n' "$*" >> "$SEED_DOCKER_CALLS"
 case "$*" in
-  *" ps --services --status running") printf '%s\n' ${SEED_RUNNING_SERVICES-mysql qdrant ai-service core-api web};;
+  *" ps --services --status running") printf '%s\n' ${SEED_RUNNING_SERVICES-mysql qdrant ai-service core-service web};;
   *" run --rm -e DEMO_SEED_FORCE=true demo-seed") :;;
 esac
 exit 0
@@ -63,7 +63,7 @@ class SeedDemoDataTest(unittest.TestCase):
     def test_refuses_when_mysql_or_core_api_is_not_running(self):
         result, calls, stdin = self.run_script(SEED_RUNNING_SERVICES="mysql qdrant web")
         self.assertEqual(result.returncode, 1)
-        self.assertIn("core-api", result.stderr)
+        self.assertIn("core-service", result.stderr)
         self.assertNotIn("exec", calls)
         self.assertEqual(stdin, "")
 

@@ -26,7 +26,7 @@ Compose는 관련 환경변수를 Core API에 전달하지만, 메일·자동 �
 Browser (127.0.0.1:5173)
   → Vite web container
       → /api proxy
-          → core-api:8080
+          → core-service:8080
               ├→ mysql:3306 (사용자 검색 카탈로그)
               ├→ elasticsearch:9200 (Nori·BM25 키워드 후보)
               ├→ redis:6379 (로그인 전 검색 결과·조건의 30분 임시 보관)
@@ -42,7 +42,7 @@ Browser (127.0.0.1:5173)
 | 호출 주체 | 사용하는 주소 | 이유 |
 |---|---|---|
 | 브라우저의 React | `/api/...` | Vite 프록시가 같은 Origin 요청을 Core API로 중계 |
-| web 컨테이너 | `http://core-api:8080` | Compose 내부 DNS |
+| web 컨테이너 | `http://core-service:8080` | Compose 내부 DNS |
 | Core API 컨테이너 | `http://ai-service:8000` | Compose 내부 DNS |
 | Core API 컨테이너 | `http://elasticsearch:9200` | 한국어 키워드 색인·검색. 호스트 포트는 공개하지 않음 |
 | Core API 컨테이너 | `jdbc:mysql://mysql:3306/govbiz` | 사용자 검색용 지원사업 카탈로그 MySQL |
@@ -55,8 +55,8 @@ Browser (127.0.0.1:5173)
 | Host의 DB 도구 | `127.0.0.1:3306` | loopback으로만 공개한 MySQL 포트 |
 | Host 터미널 | `http://127.0.0.1:6333` | loopback으로만 공개한 개발용 Qdrant API |
 
-`core-api`, `ai-service`, `mysql`, `qdrant`, `elasticsearch`, `redis`, `rabbitmq`는 컨테이너 네트워크 안에서만 해석되는 이름입니다. 브라우저
-JavaScript가 `http://core-api:8080`을 직접 호출하면 실패합니다.
+`core-service`, `ai-service`, `mysql`, `qdrant`, `elasticsearch`, `redis`, `rabbitmq`는 컨테이너 네트워크 안에서만 해석되는 이름입니다. 브라우저
+JavaScript가 `http://core-service:8080`을 직접 호출하면 실패합니다.
 
 ## 실행
 
@@ -153,7 +153,7 @@ OPENAI_API_KEY=발급받은_OpenAI_API_키
 | `ACCOUNT_DEV_LOGIN_EMAIL` | `admin@govbiz.local` | 개발용 관리자 시드 계정 이메일 |
 | `ACCOUNT_DEV_LOGIN_MEMBER_EMAIL` | `member@govbiz.local` | 개발용 회원 시드 계정 이메일 |
 | `ACCOUNT_DEV_LOGIN_PASSWORD` | `govbiz-admin1` | 시드 계정을 만들 때 저장하는 비밀번호. 로그인 폼으로도 쓸 수 있으므로 공유 환경에서는 교체 |
-| `ACCOUNT_PASSWORD_RESET_MAIL_ENABLED` | `false` | 비밀번호 재설정 메일 전송. 끄면 개발용 로그인이 켜진 Compose에서는 재설정 링크가 core-api 로그(WARN)에 찍히므로 `docker compose logs core-api`에서 복사해 열면 됨. 회원가입 인증번호 메일도 이 값과 `ACCOUNT_PASSWORD_RESET_FROM`을 그대로 쓰며, 꺼져 있으면 인증번호가 같은 로그에 찍힘 |
+| `ACCOUNT_PASSWORD_RESET_MAIL_ENABLED` | `false` | 비밀번호 재설정 메일 전송. 끄면 개발용 로그인이 켜진 Compose에서는 재설정 링크가 core-service 로그(WARN)에 찍히므로 `docker compose logs core-service`에서 복사해 열면 됨. 회원가입 인증번호 메일도 이 값과 `ACCOUNT_PASSWORD_RESET_FROM`을 그대로 쓰며, 꺼져 있으면 인증번호가 같은 로그에 찍힘 |
 | `ACCOUNT_EMAIL_VERIFICATION_CODE_TTL` | `PT10M` | 회원가입 인증번호 유효 시간 |
 | `ACCOUNT_PASSWORD_RESET_FROM` | 빈 값 | 재설정 메일 발신 주소. 메일을 켜면 `SMTP_*`와 함께 필수 |
 | `ACCOUNT_PASSWORD_RESET_FRONTEND_BASE_URL` | `http://127.0.0.1:5173` | 메일 링크가 여는 프런트 origin |
@@ -374,7 +374,7 @@ docker compose --env-file .env --file infrastructure/compose.yaml down --volumes
 
 ### 데모 데이터
 
-`docker compose up -d`를 하면 `demo-seed` 서비스가 `core-api`가 healthy(Flyway 마이그레이션 완료)된 뒤 실행됩니다.
+`docker compose up -d`를 하면 `demo-seed` 서비스가 `core-service`가 healthy(Flyway 마이그레이션 완료)된 뒤 실행됩니다.
 이미지를 빌드하거나 서비스를 시작하는 과정과 demo seed는 별도 단계이며, `DEMO_SEED_ENABLED=false`면 seed는 아무 작업도 하지 않습니다.
 
 seed 파일의 책임은 다음처럼 나뉩니다.
@@ -458,7 +458,7 @@ RUN_SEED_MYSQL_TESTS=1 python3 -B -m unittest discover -s infrastructure/scripts
 이미 실행 중인 환경에서 이번 변경을 적용할 때는 Core API를 재빌드해 V37을 적용한 뒤 시드만 실행합니다. 강제 초기화는 필요 없습니다.
 
 ```bash
-docker compose --env-file .env -f infrastructure/compose.yaml up -d --build --wait core-api
+docker compose --env-file .env -f infrastructure/compose.yaml up -d --build --wait core-service
 docker compose --env-file .env -f infrastructure/compose.yaml run --rm demo-seed
 ```
 

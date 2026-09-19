@@ -330,7 +330,7 @@ async def run_agent(prepared: list[tuple[dict, AssistantAgentRequest]]) -> tuple
     require(bool(os.environ.get("OPENAI_API_KEY")), "OPENAI_API_KEY is required for --live")
     settings = Settings.from_environment()
     fake = FakeCoreTools()
-    tool_client = CoreToolClient(base_url="http://core-api.eval", secret=SECRET, timeout_seconds=3, transport=fake.transport())
+    tool_client = CoreToolClient(base_url="http://core-service.eval", secret=SECRET, timeout_seconds=3, transport=fake.transport())
     graph = build_assistant_agent_graph(
         classify_model=_chat_model(settings, settings.openai_assistant_model, settings.openai_assistant_reasoning_effort),
         agent_model=_chat_model(settings, settings.openai_assistant_agent_model, settings.openai_assistant_agent_reasoning_effort),

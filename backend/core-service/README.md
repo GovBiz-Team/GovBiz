@@ -1,8 +1,8 @@
 # GovBiz Core Service
 
-소스 디렉터리는 `backend/core-service`입니다. 기존 배포와 공개 상태 확인 계약을 유지하기 위해
-Compose 서비스/DNS `core-api`, ECR 저장소 `govbiz/core-api`, Gradle·Spring 애플리케이션 이름과
-`govbiz-core-api` health 응답은 변경하지 않습니다. 이번 변경은 소스 경로 정리이며 운영 리소스 이전이 아닙니다.
+소스 디렉터리와 Compose 서비스·내부 DNS는 `core-service`, ECR 이미지 경로는 `govbiz/core-service`입니다.
+Gradle·Spring 애플리케이션 이름과 health 응답은 `govbiz-core-service`로 통일했습니다.
+현재 운영 환경은 없으며, 이전 런타임 이름으로의 별칭은 제공하지 않습니다.
 
 ## 공고 카탈로그 독립 서비스 전환
 
@@ -263,7 +263,7 @@ SPRING_PROFILES_ACTIVE=evaluation-fixture-export \
 APP_SUPPORT_PROGRAM_SEARCH_FIXTURE_EXPORT_NAME=support-program-catalog-20260905-v1 \
 APP_SUPPORT_PROGRAM_SEARCH_FIXTURE_EXPORT_REFERENCE_DATE=2026-09-05 \
 APP_SUPPORT_PROGRAM_SEARCH_FIXTURE_EXPORT_OUTPUT_PATH=/absolute/path/support-program-fixture.json \
-java -jar build/libs/govbiz-core-api-0.0.1-SNAPSHOT.jar
+java -jar build/libs/govbiz-core-service-0.0.1-SNAPSHOT.jar
 ```
 
 생성 파일의 `cases`는 빈 배열(`[]`)입니다. 질문의 `id`·`query`·`split`을 고정하고, 평가 전에 선택한
@@ -294,7 +294,7 @@ SPRING_PROFILES_ACTIVE=evaluation-capture \
 APP_SUPPORT_PROGRAM_SEARCH_CAPTURE_QUERY_SET_PATH=/absolute/path/query-set.json \
 APP_SUPPORT_PROGRAM_SEARCH_CAPTURE_OUTPUT_PATH=/absolute/path/capture.json \
 APP_SUPPORT_PROGRAM_SEARCH_CAPTURE_REFERENCE_DATE=2026-09-05 \
-java -jar build/libs/govbiz-core-api-0.0.1-SNAPSHOT.jar
+java -jar build/libs/govbiz-core-service-0.0.1-SNAPSHOT.jar
 ```
 
 질문은 최대 100개이며, 하나라도 실패하거나 실행 중 카탈로그가 바뀌면 결과 파일을 쓰지 않습니다.
@@ -746,7 +746,7 @@ Core API가 아닌 AI Service에만 설정합니다.
 
 ## 코드 구조
 
-기본 패키지는 `ai.govbiz.core`, Gradle 프로젝트명은 `govbiz-core-api`입니다.
+기본 패키지는 `ai.govbiz.core`, Gradle 프로젝트명은 `govbiz-core-service`입니다.
 
 ```text
 supportprogram/

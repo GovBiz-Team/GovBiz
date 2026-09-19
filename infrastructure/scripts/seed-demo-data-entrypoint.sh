@@ -4,7 +4,7 @@
 #
 # 1. DEMO_SEED_ENABLED가 true가 아니면 아무것도 하지 않고 끝납니다.
 # 2. 데모 계정이 이미 있으면 공용 자료를 보존하고 두 개인 작업 seed만 증분 실행합니다.
-# 3. core-api가 healthy(=Flyway 마이그레이션 완료)여야 시작되며, 모집글이 붙을 기업마당 공고가 동기화될 때까지 기다립니다.
+# 3. core-service가 healthy(=Flyway 마이그레이션 완료)여야 시작되며, 모집글이 붙을 기업마당 공고가 동기화될 때까지 기다립니다.
 # 4. 신규 DB와 강제 실행은 공용 seed 뒤에 신청 준비와 중복 검토 seed를 순서대로 실행합니다.
 set -eu
 
@@ -71,7 +71,7 @@ if [ "${DEMO_SEED_FORCE:-false}" != "true" ]; then
   fi
 fi
 
-# 접수 마감이 3주 이상 남은 기업마당 공고가 모집글 수만큼 있어야 합니다. 공고 동기화는 core-api가 기동 직후 시작합니다.
+# 접수 마감이 3주 이상 남은 기업마당 공고가 모집글 수만큼 있어야 합니다. 공고 동기화는 core-service가 기동 직후 시작합니다.
 waited=0
 while :; do
   count="$(query "SELECT COUNT(*) FROM support_program WHERE source_code = 'BIZINFO' AND application_end_date >= DATE_ADD(CURDATE(), INTERVAL 21 DAY)" 2>/dev/null || echo 0)"

@@ -96,7 +96,7 @@ def connection_from_compose(env_file, compose_file):
     )
     if result.returncode:
         raise ValueError("운영 Compose 해석 실패. 비밀정보 보호를 위해 원문 출력은 생략합니다.")
-    env = json.loads(result.stdout)["services"]["core-api"]["environment"]
+    env = json.loads(result.stdout)["services"]["core-service"]["environment"]
     url = urlsplit(env["SPRING_DATASOURCE_URL"].removeprefix("jdbc:"))
     if url.scheme != "mysql" or not url.hostname or not url.hostname.endswith(".rds.amazonaws.com"):
         raise ValueError("운영 RDS MySQL 엔드포인트만 허용합니다. 로컬 mysql은 사용할 수 없습니다.")

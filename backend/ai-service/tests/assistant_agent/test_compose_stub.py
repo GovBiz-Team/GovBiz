@@ -57,7 +57,7 @@ async def test_actual_compose_stub_through_langchain_graph(request_data, monkeyp
     request_data["message"] = message
     model_calls: list = []
     fake = FakeCoreTools()
-    tool_client = CoreToolClient(base_url="http://core-api:8080", secret=fake.secret, timeout_seconds=1, transport=fake.transport())
+    tool_client = CoreToolClient(base_url="http://core-service:8080", secret=fake.secret, timeout_seconds=1, transport=fake.transport())
     graph = build_assistant_agent_graph(
         classify_model=chat_model(stub, monkeypatch, model_calls, model="gpt-5-nano", effort="low"),
         agent_model=chat_model(stub, monkeypatch, model_calls, model="gpt-5.6-luna", effort="none"),
@@ -102,7 +102,7 @@ async def test_actual_compose_stub_runs_the_saved_programs_subgraph(request_data
     ]
     model_calls: list = []
     fake = FakeCoreTools()
-    tool_client = CoreToolClient(base_url="http://core-api:8080", secret=fake.secret, timeout_seconds=1, transport=fake.transport())
+    tool_client = CoreToolClient(base_url="http://core-service:8080", secret=fake.secret, timeout_seconds=1, transport=fake.transport())
     graph = build_assistant_agent_graph(
         classify_model=chat_model(stub, monkeypatch, model_calls, model="gpt-5-nano", effort="low"),
         agent_model=chat_model(stub, monkeypatch, model_calls, model="gpt-5.6-luna", effort="none"),

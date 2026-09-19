@@ -9,7 +9,7 @@ def document():
     parameters = {
         'Mode': {'allowedValues': ['check', 'deploy'], 'default': 'check'},
         'Commit': {'allowedPattern': '^$|^[0-9a-f]{40}$', 'default': ''},
-        'CoreImage': {'allowedPattern': image.replace('{service}', 'core-api'), 'default': ''},
+        'CoreImage': {'allowedPattern': image.replace('{service}', 'core-service'), 'default': ''},
         'AiImage': {'allowedPattern': image.replace('{service}', 'ai-service'), 'default': ''},
     }
     for parameter in parameters.values():

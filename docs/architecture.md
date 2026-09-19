@@ -29,8 +29,9 @@ OAuth 외부 호출 중에는 DB transaction을 열지 않습니다. [정확한 
 ## 서비스 경계
 
 소스 폴더는 `backend/{core-service,catalog-service,ai-service,ops-service}`로 통일합니다.
-소스 경로와 배포 식별자는 별개입니다. 기존 Compose의 `core-api`·`django-api`, ECR의
-`govbiz/core-api`, Ops Kubernetes의 `operations-api`와 DB·볼륨·공개 health 계약은 유지합니다.
+Compose 서비스·내부 DNS는 `core-service`·`catalog-service`·`ai-service`·`ops-service`를 사용합니다.
+Core ECR 경로는 `govbiz/core-service`, Ops Kubernetes 리소스명은 `ops-service`, Ops DB 서비스는 `ops-mysql`입니다.
+health 응답은 각각 `govbiz-core-service`·`govbiz-ops-service`이며 현재 운영 환경은 없습니다.
 아래의 Core API는 `core-service`가 제공하는 HTTP API를 뜻합니다.
 
 저장소는 React·Core API·Catalog Service·AI Service·Django Ops를 함께 관리하는 모노레포입니다.
@@ -154,7 +155,7 @@ AI 경계 실패는 `facade/exception`에서 표현하고 Service가 공개 실�
 Core API는 공개 HTTP 계약, 기업마당·K-Startup 수집, MySQL 접근과 접수 상태 계산을 소유합니다. AI Service는
 Core가 전달한 공고 문서·원문 청크의 색인·검색·점수화·근거 답변을 담당하며 MySQL에 직접 접근하지 않습니다.
 
-브라우저는 Core API의 `/api`만 호출합니다. Compose에서 Vite는 `/api`를 `core-api:8080`으로 프록시하며,
+브라우저는 Core API의 `/api`만 호출합니다. Compose에서 Vite는 `/api`를 `core-service:8080`으로 프록시하며,
 AI Service는 호스트에 포트를 게시하지 않습니다. MySQL·Qdrant·Core API·Web의 개발용 포트는
 `127.0.0.1`에 바인딩합니다. 기업마당·K-Startup 키는 Core API에, OpenAI 키는 AI Service에만 주입합니다.
 이는 개발 환경의 서비스 배치이며 운영 인증·접근 제어가 구현됐다는 의미는 아닙니다.

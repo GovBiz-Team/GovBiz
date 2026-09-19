@@ -23,7 +23,7 @@ def images(digit):
 
 def env_text(digit):
     refs = images(digit)
-    return '# keep this comment\nCORE_API_IMAGE=' + refs['core-api'] + '\nAI_SERVICE_IMAGE=' + refs['ai-service'] + '\nSMTP_PASSWORD=not-a-real-secret\nBIZINFO_SYNC_ENABLED=false\n'
+    return '# keep this comment\nCORE_API_IMAGE=' + refs['core-service'] + '\nAI_SERVICE_IMAGE=' + refs['ai-service'] + '\nSMTP_PASSWORD=not-a-real-secret\nBIZINFO_SYNC_ENABLED=false\n'
 
 
 class HostDeploymentTest(unittest.TestCase):
@@ -41,11 +41,12 @@ class HostDeploymentTest(unittest.TestCase):
                 host.replace_images(text, images('2'))
 
     def test_rejects_foreign_repository_mutable_tag_and_injection(self):
-        for value in (images('2')['core-api'].replace('123456789012', '999999999999'),
-                      images('2')['ai-service'], REGISTRY + '/govbiz/core-api:latest',
-                      images('2')['core-api'] + '\nACCOUNT_DEV_LOGIN_ENABLED=true'):
+        for value in (images('2')['core-service'].replace('123456789012', '999999999999'),
+                      images('2')['core-service'].replace('/core-service@', '/core-api@'),
+                      images('2')['ai-service'], REGISTRY + '/govbiz/core-service:latest',
+                      images('2')['core-service'] + '\nACCOUNT_DEV_LOGIN_ENABLED=true'):
             with self.subTest(value=value), self.assertRaises(ValueError):
-                host.replace_images(env_text('1'), dict(images('2'), **{'core-api': value}))
+                host.replace_images(env_text('1'), dict(images('2'), **{'core-service': value}))
 
     def test_existing_registry_must_match(self):
         original = env_text('1').replace('AI_SERVICE_IMAGE=123456789012', 'AI_SERVICE_IMAGE=999999999999')
@@ -98,7 +99,7 @@ class HostDeploymentTest(unittest.TestCase):
         with patch.object(host, 'compose') as compose, patch.object(host, 'invoke'), \
                 patch.object(host, 'container_id', return_value='nginx-id'), patch.object(host, 'health'):
             host.restore_or_start()
-        self.assertEqual(['ai-service', 'core-api'], [call.args[-1] for call in compose.call_args_list])
+        self.assertEqual(['ai-service', 'core-service'], [call.args[-1] for call in compose.call_args_list])
         for call in compose.call_args_list:
             self.assertIn('--no-deps', call.args)
             self.assertIn('--wait', call.args)
@@ -137,15 +138,15 @@ class CodeBuildReleaseTest(unittest.TestCase):
     def test_image_lookup_failure_is_not_treated_as_missing(self):
         with patch.object(release, 'aws', return_value={'failures': [{'failureCode': 'AccessDenied'}]}):
             with self.assertRaises(RuntimeError):
-                release.image_digest('govbiz/core-api', 'git-' + SHA)
+                release.image_digest('govbiz/core-service', 'git-' + SHA)
 
     def test_missing_image_is_buildable(self):
         with patch.object(release, 'aws', return_value={'failures': [{'failureCode': 'ImageNotFound'}]}):
-            self.assertIsNone(release.image_digest('govbiz/core-api', 'git-' + SHA))
+            self.assertIsNone(release.image_digest('govbiz/core-service', 'git-' + SHA))
 
-    def test_publish_uses_current_source_folders_and_preserves_ecr_names(self):
+    def test_publish_uses_current_source_folders_and_service_ecr_names(self):
         root = Path(__file__).resolve().parents[2]
-        for service, context in [('core-api', 'backend/core-service'), ('ai-service', 'backend/ai-service')]:
+        for service, context in [('core-service', 'backend/core-service'), ('ai-service', 'backend/ai-service')]:
             with self.subTest(service=service):
                 digest = 'sha256:' + '1' * 64
                 ref = REGISTRY + '/govbiz/' + service + ':git-' + SHA
@@ -165,8 +166,8 @@ class CodeBuildReleaseTest(unittest.TestCase):
     def test_existing_immutable_image_is_reused_without_build_or_push(self):
         digest = 'sha256:' + '2' * 64
         with patch.object(release, 'image_digest', return_value=digest), patch.object(release, 'run') as run:
-            actual = release.publish(REGISTRY, 'core-api', SHA)
-        self.assertEqual(REGISTRY + '/govbiz/core-api@' + digest, actual)
+            actual = release.publish(REGISTRY, 'core-service', SHA)
+        self.assertEqual(REGISTRY + '/govbiz/core-service@' + digest, actual)
         run.assert_not_called()
 
     def test_failed_ssm_is_not_reported_successfully(self):
@@ -187,7 +188,7 @@ class DocumentTest(unittest.TestCase):
         for parameter in doc['parameters'].values():
             self.assertEqual('ENV_VAR', parameter['interpolationType'])
         self.assertEqual('check', doc['parameters']['Mode']['default'])
-        for key, service in [('CoreImage', 'core-api'), ('AiImage', 'ai-service')]:
+        for key, service in [('CoreImage', 'core-service'), ('AiImage', 'ai-service')]:
             pattern = doc['parameters'][key]['allowedPattern']
             self.assertIsNotNone(re.fullmatch(pattern, images('2')[service]))
             self.assertIsNone(re.fullmatch(pattern, images('2')[service] + ';id'))

@@ -163,7 +163,7 @@ SPRING_PROFILES_ACTIVE=evaluation-fixture-export \
 APP_SUPPORT_PROGRAM_SEARCH_FIXTURE_EXPORT_NAME=support-program-catalog-20260905-v1 \
 APP_SUPPORT_PROGRAM_SEARCH_FIXTURE_EXPORT_REFERENCE_DATE=2026-09-05 \
 APP_SUPPORT_PROGRAM_SEARCH_FIXTURE_EXPORT_OUTPUT_PATH=/absolute/path/support-program-fixture.json \
-java -jar build/libs/govbiz-core-api-0.0.1-SNAPSHOT.jar
+java -jar build/libs/govbiz-core-service-0.0.1-SNAPSHOT.jar
 ```
 
 출력의 `dataType`은 `real_catalog_snapshot_unlabeled`이고 `cases`는 빈 배열(`[]`)이다. 이 파일만으로는
@@ -212,7 +212,7 @@ SPRING_PROFILES_ACTIVE=evaluation-capture \
 APP_SUPPORT_PROGRAM_SEARCH_CAPTURE_QUERY_SET_PATH=/absolute/path/queries.json \
 APP_SUPPORT_PROGRAM_SEARCH_CAPTURE_OUTPUT_PATH=/absolute/path/capture.json \
 APP_SUPPORT_PROGRAM_SEARCH_CAPTURE_REFERENCE_DATE=2026-09-05 \
-java -jar build/libs/govbiz-core-api-0.0.1-SNAPSHOT.jar
+java -jar build/libs/govbiz-core-service-0.0.1-SNAPSHOT.jar
 ```
 
 캡처 v2에는 질문 묶음 지문, 실행 시각, 기준 날짜, 접수 중 필터 여부, 현재·적격 공고 수, 적격 공고의 ID·내용 해시 지문,

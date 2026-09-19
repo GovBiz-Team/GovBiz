@@ -13,13 +13,18 @@ Ops 소스는 [`backend/ops-service`](backend/ops-service)에 있으며, 상태 
 [통합 개발·이전 안내](docs/ops-monorepo-migration.md)를 먼저 확인하세요.
 Kubernetes 배포 설정·검증과 향후 Argo CD 연결은 별도 [GovBiz-infra](https://github.com/GovBiz-Team/GovBiz-infra)에서 관리합니다.
 
+Compose 서비스·내부 DNS는 `core-service`, `catalog-service`, `ai-service`, `ops-service`이며 Ops DB 컨테이너는 `ops-mysql`입니다.
+Kubernetes의 Ops 리소스명도 `ops-service`로 통일합니다. 기존 로컬 컨테이너·데이터는 자동으로 변경하지 않습니다.
+Compose가 생성하는 이름은 `<프로젝트명>-core-service-1`, `<프로젝트명>-ops-service-1` 형식입니다.
+고정 `container_name`이나 이전 이름의 DNS 별칭은 두지 않습니다.
+
 ### 현재 구현·배포 상태
 
 | 구분 | 상태 |
 |---|---|
-| 기존 웹 서비스 | Vercel + AWS EC2 Compose 기반 배포 유지. 이번 변경으로 운영 서버·데이터·배포 연결을 변경하지 않음 |
+| 운영 환경 | 현재 운영 환경 없음. EC2 Compose·CodeBuild 설정은 재배포용 템플릿이며 자동 실행하지 않음 |
 | Ops 로컬 개발 | 별도 Django 프로세스·MySQL, 상태 확인 API, 독립 테스트·컨테이너 검증 구현 |
-| Core 공고 기능 분리 | 별도 Catalog 프로세스·MySQL과 인증된 HTTP 복제 경로 구현. 선택형 로컬 Compose로 전환하며 기존 AWS에는 적용하지 않음 |
+| Core 공고 기능 분리 | 별도 Catalog 프로세스·MySQL과 인증된 HTTP 복제 경로 구현. 선택형 로컬 Compose로 검증하며 운영 배포는 별도 |
 | Kubernetes 1단계 | kind에서 Ops + 검증용 MySQL 실행, DB 장애·PVC 보존·Pod 복구·이미지 롤백 검증 완료 |
 | 다음 단계 | Argo CD GitOps, Core·Catalog·AI의 Kubernetes 이전, Ops 관리자 인증·LLMOps 업무 기능, AWS Kubernetes 운영 전환 |
 

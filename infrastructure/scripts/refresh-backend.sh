@@ -26,7 +26,7 @@ COMPOSE=(
   --env-file "${ENV_FILE}"
   --file "${COMPOSE_FILE}"
 )
-EXPECTED_SERVICES=(mysql qdrant redis rabbitmq elasticsearch ai-service core-api web)
+EXPECTED_SERVICES=(mysql qdrant redis rabbitmq elasticsearch ai-service core-service web)
 
 contains_line() {
   local lines=$1
@@ -66,7 +66,7 @@ for service in mysql qdrant redis rabbitmq elasticsearch web; do
 done
 
 echo "Building Core API and AI Service images from the current checkout"
-"${COMPOSE[@]}" build core-api ai-service
+"${COMPOSE[@]}" build core-service ai-service
 
 echo "Replacing AI Service without recreating MySQL, Qdrant or Web"
 "${COMPOSE[@]}" up --detach --no-deps --no-build ai-service
@@ -83,7 +83,7 @@ until "${COMPOSE[@]}" exec --no-TTY ai-service python -c \
 done
 
 echo "Replacing Core API after AI Service is ready"
-"${COMPOSE[@]}" up --detach --no-deps --no-build core-api
+"${COMPOSE[@]}" up --detach --no-deps --no-build core-service
 
 web_port_mapping="$("${COMPOSE[@]}" port web 5173)"
 web_port="${web_port_mapping##*:}"
@@ -117,7 +117,7 @@ wait_for_health() {
   return 1
 }
 
-wait_for_health "Core API" "/api/v1/health" "govbiz-core-api"
+wait_for_health "Core API" "/api/v1/health" "govbiz-core-service"
 wait_for_health "Core-to-AI Service" "/api/v1/health/ai-service" "govbiz-ai-service"
 
 echo "Backend refresh completed for project '${PROJECT_NAME}'. Existing MySQL, Qdrant and Redis containers and volumes were not recreated or removed."

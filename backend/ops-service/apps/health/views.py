@@ -9,7 +9,7 @@ from rest_framework.response import Response
 @permission_classes([AllowAny])
 def health(request):
     """DB에 접근하지 않고 애플리케이션 실행 여부를 확인합니다."""
-    return Response({"status": "UP", "service": "govbiz-django"})
+    return Response({"status": "UP", "service": "govbiz-ops-service"})
 
 
 @api_view(["GET"])

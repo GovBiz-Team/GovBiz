@@ -29,7 +29,7 @@ services:
       proxy:
         ipv4_address: 172.30.254.2
     depends_on:
-      core-api:
+      core-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/nginx-health"]
@@ -37,7 +37,7 @@ services:
       timeout: 3s
       retries: 3
 
-  core-api:
+  core-service:
     <<: *runtime
     image: ${CORE_API_IMAGE:?Set a release image built from backend/core-service}
     mem_limit: 2g
@@ -145,7 +145,7 @@ services:
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY:?Set the existing OpenAI API key on EC2 only}
       OPENAI_BASE_URL: https://api.openai.com/v1
-      ASSISTANT_TOOLS_BASE_URL: http://core-api:8080
+      ASSISTANT_TOOLS_BASE_URL: http://core-service:8080
       DOCUMENT_INTERNAL_TOKEN: ${DOCUMENT_INTERNAL_TOKEN:-}
       ASSISTANT_TOOLS_TOKEN: ${ASSISTANT_TOOLS_TOKEN:-}
       APPLICATION_FORM_DISCOVERY_MODEL_TIMEOUT_SECONDS: ${APPLICATION_FORM_DISCOVERY_MODEL_TIMEOUT_SECONDS:-210}

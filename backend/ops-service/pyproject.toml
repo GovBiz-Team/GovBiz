@@ -1,5 +1,5 @@
 [project]
-name = "govbiz-django"
+name = "govbiz-ops-service"
 version = "0.1.0"
 description = "GovBiz 4차 프로젝트 Django 서비스"
 requires-python = ">=3.13,<3.14"

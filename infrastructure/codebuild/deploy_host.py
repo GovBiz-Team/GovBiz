@@ -17,9 +17,9 @@ import tempfile
 ROOT = Path('/opt/govbiz')
 ENV_FILE = ROOT / '.env.production'
 COMPOSE_FILE = ROOT / 'infrastructure/compose.prod.yaml'
-KEYS = {'core-api': 'CORE_API_IMAGE', 'ai-service': 'AI_SERVICE_IMAGE'}
+KEYS = {'core-service': 'CORE_API_IMAGE', 'ai-service': 'AI_SERVICE_IMAGE'}
 PRESERVED = ('nginx', 'elasticsearch', 'qdrant', 'redis', 'rabbitmq')
-IMAGE = re.compile(r'([0-9]{12}\.dkr\.ecr\.([a-z0-9-]+)\.amazonaws\.com)/govbiz/(core-api|ai-service)@sha256:[0-9a-f]{64}')
+IMAGE = re.compile(r'([0-9]{12}\.dkr\.ecr\.([a-z0-9-]+)\.amazonaws\.com)/govbiz/(core-service|ai-service)@sha256:[0-9a-f]{64}')
 
 
 def invoke(args, *, environment=None, input=None):
@@ -48,7 +48,7 @@ def image_values(text):
 
 def replace_images(original, images):
     previous = image_values(original)
-    registry = IMAGE.fullmatch(previous['core-api'])[1]
+    registry = IMAGE.fullmatch(previous['core-service'])[1]
     if IMAGE.fullmatch(previous['ai-service'])[1] != registry:
         raise ValueError('Existing images use different registries')
     result = original
@@ -93,7 +93,7 @@ def health():
         state = json.loads(invoke(['docker', 'inspect', '--format', '{{json .State}}', container_id(service)]))
         if not state.get('Running') or (service != 'qdrant' and state.get('Health', {}).get('Status') != 'healthy'):
             raise RuntimeError('Production service is not healthy: ' + service)
-    body = invoke(['docker', 'exec', container_id('core-api'), 'curl', '--fail', '--silent',
+    body = invoke(['docker', 'exec', container_id('core-service'), 'curl', '--fail', '--silent',
                    '--max-time', '10', 'http://127.0.0.1:8080/api/v1/health/ai-service'])
     if json.loads(body).get('status') != 'up':
         raise RuntimeError('Core-to-AI health check did not report up')
@@ -101,7 +101,7 @@ def health():
 
 def restore_or_start():
     # Never restart stateful dependencies or run `down`. AI must be ready before Core.
-    for service in ('ai-service', 'core-api'):
+    for service in ('ai-service', 'core-service'):
         compose('up', '--detach', '--no-deps', '--no-build', '--pull', 'never', '--wait',
                 '--wait-timeout', '300', service)
     nginx = container_id('nginx')
@@ -145,7 +145,7 @@ def main():
         services = config['services']
         if set(services) != set(KEYS) | set(PRESERVED):
             raise ValueError('Unexpected production Compose services')
-        if services['core-api']['networks']['proxy'].get('ipv4_address') != '172.30.254.3':
+        if services['core-service']['networks']['proxy'].get('ipv4_address') != '172.30.254.3':
             raise ValueError('Existing Core proxy IP must be 172.30.254.3; do not replace host Compose')
         for service, image in previous.items():
             live = invoke(['docker', 'inspect', '--format', '{{.Config.Image}}', container_id(service)]).strip()
@@ -158,12 +158,12 @@ def main():
         sha = os.environ.get('SSM_Commit', '')
         if not re.fullmatch('[0-9a-f]{40}', sha):
             raise ValueError('Expected a full Git commit')
-        images = {'core-api': os.environ.get('SSM_CoreImage', ''), 'ai-service': os.environ.get('SSM_AiImage', '')}
+        images = {'core-service': os.environ.get('SSM_CoreImage', ''), 'ai-service': os.environ.get('SSM_AiImage', '')}
         candidate = replace_images(original.decode(), images).encode()
         if shutil.disk_usage('/var/lib/docker').free < 4 * 1024 ** 3:
             raise RuntimeError('Less than 4 GiB Docker disk headroom; nothing changed')
         preserved_ids = {service: container_id(service) for service in PRESERVED}
-        registry, region, _ = IMAGE.fullmatch(images['core-api']).groups()
+        registry, region, _ = IMAGE.fullmatch(images['core-service']).groups()
         # Isolate ECR credentials from the host's persistent Docker configuration.
         with tempfile.TemporaryDirectory(prefix='govbiz-ecr-') as auth_dir:
             environment = dict(os.environ, DOCKER_CONFIG=auth_dir)

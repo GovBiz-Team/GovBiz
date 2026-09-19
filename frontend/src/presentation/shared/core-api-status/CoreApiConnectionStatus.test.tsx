@@ -13,7 +13,7 @@ afterEach(() => { cleanup(); vi.clearAllMocks() })
 describe('CoreApiConnectionStatus', () => {
   it.each(['down', 'unknown'])('offers a manual recheck for a successful HTTP response with %s status', (status) => {
     const refetch = vi.fn().mockResolvedValue(undefined)
-    useHealth.mockReturnValue({ data: { service: 'govbiz-core-api', status }, isError: false, isLoading: false, refetch })
+    useHealth.mockReturnValue({ data: { service: 'govbiz-core-service', status }, isError: false, isLoading: false, refetch })
     render(<CoreApiConnectionStatus />)
     expect(screen.getByRole('status').textContent).toContain('Core API 상태 확인 필요')
     fireEvent.click(screen.getByRole('button', { name: '다시 확인' }))
@@ -26,7 +26,7 @@ describe('CoreApiConnectionStatus', () => {
     expect(screen.getByRole('status').textContent).toContain('Core API 연결 확인 중')
     expect(screen.getByRole('status').getAttribute('aria-atomic')).toBe('true')
     expect(screen.queryByRole('button')).toBeNull()
-    useHealth.mockReturnValue({ data: { service: 'govbiz-core-api', status: 'up' }, isError: false, isLoading: false, refetch: vi.fn() })
+    useHealth.mockReturnValue({ data: { service: 'govbiz-core-service', status: 'up' }, isError: false, isLoading: false, refetch: vi.fn() })
     view.rerender(<CoreApiConnectionStatus />)
     expect(screen.getByRole('status').textContent).toContain('Core API 연결됨')
     expect(screen.queryByRole('button')).toBeNull()

@@ -14,7 +14,7 @@ describe('useCoreApiHealth', () => {
     const pending = deferred<CoreApiHealth>()
     const fetchCoreApiHealth = vi.fn()
       .mockReturnValueOnce(pending.promise)
-      .mockResolvedValueOnce({ service: 'govbiz-core-api', status: 'up' })
+      .mockResolvedValueOnce({ service: 'govbiz-core-service', status: 'up' })
     const { result } = renderHook(() => useCoreApiHealth(fetchCoreApiHealth))
     await act(async () => { await vi.advanceTimersByTimeAsync(9_999) })
     expect(result.current.isLoading).toBe(true)
@@ -24,10 +24,10 @@ describe('useCoreApiHealth', () => {
     expect(fetchCoreApiHealth.mock.calls[0][0].aborted).toBe(true)
     expect(vi.getTimerCount()).toBe(0)
 
-    await act(async () => { pending.resolve({ service: 'stale-core-api', status: 'up' }); await pending.promise })
+    await act(async () => { pending.resolve({ service: 'stale-core-service', status: 'up' }); await pending.promise })
     expect(result.current).toMatchObject({ isLoading: false, isError: true, data: undefined })
     await act(async () => { await result.current.refetch() })
-    expect(result.current).toMatchObject({ isLoading: false, isError: false, data: { service: 'govbiz-core-api', status: 'up' } })
+    expect(result.current).toMatchObject({ isLoading: false, isError: false, data: { service: 'govbiz-core-service', status: 'up' } })
     expect(vi.getTimerCount()).toBe(0)
   })
 
@@ -44,7 +44,7 @@ describe('useCoreApiHealth', () => {
     }
     unmount()
     expect(vi.getTimerCount()).toBe(0)
-    await act(async () => { pending.resolve({ service: 'govbiz-core-api', status: 'up' }); await pending.promise })
+    await act(async () => { pending.resolve({ service: 'govbiz-core-service', status: 'up' }); await pending.promise })
   })
 
   it('aborts the first StrictMode request and only applies the latest response', async () => {
@@ -62,7 +62,7 @@ describe('useCoreApiHealth', () => {
     await waitFor(() => expect(fetchCoreApiHealth).toHaveBeenCalledTimes(2))
     expect(signals[0].aborted).toBe(true)
 
-    const latestHealth = { service: 'govbiz-core-api', status: 'up' }
+    const latestHealth = { service: 'govbiz-core-service', status: 'up' }
     await act(async () => {
       second.resolve(latestHealth)
       await second.promise
@@ -70,7 +70,7 @@ describe('useCoreApiHealth', () => {
     await waitFor(() => expect(result.current.data).toEqual(latestHealth))
 
     await act(async () => {
-      first.resolve({ service: 'stale-core-api', status: 'down' })
+      first.resolve({ service: 'stale-core-service', status: 'down' })
       await first.promise
     })
     expect(result.current.data).toEqual(latestHealth)
@@ -98,15 +98,15 @@ describe('useCoreApiHealth', () => {
     unmount()
     expect(signals[1].aborted).toBe(true)
 
-    first.resolve({ service: 'stale-core-api', status: 'down' })
-    second.resolve({ service: 'govbiz-core-api', status: 'up' })
+    first.resolve({ service: 'stale-core-service', status: 'down' })
+    second.resolve({ service: 'govbiz-core-service', status: 'up' })
     await Promise.all([first.promise, second.promise, refetchPromise])
   })
 
   it('shows a safe error state and recovers when retry succeeds', async () => {
     const fetchCoreApiHealth = vi.fn()
       .mockRejectedValueOnce(new Error('internal network detail'))
-      .mockResolvedValueOnce({ service: 'govbiz-core-api', status: 'up' })
+      .mockResolvedValueOnce({ service: 'govbiz-core-service', status: 'up' })
     const { result } = renderHook(() => useCoreApiHealth(fetchCoreApiHealth))
     await waitFor(() => expect(result.current.isError).toBe(true))
     expect(result.current.data).toBeUndefined()
@@ -115,7 +115,7 @@ describe('useCoreApiHealth', () => {
       await result.current.refetch()
     })
     expect(result.current).toMatchObject({
-      data: { service: 'govbiz-core-api', status: 'up' },
+      data: { service: 'govbiz-core-service', status: 'up' },
       isError: false,
       isLoading: false,
     })

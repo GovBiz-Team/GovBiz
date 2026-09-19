@@ -23,7 +23,7 @@ class HealthControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith("application/json"))
             .andExpect(jsonPath("$.status").value("up"))
-            .andExpect(jsonPath("$.service").value("govbiz-core-api"))
+            .andExpect(jsonPath("$.service").value("govbiz-core-service"))
     }
 
     @Test

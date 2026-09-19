@@ -27,7 +27,7 @@ class ApplicationFormSeedTest(unittest.TestCase):
         self.calls.append(command)
         output = ""
         if "config" in command:
-            output = json.dumps({"services": {"core-api": {"environment": {"SPRING_DATASOURCE_URL": self.jdbc}}}})
+            output = json.dumps({"services": {"core-service": {"environment": {"SPRING_DATASOURCE_URL": self.jdbc}}}})
         return subprocess.CompletedProcess(command, 0, output, "")
 
     def apply_args(self):
@@ -73,7 +73,7 @@ class ApplicationFormSeedTest(unittest.TestCase):
         def invoke(command, **kwargs):
             result = self.invoke(command, **kwargs)
             if "ps" in command:
-                result.stdout = "core-api\n"
+                result.stdout = "core-service\n"
             return result
         with patch.object(seed.subprocess, "run", side_effect=invoke), self.assertRaises(ValueError):
             seed.run(self.args)

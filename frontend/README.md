@@ -36,7 +36,7 @@ docker compose --env-file .env --file infrastructure/compose.yaml up --build
 ```
 
 브라우저에서 `http://127.0.0.1:5173`에 접속합니다. React는 `/api` 상대 주소로 요청하고,
-Vite 개발 서버가 `http://core-api:8080`으로 중계합니다.
+Vite 개발 서버가 `http://core-service:8080`으로 중계합니다.
 
 ### Docker 없이 웹 개발
 

@@ -26,9 +26,9 @@ COMPOSE=(
   --file "${COMPOSE_FILE}"
 )
 
-# MySQL이 떠 있어야 하고, 모집글이 붙을 공고는 core-api의 기업마당 동기화가 채우므로 둘 다 실행 중이어야 합니다.
+# MySQL이 떠 있어야 하고, 모집글이 붙을 공고는 core-service의 기업마당 동기화가 채우므로 둘 다 실행 중이어야 합니다.
 running_services="$("${COMPOSE[@]}" ps --services --status running)"
-for service in mysql core-api; do
+for service in mysql core-service; do
   if ! grep -Fxq -- "${service}" <<<"${running_services}"; then
     echo "Service '${service}' of Compose project '${PROJECT_NAME}' is not running. Start the stack first." >&2
     exit 1
