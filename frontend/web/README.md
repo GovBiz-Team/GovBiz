@@ -38,7 +38,35 @@ docker compose --env-file .env --file infrastructure/compose.yaml up --build
 브라우저에서 `http://127.0.0.1:5173`에 접속합니다. React는 `/api` 상대 주소로 요청하고,
 Vite 개발 서버가 `http://core-service:8080`으로 중계합니다.
 
-### Docker 없이 웹 개발
+### Mac Kubernetes 백엔드에 연결
+
+`GovBiz-infra`의 portfolio 클러스터를 켠 상태에서, infra 저장소 터미널에서 먼저 실행합니다.
+
+```bash
+kubectl --kubeconfig .local/portfolio/kubeconfig --context kind-govbiz-portfolio \
+  -n govbiz-msa port-forward --address 127.0.0.1 service/core-service 18080:8080
+```
+
+다른 터미널의 이 디렉터리(`frontend/web`)에서 Node 24.x/pnpm 11.22.x로 실행합니다.
+
+```bash
+pnpm dev:k8s
+```
+
+`http://localhost:5173/?mode=filter`로 접속합니다. Kubernetes Core의 기본 허용 Origin이
+`http://localhost:5173`이므로 주소의 `localhost`를 그대로 사용합니다. 웹은 Mac에서 실행되고
+`/api` 요청만 Vite → loopback port-forward → Kubernetes Core로 전달합니다. 웹 자체를 Kubernetes에
+배포하거나 Vercel 설정을 바꾸는 명령이 아닙니다.
+
+이 모드는 `.env*`와 상속된 `VITE_*`를 사용하지 않고 같은 origin API·도우미 AI 비활성·카카오 링크
+비활성을 고정합니다. 외부 접속을 받지 않으며 기존 Compose를 다시 켤 필요도 없습니다.
+백엔드에서도 꺼진 개발 로그인 버튼은 이 모드에서 숨깁니다.
+두 터미널에서 Ctrl-C로 종료합니다. Core Pod가 교체되어 port-forward가 끊기면 첫 명령을 다시 실행합니다.
+새 클러스터는 빈 목록으로 시작합니다. 외부 API 비용 없이 필터·파트너·로그인을 시연하려면
+[Mac Kubernetes 무료 데모](../../docs/portfolio-demo.md)를 명시적으로 입력합니다.
+메일·소셜 로그인·유료 AI까지 검증한 환경은 아닙니다.
+
+### 일반 네이티브 웹 개발
 
 Node.js `24.x`, pnpm `11.22.x`가 필요합니다. Core API와 검색에 필요한 MySQL·AI Service·Qdrant는
 [Core API 실행 안내](../../backend/core-service/README.md)에 따라 먼저 실행합니다.

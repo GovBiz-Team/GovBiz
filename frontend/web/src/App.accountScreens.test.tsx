@@ -40,9 +40,19 @@ afterEach(() => {
   cleanup()
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
+  vi.unstubAllEnvs()
 })
 
 describe('계정 화면', () => {
+  it.each([['portfolio', false], ['development', true]] as const)(
+    '%s 모드에서 개발 로그인 버튼 노출을 구분한다', (mode, visible) => {
+      vi.stubEnv('MODE', mode)
+      renderApp('/', null)
+      expect(Boolean(screen.queryByRole('button', { name: '개발 로그인 · 관리자' }))).toBe(visible)
+      expect(Boolean(screen.queryByRole('button', { name: '개발 로그인 · 회원' }))).toBe(visible)
+    },
+  )
+
   it('회원가입 화면은 이메일·인증번호·비밀번호만 받고 인증 전에는 가입 버튼을 잠근다', () => {
     renderApp('/signup')
 

@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:k8s": "vite --mode portfolio",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test": "vitest run",
