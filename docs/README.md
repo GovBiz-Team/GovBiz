@@ -44,13 +44,14 @@
 ## 배포와 Kubernetes
 
 공고 업무의 첫 추출은 [Catalog 서비스 분리](catalog-service-extraction.md)에 정리했습니다.
-선택적 로컬 분리 모드이며 기존 AWS 운영과 전체 MSA 전환 완료를 의미하지 않습니다.
+루트 Compose의 기본 분리 경로이며 기존 AWS 운영과 전체 MSA 전환 완료를 의미하지 않습니다.
 
 기존 AWS EC2 Compose 배포와 로컬 Kubernetes 검증은 별도 경로입니다.
-아래 Infra 문서는 작업 브랜치를 가리키며, Argo CD·AWS Kubernetes 운영 전환 완료를 의미하지 않습니다.
+현재 Mac 유지형 portfolio는 비공개 GHCR·Argo CD와 연결됐지만 클라우드 운영 전환 완료를 의미하지 않습니다.
 
 | 문서 | 확인할 내용 |
 |---|---|
+| [현재 Kubernetes 아키텍처](assets/architecture/README-kubernetes.md) | Mac 웹·Core/Catalog/AI/Ops·독립 DB·비공개 GHCR·GitOps 경로와 미검증 구간 |
 | [기존 AWS 배포 구성](assets/architecture/README-aws-deployed.md) · [CodeBuild](deployment-codebuild.md) | Vercel·CloudFront·EC2 Compose·RDS와 기존 자동 배포 경로 |
 | [서비스·데이터 경계](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/service-boundaries.md) | Core·AI·Ops 데이터 소유권, 관리자 판정 위임과 서비스 추출 전 제약 |
 | [로컬 Kubernetes 재현](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/kubernetes-local.md) | Ops·MySQL kind 배포, 도구·이미지 준비와 검증용 리소스 정리 |

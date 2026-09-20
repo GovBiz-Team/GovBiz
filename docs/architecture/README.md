@@ -1,6 +1,6 @@
 # GovBiz 아키텍처와 디자인 패턴
 
-> 현재 운영 환경은 없습니다. 아래 AWS/Vercel 구성·배포 이력은 재구성 참고 자료이며 현재 가동 상태를 뜻하지 않습니다. 재배포 전 저장소·브랜치·대상 리소스와 비밀 설정을 다시 검토해야 합니다. 런타임 이름은 `core-service`·`ops-service`로 통일했습니다.
+> 현재는 Mac의 portfolio Kubernetes 환경에서 시연합니다. 클라우드 운영 환경은 없으며 AWS/Vercel 배포 이력은 과거 참고 자료입니다. 현재 실행·미검증 범위와 과거 구성을 구분합니다.
 
 [메인 README](../../README.md) · [문서 목록](../README.md) · [기술 스택](../technology.md)
 
@@ -16,15 +16,25 @@
 
 ## 시스템 구성
 
+![GovBiz 현재 로컬 Kubernetes 구성](../assets/architecture/govbiz-kubernetes-architecture.png)
+
+현재 웹은 Mac Vite → loopback port-forward → Kubernetes Core로 연결됩니다.
+Core·Catalog·AI·Ops의 독립 배포·DB 소유권, 비공개 GHCR과 Argo CD 경로는
+[현재 구성도 해설](../assets/architecture/README-kubernetes.md)에 정리했습니다.
+promotion의 10분 schedule 실제 발동과 운영 안정성 전체 검증은 아직 완료로 표시하지 않습니다.
+
+### 과거 AWS 구성과 단일 Core 업무 경로
+
 기술 로고가 포함된 이미지는 [로컬 구성 기록](../assets/architecture/README.md#로컬-구성-기록),
 [초기 배포 예정안](../assets/architecture/README-aws.md),
 [Vercel + AWS 배포 구성](../assets/architecture/README-aws-deployed.md)으로 구분합니다.
 
-![GovBiz Vercel + AWS 배포 구성](../assets/architecture/govbiz-aws-architecture-deployed.png)
-
-배포 구성은 `govbiz.vercel.app`의 `/api`를 서버 미들웨어·CloudFront VPC origin을 거쳐 비공개 EC2에 연결합니다.
+과거 배포 구성은 `govbiz.vercel.app`의 `/api`를 서버 미들웨어·CloudFront VPC origin을 거쳐 비공개 EC2에 연결했습니다.
 RDS·ECR·SSM·NAT·IGW와 CodeBuild 기반 백엔드 배포 경로도 표시합니다.
 기존 배포 확인 기록과 저장소 설정을 반영했으며, 2026-09-16 작성 시 AWS 세션 만료로 실시간 상태는 재조회하지 못했습니다.
+
+아래는 기존 embedded Core 모드의 업무 경로입니다. 현재 분리 모드에서는 수집·색인 소유자가 Catalog이고,
+Mac 무료 시연에서는 외부 수집·유료 AI·작업 큐를 꺼 두었습니다. 전체 경로가 현재 실행 중이라는 뜻은 아닙니다.
 
 ```mermaid
 flowchart LR

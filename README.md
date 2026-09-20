@@ -32,7 +32,8 @@ Compose가 생성하는 이름은 `<프로젝트명>-core-service-1`, `<프로�
 | 이미지 릴리스 | 네 서비스 비공개 GHCR 자동 발행 재개·실행 성공. infra의 검증된 digest 선택 → Mac Kubernetes·Argo CD 연결 구성 |
 | 다음 단계 | Ops 관리자 인증·LLMOps 업무 기능, NetworkPolicy·의존성 readiness·장기 작업 종료 검증, Mac 배포 운영·토큰 교체·데이터 백업 |
 
-**전체 MSA나 Kubernetes 운영 전환이 완료된 상태는 아닙니다.** 검증용 클러스터는 테스트 후 삭제했습니다.
+**전체 MSA나 Kubernetes 운영 전환이 완료된 상태는 아닙니다.** 이전 임시 검증 클러스터는 삭제했고,
+현재는 별도 `govbiz-portfolio` 클러스터를 Mac에 유지하며 무료 데모를 시연합니다.
 [실제 검증 기록](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/msa-validation-20260920.md)에서
 완료 범위와 미검증 항목을 확인할 수 있습니다.
 
@@ -46,6 +47,18 @@ Compose가 생성하는 이름은 `<프로젝트명>-core-service-1`, `<프로�
 `Core → 내부 HTTP API → 검증 → Core MySQL 조회용 복제본`으로 기존 관심 공고·파트너 모집 참조를 보존합니다.
 전환 호환성을 위해 기존 Core 수집 구현도 남아 있으나, 분리 모드에서는 실행되지 않습니다.
 [분리 범위·검증·운영 전환 조건](docs/catalog-service-extraction.md)을 참고하세요.
+
+## 현재 아키텍처
+
+![GovBiz 현재 로컬 Kubernetes 아키텍처](docs/assets/architecture/govbiz-kubernetes-architecture.png)
+
+[PNG·SVG와 구성도 해설](docs/assets/architecture/README-kubernetes.md) ·
+[Mac 실행·GitOps 안내](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/portfolio-gitops.md) ·
+[무료 데모](docs/portfolio-demo.md)
+
+기존 AWS 구성의 단순 이름 변경이 아니라, 현재 비공개 GHCR·Mac Kubernetes·Argo CD 경로를 표시합니다.
+주황 점선은 배포 제어 경로이며 **promotion schedule 실제 발동은 미확인**입니다.
+웹은 Mac 개발 서버이고, 외부 수집·유료 AI·SMTP/OAuth는 이번 시연에서 비활성입니다.
 
 ## 문서 안내
 

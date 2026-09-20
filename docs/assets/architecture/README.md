@@ -2,10 +2,22 @@
 
 주요 서비스 연결을 기술 로고와 함께 정리한 문서용 이미지입니다.
 **로컬 구성 기록(2026-09-12)**, **초기 배포 예정안(2026-09-13)**,
-**Vercel + AWS 배포 구성(2026-09-16 정리)**을 별도 파일로 관리합니다.
+**Vercel + AWS 배포 구성(2026-09-16 정리)**, **현재 Mac Kubernetes 구성(2026-09-20)**을 별도 파일로 관리합니다.
 이미지 제작은 앱 실행 코드나 배포 설정을 변경하지 않습니다.
 
-## Vercel + AWS 배포 구성
+## 현재 Mac Kubernetes · 비공개 GHCR · Argo CD
+
+![GovBiz 현재 로컬 Kubernetes 구성](govbiz-kubernetes-architecture.png)
+
+- [현재 구성 PNG](govbiz-kubernetes-architecture.png) · [SVG 원본](govbiz-kubernetes-architecture.svg)
+- [요청·배포 경로와 검증 범위](README-kubernetes.md)
+- [생성 스크립트](build-kubernetes.mjs) · [로고 출처·해시](kubernetes-logo-sources.json)
+
+Mac의 Vite 웹 → port-forward → Core, 독립 Catalog·AI·Ops와 DB,
+비공개 GHCR·infra digest 갱신·Argo CD 자동 반영을 표시합니다.
+10분 schedule 실제 발동 미확인과 유료 AI·수집 비활성을 구분하며 클라우드 운영 완료로 표현하지 않습니다.
+
+## Vercel + AWS 배포 구성 — 과거 기록
 
 - [배포 구성 PNG](govbiz-aws-architecture-deployed.png): 5,640 × 3,800.
 - [배포 구성 SVG](govbiz-aws-architecture-deployed.svg): 수정 가능한 벡터 원본.
