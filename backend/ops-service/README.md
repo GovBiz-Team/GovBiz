@@ -162,6 +162,10 @@ Compose의 DB 이름/사용자는 `govbiz4`로 고정하여 테스트 초기화 
 Kubernetes 매니페스트와 배포 이미지 버전은 별도 `GovBiz-infra` 저장소에서 관리합니다.
 이 이미지에는 클러스터 생성·Argo CD 설치·운영 데이터 변경 기능이 없습니다.
 
+Mac 유지형 포트폴리오 배포는 [GovBiz-infra의 GitOps 안내](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/portfolio-gitops.md)를 따릅니다.
+CI가 비공개 GHCR에 이미지를 발행하고, infra가 검증한 digest를 선택하면 Argo CD가 이 서비스의
+Deployment를 동기화합니다. 이미지 발행만으로 관리자 인증·업무 기능이 추가되는 것은 아닙니다.
+
 - 이미지 기본 명령은 `gunicorn config.wsgi:application`, 내부 포트는 `8000`입니다.
   worker 2개, worker 응답 정지 제한 30초, 종료 유예 25초이며 stdout/stderr로 로그를 냅니다.
 - UID/GID는 `10001:10001`입니다. Kubernetes에서 `runAsNonRoot: true`,
