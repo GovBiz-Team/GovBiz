@@ -10,7 +10,9 @@
 
 흐름은 `develop push → 세 CI 성공 → 서비스별 Git archive → GHCR → digest receipt`다.
 이후 `검토한 receipt → GovBiz-infra의 대상 values digest 변경 → Git 반영 → Argo CD`가 필요하다.
-현재 대상 환경·저장소 간 자동 쓰기·상시 클러스터는 연결하지 않았다.
+후속 Mac 환경은 GovBiz-infra의 `portfolio`다. infra가 성공 artifact를 주기적으로 확인해
+자신의 GITHUB_TOKEN으로 digest를 반영하며 cross-repository 쓰기 PAT는 사용하지 않는다.
+[Mac GitOps 안내](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/portfolio-gitops.md)를 따른다.
 **이미지 발행 CI와 운영 자동 배포 완료는 서로 다르다.**
 
 | 서비스 | 이미지 저장소 |
@@ -32,8 +34,10 @@
 - 최초 공개 발행 때 익명 manifest의 SHA-256 일치 및 모든 레이어의 HEAD 200을 확인했다.
   이후 사용자의 공개 결정 철회에 따라 **네 패키지를 삭제·재발행 없이 Private으로 전환**했고,
   새로운 익명 접근 요청은 네 패키지 모두 HTTP 401로 거절되는 것을 확인했다.
-- 현재 `MSA_RELEASE_ENABLED=false`로 자동 발행을 중지했으며 조직의 공개 패키지 생성 허용도 껐다.
+- 전환 중 `MSA_RELEASE_ENABLED=false`로 자동 발행을 중지하고 조직의 공개 패키지 생성 허용도 껐다.
   기존 이미지·digest·발행 이력과 develop 전용 Environment 정책은 유지했다.
+- 이후 사용자 승인으로 `MSA_RELEASE_ENABLED=true`를 재개했고
+  [비공개 발행 run](https://github.com/GovBiz-Team/GovBiz/actions/runs/35495417542)의 네 서비스가 모두 성공했다.
 - [패키지 목록](https://github.com/orgs/GovBiz-Team/packages?repo_name=GovBiz)은 권한 있는 계정으로 확인한다.
   전체 레이어 다운로드·비공개 전환 후 인증된 pull·상시 Kubernetes 배포는 아직 검증하지 않았다.
   이전에 다운로드한 외부 사본을 비공개 전환으로 회수할 수는 없다. 소스 저장소 공개 범위는 바꾸지 않았다.
@@ -43,7 +47,7 @@
 - Actions의 `GITHUB_TOKEN`에 `contents: read`, `actions: read`, 발행 job에만 `packages: write`를 준다.
   별도 장기 PAT나 AWS 액세스 키·OIDC 역할은 필요 없다.
 - `msa-release` Environment는 develop만 허용하도록 설정한다. 최초 발행 시 정책과 저장소 연결을 확인한다.
-- 현재 중지된 Repository Variable을 승인 후 `MSA_RELEASE_ENABLED=true`로 설정하면 후속 성공 CI에서 자동 발행된다.
+- 현재 Repository Variable은 `MSA_RELEASE_ENABLED=true`이며 후속 성공 CI에서 자동 발행한다.
   이미 테스트가 완료된 SHA는 Actions의 **MSA image candidates → Run workflow → develop**으로 재시도한다.
 - 조직에서 Actions의 패키지 생성 권한이 허용되어야 한다. 기존 동일 이름 패키지가 있으면
   GovBiz 저장소의 Actions 접근 권한을 확인한다. 권한 오류를 우회하기 위해 광범위 PAT를 추가하지 않는다.
@@ -53,7 +57,8 @@
 
 이미지에는 컴파일된 코드·Python 소스·의존성이 들어간다. 비공개여도 비밀값은 런타임 Secret으로만 주입한다.
 Kubernetes에는 별도로 `read:packages` 권한의 pull 인증이 필요하다. 해당 namespace의 Secret과
-Helm `imagePullSecrets` 참조를 준비하고 인증된 pull을 검증해야 한다. 아직 상시 클러스터 인증은 연결하지 않았다.
+Helm `imagePullSecrets` 참조와 인증된 pull 검증이 필요하다. Mac 환경에서는 전용 read-only classic PAT와
+`ghcr-pull` Secret을 사용하며 토큰 원문은 Git에 저장하지 않는다.
 Actions의 단기 GITHUB_TOKEN을 상시 클러스터 비밀값으로 복사하지 않는다.
 
 ## 재실행·부분 실패·오래된 커밋

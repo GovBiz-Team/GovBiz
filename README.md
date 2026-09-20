@@ -28,9 +28,9 @@ Compose가 생성하는 이름은 `<프로젝트명>-core-service-1`, `<프로�
 | Ops 로컬 개발 | 별도 Django 프로세스·MySQL, 상태 확인 API, 독립 테스트·컨테이너 검증 구현 |
 | Core 공고 기능 분리 | 별도 Catalog 프로세스·MySQL과 인증된 HTTP 복제 경로 구현. 루트 Compose의 기본 경로이며 기존 데이터 이전·운영 배포는 별도 |
 | Kubernetes | kind에서 Core·Catalog·AI·Ops와 독립 DB 실행, HTTP 복제·교차 DB 접근 거절·AI 단독 설정 롤아웃·Catalog 장애·테스트 데이터 복구 검증 완료 |
-| 로컬 GitOps | Argo CD Core가 원격 Git 설정을 동기화하고 AI만 자동 변경·복귀하는 것 검증 완료. 상시 클러스터·이미지 digest 자동 반영은 미연결 |
-| 이미지 릴리스 | 네 서비스 GHCR 첫 발행 성공 후 비공개 전환·익명 접근 차단 확인. 자동 발행은 일시 중지했으며 상시 배포와 비공개 pull 인증 연결은 별도 |
-| 다음 단계 | Ops 관리자 인증·LLMOps 업무 기능, NetworkPolicy·의존성 readiness·장기 작업 종료 검증, 이미지 릴리스 CI와 상시 배포 환경 연결 |
+| 로컬 GitOps | Argo CD Core 원격 Git 동기화·서비스별 변경/복귀 검증. Mac 유지형 portfolio 자동 배포 구성은 GovBiz-infra에서 관리하며 클라우드 운영은 아님 |
+| 이미지 릴리스 | 네 서비스 비공개 GHCR 자동 발행 재개·실행 성공. infra의 검증된 digest 선택 → Mac Kubernetes·Argo CD 연결 구성 |
+| 다음 단계 | Ops 관리자 인증·LLMOps 업무 기능, NetworkPolicy·의존성 readiness·장기 작업 종료 검증, Mac 배포 운영·토큰 교체·데이터 백업 |
 
 **전체 MSA나 Kubernetes 운영 전환이 완료된 상태는 아닙니다.** 검증용 클러스터는 테스트 후 삭제했습니다.
 [실제 검증 기록](https://github.com/GovBiz-Team/GovBiz-infra/blob/develop/docs/msa-validation-20260920.md)에서
